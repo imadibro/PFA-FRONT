@@ -8,15 +8,15 @@ import CreateSite from '@/views/site/Create'
 import { getServerMode } from '@core/utils/serverHelpers'
 
 export const metadata: Metadata = {
-  title: 'Create an Operation',
-  description: 'Operation Page'
+  title: 'Create an Site',
+  description: 'Site Page'
 }
 
-const CreateOperationPage = () => {
+const CreateSitePage = () => {
   // Vars
   const mode = getServerMode()
 
   return <CreateSite mode={mode} />
 }
 
-export default CreateOperationPage
+export default CreateSitePage
