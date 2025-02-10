@@ -28,6 +28,23 @@ const verticalMenuData = (): VerticalMenuDataType[] => [
         icon: 'tabler-plus'
       }
     ]
+  },
+  {
+    label: 'Site',
+    href: '/site',
+    icon: 'tabler-building',
+    children: [
+      {
+        label: 'Site List',
+        href: '/site',
+        icon: 'tabler-list'
+      },
+      {
+        label: 'Create site',
+        href: '/site/create',
+        icon: 'tabler-plus'
+      }
+    ]
   }
 ]
 
