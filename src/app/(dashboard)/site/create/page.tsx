@@ -2,21 +2,21 @@
 import type { Metadata } from 'next'
 
 // Component Imports
-import Tabs from '@views/operation/Tabs'
+import CreateSite from '@/views/site/Create'
 
 // Server Action Imports
 import { getServerMode } from '@core/utils/serverHelpers'
 
 export const metadata: Metadata = {
-  title: 'Operation',
+  title: 'Create an Operation',
   description: 'Operation Page'
 }
 
-const OperationPage = () => {
+const CreateOperationPage = () => {
   // Vars
   const mode = getServerMode()
 
-  return <Tabs mode={mode} />
+  return <CreateSite mode={mode} />
 }
 
-export default OperationPage
+export default CreateOperationPage

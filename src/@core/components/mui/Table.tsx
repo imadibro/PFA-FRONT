@@ -14,6 +14,7 @@ import CustomBadge from './Badge'
 // Type Imports
 type TableProps = {
   data: any[]
+  headBg?: string
 }
 
 type RowProps = {
@@ -87,7 +88,7 @@ const Row = ({ row, columns }: RowProps) => {
   )
 }
 
-const CustomTable = ({ data }: TableProps) => {
+const CustomTable = ({ data, headBg = 'primary' }: TableProps) => {
   const columns = data.length > 0 ? Object.keys(data[0]) : []
   return (
     <StyledTableContainer>
@@ -100,12 +101,14 @@ const CustomTable = ({ data }: TableProps) => {
                 align={'left'}
                 sx={{
                   fontWeight: 'bold',
-                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                  backgroundColor: `var(--mui-palette-${headBg}-lightOpacity)`,
                   padding: '12px 16px',
+                  color: `var(--mui-palette-${headBg}-main)`,
                   textTransform: 'capitalize',
-                  borderBottom: '2px solid #ccc',
+                  borderBottom: `2px solid var(--mui-palette-${headBg}-main)`,
                   '&:hover': {
-                    backgroundColor: 'rgba(0, 0, 0, 0.1)'
+                    backgroundColor: `var(--mui-palette-${headBg}-main)`,
+                    color: `white`
                   }
                 }}
               >
