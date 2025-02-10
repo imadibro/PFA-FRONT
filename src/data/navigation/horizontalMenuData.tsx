@@ -11,6 +11,23 @@ const horizontalMenuData = (): HorizontalMenuDataType[] => [
     label: 'About',
     href: '/about',
     icon: 'tabler-info-circle'
+  },
+  {
+    label: 'Operation',
+    href: '/operation',
+    icon: 'tabler-list-check',
+    children: [
+      {
+        label: 'Operation List',
+        href: '/operation',
+        icon: 'tabler-list'
+      },
+      {
+        label: 'Create Operation',
+        href: '/operation/create',
+        icon: 'tabler-plus'
+      }
+    ]
   }
 ]
 
