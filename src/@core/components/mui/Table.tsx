@@ -55,6 +55,7 @@ const Row = ({ row, columns }: RowProps) => {
               <div className='flex justify-evenly'>
                 {value.map((item, index) => (
                   <CustomBadge
+                    key={index}
                     tonal='true'
                     color='primary'
                     badgeContent={item.label}
@@ -71,7 +72,12 @@ const Row = ({ row, columns }: RowProps) => {
             <TableCell key={col} align={'left'}>
               {Object.entries(value).map(([subKey, subValue]) => (
                 <div key={subKey}>
-                  <strong>{subKey}:</strong> {subValue + ''}
+                  <CustomBadge
+                    tonal='true'
+                    color={subValue == 'high' ? 'error' : 'default'}
+                    badgeContent={subValue + ''}
+                    sx={{ marginLeft: '8px', minWidth: '30%' }}
+                  ></CustomBadge>
                 </div>
               ))}
             </TableCell>

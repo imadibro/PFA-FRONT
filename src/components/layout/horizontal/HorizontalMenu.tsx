@@ -5,7 +5,7 @@ import { useTheme } from '@mui/material/styles'
 import type { VerticalMenuContextProps } from '@menu/components/vertical-menu/Menu'
 
 // Component Imports
-import HorizontalNav, { Menu, MenuItem } from '@menu/horizontal-menu'
+import HorizontalNav, { Menu, MenuItem, SubMenu } from '@menu/horizontal-menu'
 import VerticalNavContent from './VerticalNavContent'
 
 // Hook Imports
@@ -21,6 +21,7 @@ import menuRootStyles from '@core/styles/horizontal/menuRootStyles'
 import verticalNavigationCustomStyles from '@core/styles/vertical/navigationCustomStyles'
 import verticalMenuItemStyles from '@core/styles/vertical/menuItemStyles'
 import verticalMenuSectionStyles from '@core/styles/vertical/menuSectionStyles'
+import horizontalMenuData from '@/data/navigation/horizontalMenuData'
 
 type RenderExpandIconProps = {
   level?: number
@@ -42,6 +43,23 @@ const RenderVerticalExpandIcon = ({ open, transitionDuration }: RenderVerticalEx
     <i className='tabler-chevron-right' />
   </StyledVerticalNavExpandIcon>
 )
+
+const renderMenuItems = (menuData: any[]) => {
+  return menuData.map(item => {
+    if (item.children) {
+      return (
+        <SubMenu key={item.href} label={item.label} icon={<i className={item.icon} />}>
+          {renderMenuItems(item.children)}
+        </SubMenu>
+      )
+    }
+    return (
+      <MenuItem key={item.href} href={item.href} icon={<i className={item.icon} />}>
+        {item.label}
+      </MenuItem>
+    )
+  })
+}
 
 const HorizontalMenu = () => {
   // Hooks
@@ -78,12 +96,7 @@ const HorizontalMenu = () => {
           menuSectionStyles: verticalMenuSectionStyles(verticalNavOptions, theme)
         }}
       >
-        <MenuItem href='/' icon={<i className='tabler-smart-home' />}>
-          Home
-        </MenuItem>
-        <MenuItem href='/about' icon={<i className='tabler-info-circle' />}>
-          About
-        </MenuItem>
+        {renderMenuItems(horizontalMenuData())}
       </Menu>
       {/* <Menu
         rootStyles={menuRootStyles(theme)}
