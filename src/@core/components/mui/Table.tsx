@@ -59,7 +59,7 @@ const Row = ({ row, columns }: RowProps) => {
                     tonal='true'
                     color='primary'
                     badgeContent={item.label}
-                    sx={{ marginLeft: '8px', minWidth: '30%' }}
+                    sx={{ marginLeft: '8px', minWidth: '30%', height: '100%' }}
                   ></CustomBadge>
                 ))}
               </div>

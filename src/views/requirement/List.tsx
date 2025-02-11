@@ -5,92 +5,31 @@ import CustomIconButton from '@/@core/components/mui/IconButton'
 import { useState } from 'react'
 import CustomModal from '@/@core/components/mui/Modal'
 import CreateRequirement from './Create'
-
-const sampleData = [
-  {
-    id: 1,
-    label: 'Frozen yoghurt',
-    description: 'this is a description',
-    priority: {
-      label: 'high'
-    }
-  },
-  {
-    id: 2,
-    label: 'Ice cream sandwich',
-    description: 'this is a description',
-    priority: {
-      label: 'medium'
-    }
-  },
-  {
-    id: 3,
-    label: 'Eclair',
-    description: 'this is a description',
-    priority: {
-      label: 'medium'
-    }
-  },
-  {
-    id: 4,
-    label: 'Cupcake',
-    description: 'this is a description',
-    priority: {
-      label: 'medium'
-    }
-  },
-  {
-    id: 5,
-    label: 'Gingerbread',
-    description: 'this is a description',
-    priority: {
-      label: 'medium'
-    }
-  },
-  {
-    id: 6,
-    label: 'Lollipop',
-    description: 'this is a description',
-    priority: {
-      label: 'medium'
-    }
-  },
-  {
-    id: 7,
-    label: 'Macaron',
-    description: 'this is a description',
-    priority: {
-      label: 'medium'
-    }
-  },
-  {
-    id: 8,
-    label: 'Churros',
-    description: 'this is a description',
-    priority: {
-      label: 'medium'
-    }
-  },
-  {
-    id: 9,
-    label: 'Pavlova',
-    description: 'this is a description',
-    priority: {
-      label: 'medium'
-    }
-  },
-  {
-    id: 10,
-    label: 'Tiramisu',
-    description: 'this is a description',
-    priority: {
-      label: 'medium'
-    }
-  }
-]
+import { Skeleton } from '@mui/material'
+import { useGetRequirementQuery } from '@/store/features/requirement/requirementApi'
 
 const RequirementList = ({ mode }: { mode: SystemMode }) => {
   const [openModal, setOpenModal] = useState(false)
+
+  const { data, error, isLoading } = useGetRequirementQuery()
+
+  if (error) {
+    const errorMessage =
+      'status' in error
+        ? `Error ${error.status}: ${(error.data as any)?.message || 'Unknown error'}`
+        : error.message || 'An unknown error occurred'
+
+    return <div>Error: {errorMessage}</div>
+  }
+
+  if (isLoading)
+    return (
+      <div>
+        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
+        <Skeleton variant='rectangular' width={'100%'} height={50} />
+        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
+      </div>
+    )
 
   return (
     <div className='bg-backgroundPaper p-6'>
@@ -112,7 +51,7 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
           <CreateRequirement mode={mode} />
         </CustomModal>
       </div>
-      <Table data={sampleData} />
+      <Table data={data} />
     </div>
   )
 }
