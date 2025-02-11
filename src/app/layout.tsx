@@ -12,9 +12,14 @@ import '@assets/iconify-icons/generated-icons.css'
 import ReduxProvider from '@/store/provider'
 
 export const metadata = {
-  title: 'Vuexy - MUI Next.js Admin Dashboard Template',
+  title: 'UPTEL - Company',
   description:
-    'Vuexy - MUI Next.js Admin Dashboard Template - is the most developer friendly & highly customizable Admin Dashboard Template based on MUI v5.'
+    'UPTEL - MUI Next.js Admin Dashboard Template - is the most developer friendly & highly customizable Admin Dashboard Template based on MUI v5.',
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png'
+  }
 }
 
 const RootLayout = ({ children }: ChildrenType) => {
