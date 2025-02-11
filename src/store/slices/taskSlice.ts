@@ -1,4 +1,4 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 interface TasksState {
   tasks: TaskItem[]
@@ -14,13 +14,7 @@ const initialState: TasksState = { tasks: [] }
 const taskSlice = createSlice({
   name: 'task',
   initialState,
-  reducers: {
-    // getTasks:(state,action:PayloadAction<TasksState[]>){
-    //   const appPlanLimitations = queryClient.getQueryData<AppLimits>([
-    //     'app-limits',
-    //   ]);
-    // }
-  }
+  reducers: {}
 })
 
 // export const { createTask, deleteTask, getTasks } = taskSlice.actions
