@@ -44,7 +44,7 @@ const columns = (): GridColDef[] => {
       flex: 1,
       minWidth: 170,
       field: 'createdAt',
-      headerName: 'Creation BC',
+      headerName: 'Creation T',
       renderCell: ({ row }: CellType) => (
         <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
           {formatDateFR(new Date(row.createdAt))}

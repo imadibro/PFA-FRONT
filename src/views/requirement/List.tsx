@@ -1,11 +1,10 @@
 import type { SystemMode } from '@core/types'
-import Table from '@core/components/mui/Table'
 import Typography from '@mui/material/Typography'
 import CustomIconButton from '@/@core/components/mui/IconButton'
 import { ChangeEvent, useState } from 'react'
 import CustomModal from '@/@core/components/mui/Modal'
 import CreateRequirement from './Create'
-import { Badge, Chip, Skeleton } from '@mui/material'
+import { Chip, Skeleton } from '@mui/material'
 import { useGetRequirementQuery } from '@/store/features/requirement/requirementApi'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { formatDateFR } from '@/@core/utils/format'
@@ -60,7 +59,7 @@ const columns = (): GridColDef[] => {
       flex: 1,
       minWidth: 170,
       field: 'createdAt',
-      headerName: 'Creation BC',
+      headerName: 'Creation R',
       renderCell: ({ row }: CellType) => (
         <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
           {formatDateFR(new Date(row.createdAt))}
@@ -83,17 +82,17 @@ const columns = (): GridColDef[] => {
 const RequirementList = ({ mode }: { mode: SystemMode }) => {
   const [openModal, setOpenModal] = useState(false)
   const [searchText, setSearchText] = useState<string>('')
-  const [filteredData, setFilteredData] = useState<ITask[]>([])
+  const [filteredData, setFilteredData] = useState<IRequirement[]>([])
   const [isFiltering, setIsFiltering] = useState(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
 
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
     const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
-    const filteredRows = data.filter((row: ITask) => {
+    const filteredRows = data.filter((row: IRequirement) => {
       return Object.keys(row).some(field => {
-        if (row[field as keyof ITask] !== null && row[field as keyof ITask] !== undefined) {
-          return searchRegex.test(row[field as keyof ITask]!.toString())
+        if (row[field as keyof IRequirement] !== null && row[field as keyof IRequirement] !== undefined) {
+          return searchRegex.test(row[field as keyof IRequirement]!.toString())
         }
       })
     })
