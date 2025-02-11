@@ -8,7 +8,7 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import type { VerticalMenuContextProps } from '@menu/components/vertical-menu/Menu'
 
 // Component Imports
-import { Menu, MenuItem } from '@menu/vertical-menu'
+import { Menu, MenuItem, SubMenu } from '@menu/vertical-menu'
 
 // Hook Imports
 import useVerticalNav from '@menu/hooks/useVerticalNav'
@@ -19,6 +19,9 @@ import StyledVerticalNavExpandIcon from '@menu/styles/vertical/StyledVerticalNav
 // Style Imports
 import menuItemStyles from '@core/styles/vertical/menuItemStyles'
 import menuSectionStyles from '@core/styles/vertical/menuSectionStyles'
+
+// Menu Data
+import verticalMenuData from '@/data/navigation/verticalMenuData'
 
 type RenderExpandIconProps = {
   open?: boolean
@@ -34,6 +37,23 @@ const RenderExpandIcon = ({ open, transitionDuration }: RenderExpandIconProps) =
     <i className='tabler-chevron-right' />
   </StyledVerticalNavExpandIcon>
 )
+
+const renderMenuItems = (menuData: any[]) => {
+  return menuData.map(item => {
+    if (item.children) {
+      return (
+        <SubMenu key={item.href} label={item.label} icon={<i className={item.icon} />}>
+          {renderMenuItems(item.children)}
+        </SubMenu>
+      )
+    }
+    return (
+      <MenuItem key={item.href} href={item.href} icon={<i className={item.icon} />}>
+        {item.label}
+      </MenuItem>
+    )
+  })
+}
 
 const VerticalMenu = ({ scrollMenu }: Props) => {
   // Hooks
@@ -68,12 +88,7 @@ const VerticalMenu = ({ scrollMenu }: Props) => {
         renderExpandedMenuItemIcon={{ icon: <i className='tabler-circle text-xs' /> }}
         menuSectionStyles={menuSectionStyles(verticalNavOptions, theme)}
       >
-        <MenuItem href='/home' icon={<i className='tabler-smart-home' />}>
-          Home
-        </MenuItem>
-        <MenuItem href='/about' icon={<i className='tabler-info-circle' />}>
-          About
-        </MenuItem>
+        {renderMenuItems(verticalMenuData())}
       </Menu>
       {/* <Menu
         popoutMenuOffset={{ mainAxis: 23 }}
