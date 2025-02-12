@@ -14,8 +14,19 @@ export const siteApi = api.injectEndpoints({
         body: newSite
       }),
       invalidatesTags: [{ type: 'Site', id: 'LIST' }]
+    }),
+    mapRequirementsToSite: builder.mutation<any, { siteId: string; requirementsIds: string[] }>({
+      query: payload => ({
+        url: `site/${payload.siteId}/requirements`,
+        method: 'PATCH',
+        body: payload
+      }),
+      invalidatesTags: [
+        { type: 'Site', id: 'LIST' },
+        { type: 'RequirementsWithNoSite', id: 'LIST' }
+      ]
     })
   })
 })
 
-export const { useGetSiteQuery } = siteApi
+export const { useGetSiteQuery, useCreateSiteMutation, useMapRequirementsToSiteMutation } = siteApi

@@ -15,8 +15,13 @@ export const requirementApi = api.injectEndpoints({
         body: newRequirement
       }),
       invalidatesTags: [{ type: 'Requirement', id: 'LIST' }]
+    }),
+    GetNotAssignedRequirements: builder.query<any, FetchBaseQueryError | SerializedError | void>({
+      query: () => `requirement/withNoSite`,
+      providesTags: [{ type: 'RequirementsWithNoSite', id: 'LIST' }]
     })
   })
 })
 
-export const { useGetRequirementQuery, useCreateRequirementMutation } = requirementApi
+export const { useGetRequirementQuery, useCreateRequirementMutation, useGetNotAssignedRequirementsQuery } =
+  requirementApi

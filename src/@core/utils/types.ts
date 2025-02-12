@@ -17,3 +17,10 @@ interface IOperation {
   description: string
   tasks?: ITask[]
 }
+
+interface ISite {
+  id: string
+  label: string
+  description: string
+  requirements?: IRequirement[]
+}

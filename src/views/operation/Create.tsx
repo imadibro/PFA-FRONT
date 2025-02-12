@@ -123,7 +123,7 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
             <div className='mb-4'>
               <TextField size='small' name='label' label='label' placeholder='label' required fullWidth />
               <Typography variant='body2' color='textSecondary'>
-                Give your task a clear and concise name.
+                Give your operation a clear and concise name.
               </Typography>
             </div>
             <div className='mb-4'>
@@ -138,7 +138,7 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
                 multiline
               />
               <Typography variant='body2' color='textSecondary'>
-                Give your task a clear and concise description.
+                Give your operation a clear and concise description.
               </Typography>
             </div>
           </form>
