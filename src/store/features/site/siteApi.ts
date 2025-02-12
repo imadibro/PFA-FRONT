@@ -5,9 +5,10 @@ import { SerializedError } from '@reduxjs/toolkit'
 export const siteApi = api.injectEndpoints({
   endpoints: builder => ({
     getSite: builder.query<any, FetchBaseQueryError | SerializedError | void>({
-      query: () => 'site'
+      query: () => 'site',
+      providesTags: [{ type: 'Site', id: 'LIST' }]
     }),
-    createSite: builder.mutation<any, { label: string; description: string }>({
+    createSite: builder.mutation<any, { label: string; siteNbr: string; description: string }>({
       query: newSite => ({
         url: 'site',
         method: 'POST',

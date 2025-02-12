@@ -19,6 +19,17 @@ const columns = (): GridColDef[] => {
     {
       flex: 1,
       minWidth: 180,
+      field: 'siteNbr',
+      headerName: 'site Number',
+      renderCell: ({ row }: CellType) => (
+        <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }} title={row.siteNbr}>
+          {row.siteNbr}
+        </Typography>
+      )
+    },
+    {
+      flex: 1,
+      minWidth: 180,
       field: 'label',
       headerName: 'Label',
       renderCell: ({ row }: CellType) => (
@@ -44,7 +55,7 @@ const columns = (): GridColDef[] => {
       field: 'requirements',
       headerName: 'Requirements',
       renderCell: ({ row }: CellType) => (
-        <div className='text-center' title='Requirements'>
+        <div className='text-center space-x-1' title='Requirements'>
           {row.requirements?.map((requirement: IRequirement) => (
             <Chip label={requirement.label} color='info' variant='outlined' />
           ))}

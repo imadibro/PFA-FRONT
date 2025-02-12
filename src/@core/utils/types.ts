@@ -21,6 +21,7 @@ interface IOperation {
 interface ISite {
   id: string
   label: string
+  siteNbr: string
   description: string
   requirements?: IRequirement[]
 }

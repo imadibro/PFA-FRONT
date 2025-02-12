@@ -91,9 +91,10 @@ const CreateSite = ({
     event.preventDefault()
     const formData = new FormData(event.currentTarget as HTMLFormElement)
     const label = formData.get('label') as string
+    const siteNbr = formData.get('siteNbr') as string
     const description = formData.get('description') as string
     try {
-      const response: IOperation = await createSite({ label, description }).unwrap()
+      const response: ISite = await createSite({ label, siteNbr, description }).unwrap()
       setCreatedSite(response)
       setActiveStep(1)
     } catch (err) {
@@ -135,6 +136,12 @@ const CreateSite = ({
               <TextField size='small' name='label' label='label' placeholder='label' required fullWidth />
               <Typography variant='body2' color='textSecondary'>
                 Give your Site a clear and concise name.
+              </Typography>
+            </div>
+            <div className='mb-4'>
+              <TextField size='small' name='siteNbr' label='site Number' placeholder='site Number' required fullWidth />
+              <Typography variant='body2' color='textSecondary'>
+                Give your Site Number a clear and concise Number.
               </Typography>
             </div>
             <div className='mb-4'>
