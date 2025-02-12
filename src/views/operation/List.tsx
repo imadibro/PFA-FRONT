@@ -6,6 +6,9 @@ import { ChangeEvent, useState } from 'react'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { formatDateFR } from '@/@core/utils/format'
 import { Chip, Skeleton } from '@mui/material'
+import CustomModal from '@/@core/components/mui/Modal'
+import CreateOperation from './Create'
+import CustomIconButton from '@/@core/components/mui/IconButton'
 
 interface CellType {
   row: any
@@ -70,6 +73,7 @@ const columns = (): GridColDef[] => {
 }
 
 const OperationList = ({ mode }: { mode: SystemMode }) => {
+  const [openModal, setOpenModal] = useState(false)
   const [searchText, setSearchText] = useState<string>('')
   const [filteredData, setFilteredData] = useState<IRequirement[]>([])
   const [isFiltering, setIsFiltering] = useState(false)
@@ -115,9 +119,24 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
 
   return (
     <div className='bg-backgroundPaper p-6'>
-      <Typography variant='h2' className='my-2'>
-        Operation List
-      </Typography>
+      <div className='flex justify-between items-center'>
+        <Typography variant='h2' className='my-2'>
+          Operation List
+        </Typography>
+        <CustomIconButton
+          onClick={() => setOpenModal(true)}
+          color='primary'
+          variant='tonal'
+          size='small'
+          className='h-10'
+        >
+          <span className='tabler-plus w-5 h-5 mr-2' />
+          Add
+        </CustomIconButton>
+        <CustomModal onClose={() => setOpenModal(false)} open={openModal}>
+          <CreateOperation mode={mode} />
+        </CustomModal>
+      </div>
       <DataGrid
         rowHeight={62}
         loading={isLoading}
