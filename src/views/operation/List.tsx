@@ -10,7 +10,7 @@ import CustomModal from '@/@core/components/mui/Modal'
 import CreateOperation from './Create'
 import CustomIconButton from '@/@core/components/mui/IconButton'
 import { useGetNotAssignedTasksQuery } from '@/store/features/task/taskApi'
-import useSweetAlert from '@/components/common/useSweetAlert'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
 interface CellType {
   row: any

@@ -10,7 +10,7 @@ import CustomModal from '@/@core/components/mui/Modal'
 import CustomIconButton from '@/@core/components/mui/IconButton'
 import CreateSite from './Create'
 import { useGetNotAssignedRequirementsQuery } from '@/store/features/requirement/requirementApi'
-import useSweetAlert from '@/components/common/useSweetAlert'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
 interface CellType {
   row: any

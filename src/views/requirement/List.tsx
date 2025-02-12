@@ -10,7 +10,7 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { formatDateFR } from '@/@core/utils/format'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
-import useSweetAlert from '@/components/common/useSweetAlert'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
 interface CellType {
   row: any
