@@ -19,11 +19,22 @@ export const taskApi = api.injectEndpoints({
         { type: 'TasksWithNoOperation', id: 'LIST' }
       ]
     }),
-    GetNotAssignedTasks: builder.query<any, FetchBaseQueryError | SerializedError | void>({
+    getNotAssignedTasks: builder.query<any, FetchBaseQueryError | SerializedError | void>({
       query: () => `task/withNoOperation`,
       providesTags: [{ type: 'TasksWithNoOperation', id: 'LIST' }]
+    }),
+    deleteTask: builder.mutation<any, { taskId: string }>({
+      query: task => ({
+        url: `task/${task.taskId}`,
+        method: 'DELETE'
+      }),
+      invalidatesTags: [
+        { type: 'TasksWithNoOperation', id: 'LIST' },
+        { type: 'Task', id: 'LIST' },
+        { type: 'Operation', id: 'LIST' }
+      ]
     })
   })
 })
 
-export const { useGetTasksQuery, useCreateTaskMutation, useGetNotAssignedTasksQuery } = taskApi
+export const { useGetTasksQuery, useCreateTaskMutation, useGetNotAssignedTasksQuery, useDeleteTaskMutation } = taskApi
