@@ -1,20 +1,90 @@
 import type { SystemMode } from '@core/types'
 import Typography from '@mui/material/Typography'
-import { useGetOperationsQuery } from '@/store/features/operation/operationApi'
+import { useDeleteOperationMutation, useGetOperationsQuery } from '@/store/features/operation/operationApi'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, MouseEvent, useState } from 'react'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { formatDateFR } from '@/@core/utils/format'
-import { Chip, Skeleton } from '@mui/material'
+import { Chip, IconButton, Menu, MenuItem, Skeleton } from '@mui/material'
 import CustomModal from '@/@core/components/mui/Modal'
 import CreateOperation from './Create'
 import CustomIconButton from '@/@core/components/mui/IconButton'
 import { useGetNotAssignedTasksQuery } from '@/store/features/task/taskApi'
+import useSweetAlert from '@/components/common/useSweetAlert'
 
 interface CellType {
   row: any
 }
-const columns = (): GridColDef[] => {
+
+interface RowOptionProps {
+  row: IOperation
+  toggleEditMode: (object: IOperation) => void
+  deleteObject: (id: string) => void
+}
+
+interface ColumnsProps {
+  toggleEditMode: (site: IOperation) => void
+  deleteObject: (id: string) => void
+}
+
+const RowOptions = ({ row, toggleEditMode, deleteObject }: RowOptionProps) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const rowOptionsOpen = Boolean(anchorEl)
+
+  const handleRowOptionsClick = (event: MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleRowOptionsClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleEdit = () => {
+    toggleEditMode(row)
+    setAnchorEl(null)
+  }
+
+  const handleDelete = () => {
+    if (row?.id) {
+      deleteObject(row.id)
+    }
+    handleRowOptionsClose()
+  }
+
+  return (
+    <>
+      <IconButton size='small' onClick={handleRowOptionsClick}>
+        <i className='tabler-dots-vertical' />
+      </IconButton>
+      <Menu
+        keepMounted
+        anchorEl={anchorEl}
+        open={rowOptionsOpen}
+        onClose={handleRowOptionsClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right'
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right'
+        }}
+        PaperProps={{ style: { minWidth: '8rem' } }}
+      >
+        <MenuItem onClick={handleEdit} sx={{ '& i, & svg': { mr: 2 } }}>
+          <i className='tabler-edit text-green-500' />
+          Modifier
+        </MenuItem>
+        <MenuItem onClick={handleDelete} sx={{ '& svg': { mr: 2 } }}>
+          <i className='tabler-trash text-red-500' />
+          Supprimer
+        </MenuItem>
+      </Menu>
+    </>
+  )
+}
+
+const columns = ({ toggleEditMode, deleteObject }: ColumnsProps): GridColDef[] => {
   return [
     {
       flex: 1,
@@ -65,10 +135,10 @@ const columns = (): GridColDef[] => {
       field: 'actions',
       headerName: 'Actions',
       width: 100,
-      sortable: false
-      // renderCell: ({ row }: CellType) => (
-      //   <RowOptions toggleEditMode={toggleEditMode} deleteObject={deleteObject} row={row} setIsPDFLoading={setIsPDFLoading} />
-      // )
+      sortable: false,
+      renderCell: ({ row }: CellType) => (
+        <RowOptions toggleEditMode={toggleEditMode} deleteObject={deleteObject} row={row} />
+      )
     }
   ]
 }
@@ -79,6 +149,13 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
   const [filteredData, setFilteredData] = useState<IRequirement[]>([])
   const [isFiltering, setIsFiltering] = useState(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [operationToEdit, setOperationToEdit] = useState<ITask | null>(null)
+  const [isEditMode, setIsEditMode] = useState<boolean>(false)
+
+  const { showAlert, showConfirm, showToast } = useSweetAlert()
+  const [deleteOperation, { isLoading: deleteOperationIsLoading, isError, error: deleteOperationError, isSuccess }] =
+    useDeleteOperationMutation()
 
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
@@ -118,7 +195,25 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
         <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
       </div>
     )
+  const toggleForm = () => setIsOpen(prevState => !prevState)
 
+  const toggleEditMode = (operation: IOperation) => {
+    setIsEditMode(true)
+    setOperationToEdit(operation)
+    toggleForm()
+  }
+
+  const handleDelete = async (id: string) => {
+    const confirmed = await showConfirm('Are you sure?', "You won't be able to revert this!", 'Delete', 'Cancel')
+    if (confirmed) {
+      try {
+        await deleteOperation({ operationId: id })
+        showToast('Deleted successfully!', 'success')
+      } catch (error) {
+        showAlert('Error', 'Something wrong went happedn while trying to delete the operation', 'error')
+      }
+    }
+  }
   return (
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
@@ -148,7 +243,7 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
         loading={isLoading}
         rows={data}
         localeText={{ noRowsLabel: 'Aucune donnes a afficher' }}
-        columns={columns()}
+        columns={columns({ toggleEditMode, deleteObject: handleDelete })}
         // slots={{ toolbar: QuickSearchToolbar }}
         slotProps={{
           baseButton: {

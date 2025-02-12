@@ -26,8 +26,19 @@ export const siteApi = api.injectEndpoints({
         { type: 'Site', id: 'LIST' },
         { type: 'RequirementsWithNoSite', id: 'LIST' }
       ]
+    }),
+    deleteSite: builder.mutation<any, { siteId: string }>({
+      query: site => ({
+        url: `site/${site.siteId}`,
+        method: 'DELETE'
+      }),
+      invalidatesTags: [
+        { type: 'RequirementsWithNoSite', id: 'LIST' },
+        { type: 'Site', id: 'LIST' }
+      ]
     })
   })
 })
 
-export const { useGetSiteQuery, useCreateSiteMutation, useMapRequirementsToSiteMutation } = siteApi
+export const { useGetSiteQuery, useCreateSiteMutation, useMapRequirementsToSiteMutation, useDeleteSiteMutation } =
+  siteApi

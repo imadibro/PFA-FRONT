@@ -154,7 +154,7 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
   const [isFiltering, setIsFiltering] = useState(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [taskToEdit, setTaskToEdit] = useState<ITask | null>(null)
+  const [requirementToEdit, setRequirementToEdit] = useState<ITask | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
   const { showAlert, showConfirm, showToast } = useSweetAlert()
@@ -186,7 +186,7 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
 
   const toggleEditMode = (task: ITask) => {
     setIsEditMode(true)
-    setTaskToEdit(task)
+    setRequirementToEdit(task)
     toggleForm()
   }
 

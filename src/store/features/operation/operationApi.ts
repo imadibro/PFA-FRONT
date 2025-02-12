@@ -26,8 +26,23 @@ export const operationApi = api.injectEndpoints({
         { type: 'Operation', id: 'LIST' },
         { type: 'TasksWithNoOperation', id: 'LIST' }
       ]
+    }),
+    deleteOperation: builder.mutation<any, { operationId: string }>({
+      query: operation => ({
+        url: `operation/${operation.operationId}`,
+        method: 'DELETE'
+      }),
+      invalidatesTags: [
+        { type: 'TasksWithNoOperation', id: 'LIST' },
+        { type: 'Operation', id: 'LIST' }
+      ]
     })
   })
 })
 
-export const { useGetOperationsQuery, useCreateOperationMutation, useMapTasksToOperationMutation } = operationApi
+export const {
+  useGetOperationsQuery,
+  useCreateOperationMutation,
+  useMapTasksToOperationMutation,
+  useDeleteOperationMutation
+} = operationApi

@@ -23,7 +23,7 @@ interface RowOptionProps {
 }
 
 interface ColumnsProps {
-  toggleEditMode: (supplierOrder: ITask) => void
+  toggleEditMode: (task: ITask) => void
   deleteObject: (id: string) => void
 }
 
