@@ -9,6 +9,7 @@ import { Chip, Skeleton } from '@mui/material'
 import CustomModal from '@/@core/components/mui/Modal'
 import CreateOperation from './Create'
 import CustomIconButton from '@/@core/components/mui/IconButton'
+import { useGetNotAssignedTasksQuery } from '@/store/features/task/taskApi'
 
 interface CellType {
   row: any
@@ -43,7 +44,7 @@ const columns = (): GridColDef[] => {
       field: 'tasks',
       headerName: 'Taches',
       renderCell: ({ row }: CellType) => (
-        <div className='text-center' title='Taches'>
+        <div className='text-center space-x-1' title='Taches'>
           {row.tasks?.map((task: ITask) => <Chip label={task.label} color='info' variant='outlined' />)}
         </div>
       )
@@ -98,6 +99,7 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
     }
   }
   const { data, error, isLoading } = useGetOperationsQuery()
+  const { data: taskData, error: taskError, isLoading: isLoadingTasks } = useGetNotAssignedTasksQuery()
 
   if (error) {
     const errorMessage =
@@ -123,19 +125,23 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
         <Typography variant='h2' className='my-2'>
           Operation List
         </Typography>
-        <CustomIconButton
-          onClick={() => setOpenModal(true)}
-          color='primary'
-          variant='tonal'
-          size='small'
-          className='h-10'
-        >
-          <span className='tabler-plus w-5 h-5 mr-2' />
-          Add
-        </CustomIconButton>
-        <CustomModal onClose={() => setOpenModal(false)} open={openModal}>
-          <CreateOperation mode={mode} />
-        </CustomModal>
+        {!isLoadingTasks && !taskError && (
+          <div>
+            <CustomIconButton
+              onClick={() => setOpenModal(true)}
+              color='primary'
+              variant='tonal'
+              size='small'
+              className='h-10'
+            >
+              <span className='tabler-plus w-5 h-5 mr-2' />
+              Add
+            </CustomIconButton>
+            <CustomModal onClose={() => setOpenModal(false)} open={openModal}>
+              <CreateOperation mode={mode} tasks={taskData} close={() => setOpenModal(false)} />
+            </CustomModal>
+          </div>
+        )}
       </div>
       <DataGrid
         rowHeight={62}

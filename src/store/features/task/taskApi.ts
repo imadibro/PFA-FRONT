@@ -14,9 +14,16 @@ export const taskApi = api.injectEndpoints({
         method: 'POST',
         body: newTask
       }),
-      invalidatesTags: [{ type: 'Task', id: 'LIST' }]
+      invalidatesTags: [
+        { type: 'Task', id: 'LIST' },
+        { type: 'TasksWithNoOperation', id: 'LIST' }
+      ]
+    }),
+    GetNotAssignedTasks: builder.query<any, FetchBaseQueryError | SerializedError | void>({
+      query: () => `task/withNoOperation`,
+      providesTags: [{ type: 'TasksWithNoOperation', id: 'LIST' }]
     })
   })
 })
 
-export const { useGetTasksQuery, useCreateTaskMutation } = taskApi
+export const { useGetTasksQuery, useCreateTaskMutation, useGetNotAssignedTasksQuery } = taskApi

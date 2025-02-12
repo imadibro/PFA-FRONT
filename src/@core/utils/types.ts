@@ -10,3 +10,10 @@ interface IRequirement {
   description: string
   priority: string
 }
+
+interface IOperation {
+  id: string
+  label: string
+  description: string
+  tasks?: ITask[]
+}
