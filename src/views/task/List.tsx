@@ -83,6 +83,7 @@ const RowOptions = ({ row, toggleEditMode, deleteObject }: RowOptionProps) => {
     </>
   )
 }
+
 const columns = ({ toggleEditMode, deleteObject }: ColumnsProps): GridColDef[] => {
   return [
     {

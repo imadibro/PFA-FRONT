@@ -1,20 +1,88 @@
 import type { SystemMode } from '@core/types'
 import Typography from '@mui/material/Typography'
 import CustomIconButton from '@/@core/components/mui/IconButton'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, MouseEvent, useState } from 'react'
 import CustomModal from '@/@core/components/mui/Modal'
 import CreateRequirement from './Create'
-import { Chip, Skeleton } from '@mui/material'
-import { useGetRequirementQuery } from '@/store/features/requirement/requirementApi'
+import { Chip, IconButton, Menu, MenuItem, Skeleton } from '@mui/material'
+import { useDeleteRequirementMutation, useGetRequirementQuery } from '@/store/features/requirement/requirementApi'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { formatDateFR } from '@/@core/utils/format'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
+import useSweetAlert from '@/components/common/useSweetAlert'
 
 interface CellType {
   row: any
 }
-const columns = (): GridColDef[] => {
+interface RowOptionProps {
+  row: ITask
+  toggleEditMode: (object: ITask) => void
+  deleteObject: (id: string) => void
+}
+
+interface ColumnsProps {
+  toggleEditMode: (supplierOrder: ITask) => void
+  deleteObject: (id: string) => void
+}
+const RowOptions = ({ row, toggleEditMode, deleteObject }: RowOptionProps) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const rowOptionsOpen = Boolean(anchorEl)
+
+  const handleRowOptionsClick = (event: MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleRowOptionsClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleEdit = () => {
+    toggleEditMode(row)
+    setAnchorEl(null)
+  }
+
+  const handleDelete = () => {
+    if (row?.id) {
+      deleteObject(row.id)
+    }
+    handleRowOptionsClose()
+  }
+
+  return (
+    <>
+      <IconButton size='small' onClick={handleRowOptionsClick}>
+        <i className='tabler-dots-vertical' />
+      </IconButton>
+      <Menu
+        keepMounted
+        anchorEl={anchorEl}
+        open={rowOptionsOpen}
+        onClose={handleRowOptionsClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right'
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right'
+        }}
+        PaperProps={{ style: { minWidth: '8rem' } }}
+      >
+        <MenuItem onClick={handleEdit} sx={{ '& i, & svg': { mr: 2 } }}>
+          <i className='tabler-edit text-green-500' />
+          Modifier
+        </MenuItem>
+        <MenuItem onClick={handleDelete} sx={{ '& svg': { mr: 2 } }}>
+          <i className='tabler-trash text-red-500' />
+          Supprimer
+        </MenuItem>
+      </Menu>
+    </>
+  )
+}
+
+const columns = ({ toggleEditMode, deleteObject }: ColumnsProps): GridColDef[] => {
   return [
     {
       flex: 1,
@@ -71,10 +139,10 @@ const columns = (): GridColDef[] => {
       field: 'actions',
       headerName: 'Actions',
       width: 100,
-      sortable: false
-      // renderCell: ({ row }: CellType) => (
-      //   <RowOptions toggleEditMode={toggleEditMode} deleteObject={deleteObject} row={row} setIsPDFLoading={setIsPDFLoading} />
-      // )
+      sortable: false,
+      renderCell: ({ row }: CellType) => (
+        <RowOptions row={row} toggleEditMode={toggleEditMode} deleteObject={deleteObject} />
+      )
     }
   ]
 }
@@ -85,6 +153,15 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
   const [filteredData, setFilteredData] = useState<IRequirement[]>([])
   const [isFiltering, setIsFiltering] = useState(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [taskToEdit, setTaskToEdit] = useState<ITask | null>(null)
+  const [isEditMode, setIsEditMode] = useState<boolean>(false)
+
+  const { showAlert, showConfirm, showToast } = useSweetAlert()
+  const [
+    deleteRequirement,
+    { isLoading: deleteRequirementIsLoading, isError, error: deleteRequirementError, isSuccess }
+  ] = useDeleteRequirementMutation()
 
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
@@ -102,6 +179,26 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
     } else {
       setIsFiltering(false)
       setFilteredData([])
+    }
+  }
+
+  const toggleForm = () => setIsOpen(prevState => !prevState)
+
+  const toggleEditMode = (task: ITask) => {
+    setIsEditMode(true)
+    setTaskToEdit(task)
+    toggleForm()
+  }
+
+  const handleDelete = async (id: string) => {
+    const confirmed = await showConfirm('Are you sure?', "You won't be able to revert this!", 'Delete', 'Cancel')
+    if (confirmed) {
+      try {
+        await deleteRequirement({ requirementId: id })
+        showToast('Deleted successfully!', 'success')
+      } catch (error) {
+        showAlert('Error', 'Something wrong went happedn while trying to delete the task', 'error')
+      }
     }
   }
 
@@ -151,7 +248,7 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
         loading={isLoading}
         rows={data}
         localeText={{ noRowsLabel: 'Aucune donnes a afficher' }}
-        columns={columns()}
+        columns={columns({ toggleEditMode, deleteObject: handleDelete })}
         // slots={{ toolbar: QuickSearchToolbar }}
         slotProps={{
           baseButton: {
@@ -162,7 +259,7 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
             defaultValue: searchText,
             onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
             // toggleForm,
-            title: 'Tasks'
+            title: 'Requirements'
             // handleDateFilter,
             // clearDateFilter,
             // data: dataToExport(),
