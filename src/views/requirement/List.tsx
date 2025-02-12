@@ -16,13 +16,13 @@ interface CellType {
   row: any
 }
 interface RowOptionProps {
-  row: ITask
-  toggleEditMode: (object: ITask) => void
+  row: IRequirement
+  toggleEditMode: (object: IRequirement) => void
   deleteObject: (id: string) => void
 }
 
 interface ColumnsProps {
-  toggleEditMode: (supplierOrder: ITask) => void
+  toggleEditMode: (requirement: IRequirement) => void
   deleteObject: (id: string) => void
 }
 const RowOptions = ({ row, toggleEditMode, deleteObject }: RowOptionProps) => {
@@ -154,7 +154,7 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
   const [isFiltering, setIsFiltering] = useState(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [requirementToEdit, setRequirementToEdit] = useState<ITask | null>(null)
+  const [requirementToEdit, setRequirementToEdit] = useState<IRequirement | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
   const { showAlert, showConfirm, showToast } = useSweetAlert()
@@ -184,9 +184,9 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
 
   const toggleForm = () => setIsOpen(prevState => !prevState)
 
-  const toggleEditMode = (task: ITask) => {
+  const toggleEditMode = (requirement: IRequirement) => {
     setIsEditMode(true)
-    setRequirementToEdit(task)
+    setRequirementToEdit(requirement)
     toggleForm()
   }
 

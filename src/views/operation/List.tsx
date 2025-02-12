@@ -150,7 +150,7 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
   const [isFiltering, setIsFiltering] = useState(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [operationToEdit, setOperationToEdit] = useState<ITask | null>(null)
+  const [operationToEdit, setOperationToEdit] = useState<IOperation | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
   const { showAlert, showConfirm, showToast } = useSweetAlert()

@@ -162,7 +162,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
   const [isFiltering, setIsFiltering] = useState(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [siteToEdit, setSiteToEdit] = useState<ITask | null>(null)
+  const [siteToEdit, setSiteToEdit] = useState<ISite | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
   const { showAlert, showConfirm, showToast } = useSweetAlert()
