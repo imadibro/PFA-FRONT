@@ -5,12 +5,13 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { ChangeEvent, MouseEvent, useState } from 'react'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { formatDateFR } from '@/@core/utils/format'
-import { Chip, IconButton, Menu, MenuItem, Skeleton } from '@mui/material'
+import { Chip, Drawer, IconButton, Menu, MenuItem, Skeleton } from '@mui/material'
 import CustomModal from '@/@core/components/mui/Modal'
 import CreateOperation from './Create'
 import CustomIconButton from '@/@core/components/mui/IconButton'
 import { useGetNotAssignedTasksQuery } from '@/store/features/task/taskApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import UpdateOperation from './Update'
 
 interface CellType {
   row: any
@@ -266,6 +267,11 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
       />
+
+      {/* Update Operation */}
+      <Drawer open={isOpen} onClose={toggleForm} anchor={'right'}>
+        <UpdateOperation mode={mode} operationToEdit={operationToEdit} tasks={taskData} onClose={toggleForm} />
+      </Drawer>
     </div>
   )
 }

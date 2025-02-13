@@ -5,12 +5,13 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { ChangeEvent, MouseEvent, useState } from 'react'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { formatDateFR } from '@/@core/utils/format'
-import { Chip, IconButton, Menu, MenuItem, Skeleton } from '@mui/material'
+import { Chip, Drawer, IconButton, Menu, MenuItem, Skeleton } from '@mui/material'
 import CustomModal from '@/@core/components/mui/Modal'
 import CustomIconButton from '@/@core/components/mui/IconButton'
 import CreateSite from './Create'
 import { useGetNotAssignedRequirementsQuery } from '@/store/features/requirement/requirementApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import UpdateSite from './Update'
 
 interface CellType {
   row: any
@@ -283,6 +284,11 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
       />
+
+      {/* Update Operation */}
+      <Drawer open={isOpen} onClose={toggleForm} anchor={'right'}>
+        <UpdateSite mode={mode} siteToEdit={siteToEdit} requirements={requirementData} onClose={toggleForm} />
+      </Drawer>
     </div>
   )
 }

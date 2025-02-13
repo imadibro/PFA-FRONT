@@ -36,6 +36,25 @@ export const operationApi = api.injectEndpoints({
         { type: 'TasksWithNoOperation', id: 'LIST' },
         { type: 'Operation', id: 'LIST' }
       ]
+    }),
+    updateOperation: builder.mutation<any, { id: string; label: string; description: string }>({
+      query: operation => ({
+        url: `operation/${operation.id}`,
+        method: 'PATCH',
+        body: operation
+      }),
+      invalidatesTags: [{ type: 'Operation', id: 'LIST' }]
+    }),
+    detachTasksFromOperation: builder.mutation<any, { operationId: string; tasksIds: string[] }>({
+      query: payload => ({
+        url: `operation/${payload.operationId}/tasks/remove`,
+        method: 'PATCH',
+        body: payload
+      }),
+      invalidatesTags: [
+        { type: 'Operation', id: 'LIST' },
+        { type: 'TasksWithNoOperation', id: 'LIST' }
+      ]
     })
   })
 })
@@ -44,5 +63,7 @@ export const {
   useGetOperationsQuery,
   useCreateOperationMutation,
   useMapTasksToOperationMutation,
-  useDeleteOperationMutation
+  useDeleteOperationMutation,
+  useUpdateOperationMutation,
+  useDetachTasksFromOperationMutation
 } = operationApi

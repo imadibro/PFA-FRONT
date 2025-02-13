@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
+import React, { useRef } from 'react'
 import type { SystemMode } from '@core/types'
 import Typography from '@mui/material/Typography'
 import { Button, StepLabel, TextField } from '@mui/material'

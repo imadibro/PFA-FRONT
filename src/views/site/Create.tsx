@@ -135,7 +135,7 @@ const CreateSite = ({
             <div className='mb-4'>
               <TextField size='small' name='label' label='label' placeholder='label' required fullWidth />
               <Typography variant='body2' color='textSecondary'>
-                Give your Site a clear and concise name.
+                Give your Site a clear and concise label.
               </Typography>
             </div>
             <div className='mb-4'>
