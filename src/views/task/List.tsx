@@ -1,135 +1,41 @@
 import type { SystemMode } from '@core/types'
 import Typography from '@mui/material/Typography'
 import CustomIconButton from '@/@core/components/mui/IconButton'
-import { ChangeEvent, MouseEvent, useState } from 'react'
+import { ChangeEvent, useState } from 'react'
 import CustomModal from '@/@core/components/mui/Modal'
 import CreateTask from './Create'
-import { Drawer, IconButton, Menu, MenuItem, Skeleton } from '@mui/material'
+import { Drawer, Skeleton } from '@mui/material'
 import { useGetTasksQuery, useDeleteTaskMutation } from '@/store/features/task/taskApi'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
-import { formatDateFR } from '@/@core/utils/format'
+import { DataGrid } from '@mui/x-data-grid'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import UpdateTask from './Update'
-interface CellType {
-  row: any
-}
+import { GetColumns, renderDateCell, renderTypographyCell } from '@/components/common/GridColumns'
 
-interface RowOptionProps {
-  row: ITask
-  toggleEditMode: (object: ITask) => void
-  deleteObject: (id: string) => void
-}
-
-interface ColumnsProps {
-  toggleEditMode: (task: ITask) => void
-  deleteObject: (id: string) => void
-}
-
-const RowOptions = ({ row, toggleEditMode, deleteObject }: RowOptionProps) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const rowOptionsOpen = Boolean(anchorEl)
-
-  const handleRowOptionsClick = (event: MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
+const customColumns = () => [
+  {
+    flex: 1,
+    field: 'label',
+    headerName: 'Label',
+    minWidth: 180,
+    renderCell: renderTypographyCell('label')
+  },
+  {
+    flex: 1,
+    minWidth: 250,
+    field: 'description',
+    headerName: 'Description',
+    renderCell: renderTypographyCell('description')
+  },
+  {
+    flex: 1,
+    minWidth: 170,
+    field: 'createdAt',
+    headerName: 'Creation T',
+    renderCell: renderDateCell('createdAt')
   }
-
-  const handleRowOptionsClose = () => {
-    setAnchorEl(null)
-  }
-
-  const handleEdit = () => {
-    toggleEditMode(row)
-    setAnchorEl(null)
-  }
-
-  const handleDelete = () => {
-    if (row?.id) {
-      deleteObject(row.id)
-    }
-    handleRowOptionsClose()
-  }
-
-  return (
-    <>
-      <IconButton size='small' onClick={handleRowOptionsClick}>
-        <i className='tabler-dots-vertical' />
-      </IconButton>
-      <Menu
-        keepMounted
-        anchorEl={anchorEl}
-        open={rowOptionsOpen}
-        onClose={handleRowOptionsClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
-        }}
-        PaperProps={{ style: { minWidth: '8rem' } }}
-      >
-        <MenuItem onClick={handleEdit} sx={{ '& i, & svg': { mr: 2 } }}>
-          <i className='tabler-edit text-green-500' />
-          Modifier
-        </MenuItem>
-        <MenuItem onClick={handleDelete} sx={{ '& svg': { mr: 2 } }}>
-          <i className='tabler-trash text-red-500' />
-          Supprimer
-        </MenuItem>
-      </Menu>
-    </>
-  )
-}
-
-const columns = ({ toggleEditMode, deleteObject }: ColumnsProps): GridColDef[] => {
-  return [
-    {
-      flex: 1,
-      minWidth: 180,
-      field: 'label',
-      headerName: 'Label',
-      renderCell: ({ row }: CellType) => (
-        <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }} title={row.label}>
-          {row.label}
-        </Typography>
-      )
-    },
-    {
-      flex: 1,
-      minWidth: 250,
-      field: 'description',
-      headerName: 'Description',
-      renderCell: ({ row }: CellType) => (
-        <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }} title={row.description}>
-          {row.description}
-        </Typography>
-      )
-    },
-    {
-      flex: 1,
-      minWidth: 170,
-      field: 'createdAt',
-      headerName: 'Creation T',
-      renderCell: ({ row }: CellType) => (
-        <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
-          {formatDateFR(new Date(row.createdAt))}
-        </Typography>
-      )
-    },
-    {
-      field: 'actions',
-      headerName: 'Actions',
-      width: 100,
-      sortable: false,
-      renderCell: ({ row }: CellType) => (
-        <RowOptions row={row} toggleEditMode={toggleEditMode} deleteObject={deleteObject} />
-      )
-    }
-  ]
-}
+]
 
 const TaskList = ({ mode }: { mode: SystemMode }) => {
   const [openModal, setOpenModal] = useState(false)
@@ -203,6 +109,12 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
     }
   }
 
+  const columns = GetColumns({
+    toggleEditMode,
+    deleteObject: handleDelete,
+    customColumns: customColumns(),
+    includeActions: true
+  })
   return (
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
@@ -223,13 +135,12 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
           <CreateTask mode={mode} />
         </CustomModal>
       </div>
-      {/* <Table data={data} /> */}
       <DataGrid
         rowHeight={62}
         loading={isLoading}
         rows={data}
         localeText={{ noRowsLabel: 'Aucune donnes a afficher' }}
-        columns={columns({ toggleEditMode, deleteObject: handleDelete })}
+        columns={columns}
         // slots={{ toolbar: QuickSearchToolbar }}
         slotProps={{
           baseButton: {
@@ -239,7 +150,6 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
           toolbar: {
             defaultValue: searchText,
             onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
-            // toggleForm,
             title: 'Tasks'
             // handleDateFilter,
             // clearDateFilter,
