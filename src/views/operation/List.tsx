@@ -114,7 +114,7 @@ const columns = ({ toggleEditMode, deleteObject }: ColumnsProps): GridColDef[] =
       field: 'tasks',
       headerName: 'Taches',
       renderCell: ({ row }: CellType) => (
-        <div className='text-center space-x-1' title='Taches'>
+        <div className='text-center space-x-1 overflow-auto' title='Taches'>
           {row.tasks?.map((task: ITask) => <Chip label={task.label} color='info' variant='outlined' />)}
         </div>
       )

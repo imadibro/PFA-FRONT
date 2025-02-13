@@ -4,14 +4,14 @@ import CustomIconButton from '@/@core/components/mui/IconButton'
 import { ChangeEvent, MouseEvent, useState } from 'react'
 import CustomModal from '@/@core/components/mui/Modal'
 import CreateTask from './Create'
-import { IconButton, Menu, MenuItem, Skeleton } from '@mui/material'
+import { Drawer, IconButton, Menu, MenuItem, Skeleton } from '@mui/material'
 import { useGetTasksQuery, useDeleteTaskMutation } from '@/store/features/task/taskApi'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { formatDateFR } from '@/@core/utils/format'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-
+import UpdateTask from './Update'
 interface CellType {
   row: any
 }
@@ -252,6 +252,11 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
       />
+
+      {/* Update Task */}
+      <Drawer open={isOpen} onClose={toggleForm} anchor={'right'}>
+        <UpdateTask mode={mode} taskToEdit={taskToEdit} onClose={toggleForm} />
+      </Drawer>
     </div>
   )
 }

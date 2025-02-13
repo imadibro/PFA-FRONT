@@ -33,8 +33,25 @@ export const taskApi = api.injectEndpoints({
         { type: 'Task', id: 'LIST' },
         { type: 'Operation', id: 'LIST' }
       ]
+    }),
+    updateTask: builder.mutation<any, { id: string; label: string; description: string }>({
+      query: task => ({
+        url: `task/${task.id}`,
+        method: 'PATCH',
+        body: task
+      }),
+      invalidatesTags: [
+        { type: 'Task', id: 'LIST' },
+        { type: 'TasksWithNoOperation', id: 'LIST' }
+      ]
     })
   })
 })
 
-export const { useGetTasksQuery, useCreateTaskMutation, useGetNotAssignedTasksQuery, useDeleteTaskMutation } = taskApi
+export const {
+  useGetTasksQuery,
+  useCreateTaskMutation,
+  useGetNotAssignedTasksQuery,
+  useDeleteTaskMutation,
+  useUpdateTaskMutation
+} = taskApi

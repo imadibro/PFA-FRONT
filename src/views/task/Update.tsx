@@ -1,33 +1,55 @@
-import CustomIconButton from '@/@core/components/mui/IconButton'
-import { useCreateTaskMutation } from '@/store/features/task/taskApi'
 import type { SystemMode } from '@core/types'
-import { TextField } from '@mui/material'
 import Typography from '@mui/material/Typography'
+import { TextField } from '@mui/material'
+import CustomIconButton from '@/@core/components/mui/IconButton'
+import { useUpdateTaskMutation } from '@/store/features/task/taskApi'
 
-const CreateTask = ({ mode }: { mode: SystemMode }) => {
-  const [createTask, { isLoading, isError, error, isSuccess }] = useCreateTaskMutation()
+const UpdateTask = ({
+  mode,
+  taskToEdit,
+  onClose
+}: {
+  mode: SystemMode
+  taskToEdit: ITask | null
+  onClose: () => void
+}) => {
+  const [updateTask, { isLoading, isError, error, isSuccess }] = useUpdateTaskMutation()
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget as HTMLFormElement)
     const label = formData.get('label') as string
     const description = formData.get('description') as string
+
+    console.log('label ', label)
+    console.log('description ', description)
+
+    if (!taskToEdit?.id) return
+
     try {
-      await createTask({ label, description }).unwrap()
+      await updateTask({ id: taskToEdit.id, label, description }).unwrap()
+      onClose()
     } catch (err) {
       console.error('Failed to create task:', err)
     }
   }
+
   return (
-    <div className='bg-backgroundPaper p-2'>
-      {isError && <p className='text-red-500'>Error: {(error as any)?.data?.message || 'Failed to create task'}</p>}
-      {isSuccess && <p style={{ color: 'green' }}>Task created successfully!</p>}
-      <Typography variant='h4' className='my-2'>
-        Create Task
+    <div className='bg-backgroundPaper p-4'>
+      <Typography variant='h4' className='my-4'>
+        Update Task
       </Typography>
       <form action='' onSubmit={handleSubmit}>
         <div className='mb-4'>
-          <TextField size='small' name='label' label='label' placeholder='label' required fullWidth />
+          <TextField
+            size='small'
+            name='label'
+            label='label'
+            placeholder='label'
+            defaultValue={taskToEdit?.label}
+            required
+            fullWidth
+          />
           <Typography variant='body2' color='textSecondary'>
             Give your task a clear and concise name.
           </Typography>
@@ -38,6 +60,7 @@ const CreateTask = ({ mode }: { mode: SystemMode }) => {
             name='description'
             label='description'
             placeholder='description'
+            defaultValue={taskToEdit?.description}
             required
             rows={4}
             fullWidth
@@ -55,12 +78,12 @@ const CreateTask = ({ mode }: { mode: SystemMode }) => {
           className='h-10 mt-4'
           disabled={isLoading}
         >
-          <span className='tabler-send w-5 h-5 mr-2' />
-          {isLoading ? 'Submit...' : 'Submit'}
+          <span className='tabler-edit w-5 h-5 mr-2' />
+          {isLoading ? 'Updating...' : 'Update'}
         </CustomIconButton>
       </form>
     </div>
   )
 }
 
-export default CreateTask
+export default UpdateTask

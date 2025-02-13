@@ -30,6 +30,17 @@ export const requirementApi = api.injectEndpoints({
         { type: 'Requirement', id: 'LIST' },
         { type: 'Site', id: 'LIST' }
       ]
+    }),
+    updateRequirement: builder.mutation<any, { id: string; label: string; description: string; priority: string }>({
+      query: requirement => ({
+        url: `requirement/${requirement.id}`,
+        method: 'PATCH',
+        body: requirement
+      }),
+      invalidatesTags: [
+        { type: 'Requirement', id: 'LIST' },
+        { type: 'RequirementsWithNoSite', id: 'LIST' }
+      ]
     })
   })
 })
@@ -38,5 +49,6 @@ export const {
   useGetRequirementQuery,
   useCreateRequirementMutation,
   useGetNotAssignedRequirementsQuery,
-  useDeleteRequirementMutation
+  useDeleteRequirementMutation,
+  useUpdateRequirementMutation
 } = requirementApi

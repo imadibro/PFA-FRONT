@@ -4,13 +4,14 @@ import CustomIconButton from '@/@core/components/mui/IconButton'
 import { ChangeEvent, MouseEvent, useState } from 'react'
 import CustomModal from '@/@core/components/mui/Modal'
 import CreateRequirement from './Create'
-import { Chip, IconButton, Menu, MenuItem, Skeleton } from '@mui/material'
+import { Chip, Drawer, IconButton, Menu, MenuItem, Skeleton } from '@mui/material'
 import { useDeleteRequirementMutation, useGetRequirementQuery } from '@/store/features/requirement/requirementApi'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import { formatDateFR } from '@/@core/utils/format'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import UpdateRequirement from './Update'
 
 interface CellType {
   row: any
@@ -271,6 +272,10 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
       />
+      {/* Update Task */}
+      <Drawer open={isOpen} onClose={toggleForm} anchor={'right'}>
+        <UpdateRequirement mode={mode} requirementToEdit={requirementToEdit} onClose={toggleForm} />
+      </Drawer>
     </div>
   )
 }
