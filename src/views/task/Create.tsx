@@ -1,11 +1,13 @@
 import CustomIconButton from '@/@core/components/mui/IconButton'
 import { useCreateTaskMutation } from '@/store/features/task/taskApi'
 import type { SystemMode } from '@core/types'
-import { TextField } from '@mui/material'
+import { Alert, TextField } from '@mui/material'
 import Typography from '@mui/material/Typography'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
-const CreateTask = ({ mode }: { mode: SystemMode }) => {
+const CreateTask = ({ mode, onClose }: { mode: SystemMode; onClose: () => void }) => {
   const [createTask, { isLoading, isError, error, isSuccess }] = useCreateTaskMutation()
+  const { showAlert, showToast } = useSweetAlert()
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -14,18 +16,19 @@ const CreateTask = ({ mode }: { mode: SystemMode }) => {
     const description = formData.get('description') as string
     try {
       await createTask({ label, description }).unwrap()
+      showToast('Task created successfully!', 'success')
+      onClose()
     } catch (err) {
-      console.error('Failed to create task:', err)
+      showAlert('Error', 'Something went wrong while trying to create a new task', 'error')
     }
   }
   return (
     <div className='bg-backgroundPaper p-2'>
-      {isError && <p className='text-red-500'>Error: {(error as any)?.data?.message || 'Failed to create task'}</p>}
-      {isSuccess && <p style={{ color: 'green' }}>Task created successfully!</p>}
       <Typography variant='h4' className='my-2'>
         Create Task
       </Typography>
       <form action='' onSubmit={handleSubmit}>
+        {isError && <Alert severity='error'>{(error as any)?.data?.message || 'Failed to create task'}</Alert>}
         <div className='mb-4'>
           <TextField size='small' name='label' label='label' placeholder='label' required fullWidth />
           <Typography variant='body2' color='textSecondary'>

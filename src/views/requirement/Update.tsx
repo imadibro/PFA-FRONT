@@ -2,7 +2,8 @@ import type { SystemMode } from '@core/types'
 import Typography from '@mui/material/Typography'
 import CustomIconButton from '@/@core/components/mui/IconButton'
 import { useUpdateRequirementMutation } from '@/store/features/requirement/requirementApi'
-import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material'
+import { Alert, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
 const UpdateRequirement = ({
   mode,
@@ -14,6 +15,7 @@ const UpdateRequirement = ({
   onClose: () => void
 }) => {
   const [updateRequirement, { isLoading, isError, error, isSuccess }] = useUpdateRequirementMutation()
+  const { showAlert, showToast } = useSweetAlert()
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -31,9 +33,10 @@ const UpdateRequirement = ({
         description,
         priority: priority
       }).unwrap()
+      showToast('Requirement updated successfully!', 'success')
       onClose()
     } catch (err) {
-      console.error('Failed to update requirement:', err)
+      showAlert('Error', 'Something went wrong while trying to update requirement', 'error')
     }
   }
 
@@ -43,6 +46,7 @@ const UpdateRequirement = ({
         Update Requirement
       </Typography>
       <form action='' onSubmit={handleSubmit}>
+        {isError && <Alert severity='error'>{(error as any)?.data?.message || 'Failed to update requirement'}</Alert>}
         <div className='mb-4'>
           <TextField
             size='small'

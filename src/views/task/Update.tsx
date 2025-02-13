@@ -1,8 +1,9 @@
 import type { SystemMode } from '@core/types'
 import Typography from '@mui/material/Typography'
-import { TextField } from '@mui/material'
+import { Alert, TextField } from '@mui/material'
 import CustomIconButton from '@/@core/components/mui/IconButton'
 import { useUpdateTaskMutation } from '@/store/features/task/taskApi'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
 const UpdateTask = ({
   mode,
@@ -14,6 +15,7 @@ const UpdateTask = ({
   onClose: () => void
 }) => {
   const [updateTask, { isLoading, isError, error, isSuccess }] = useUpdateTaskMutation()
+  const { showAlert, showToast } = useSweetAlert()
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -21,16 +23,14 @@ const UpdateTask = ({
     const label = formData.get('label') as string
     const description = formData.get('description') as string
 
-    console.log('label ', label)
-    console.log('description ', description)
-
     if (!taskToEdit?.id) return
 
     try {
       await updateTask({ id: taskToEdit.id, label, description }).unwrap()
+      showToast('Task Updated successfully!', 'success')
       onClose()
     } catch (err) {
-      console.error('Failed to create task:', err)
+      showAlert('Error', 'Something went wrong while trying to Updated the task', 'error')
     }
   }
 
@@ -40,6 +40,7 @@ const UpdateTask = ({
         Update Task
       </Typography>
       <form action='' onSubmit={handleSubmit}>
+        {isError && <Alert severity='error'>{(error as any)?.data?.message || 'Failed to update task'}</Alert>}
         <div className='mb-4'>
           <TextField
             size='small'

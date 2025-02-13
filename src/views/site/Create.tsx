@@ -9,8 +9,9 @@ import Checkbox from '@mui/material/Checkbox'
 import Stepper from '@mui/material/Stepper'
 import Step from '@mui/material/Step'
 import Box from '@mui/material/Box'
-import { Button, StepLabel, TextField } from '@mui/material'
+import { Alert, Button, StepLabel, TextField } from '@mui/material'
 import { useCreateSiteMutation, useMapRequirementsToSiteMutation } from '@/store/features/site/siteApi'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
 const steps = ['Create Site', 'Affect Requirements to Site']
 
@@ -43,6 +44,7 @@ const CreateSite = ({
   const [isStep1Submitted, setStep1IsSubmitted] = React.useState(false)
   const [selectedRequirements, setSelectedRequirements] = React.useState<ITask[]>([])
   const [createdSite, setCreatedSite] = React.useState<ISite>()
+  const { showAlert, showToast } = useSweetAlert()
 
   const formStep1Ref = useRef<HTMLFormElement | null>(null)
 
@@ -78,7 +80,7 @@ const CreateSite = ({
 
   const [createSite, { isLoading, isError, error, isSuccess }] = useCreateSiteMutation()
   const [
-    mapTasksToOperation,
+    mapRequirementToSite,
     {
       isLoading: mapRequirementsLoading,
       isError: mapRequirementsIsError,
@@ -97,8 +99,9 @@ const CreateSite = ({
       const response: ISite = await createSite({ label, siteNbr, description }).unwrap()
       setCreatedSite(response)
       setActiveStep(1)
+      showToast('Operation created successfully!', 'success')
     } catch (err) {
-      console.error('Failed to create Site:', err)
+      showAlert('Error', 'Something went wrong while trying to create a new site', 'error')
     }
   }
 
@@ -108,15 +111,20 @@ const CreateSite = ({
       [activeStep]: true
     })
 
-    if (!selectedRequirements || !selectedRequirements.length || !createdSite?.id) return
-
+    if (!createdSite?.id) return
+    if (!selectedRequirements?.length) {
+      close()
+      showToast(' Operation created successfully!', 'success')
+      return
+    }
     const requirementsIds = selectedRequirements?.map((task: ITask) => task.id)
     try {
-      await mapTasksToOperation({ siteId: createdSite.id, requirementsIds }).unwrap()
+      await mapRequirementToSite({ siteId: createdSite.id, requirementsIds }).unwrap()
       setActiveStep(1)
       close()
+      showToast('Tasks Assigned to Operation successfully!', 'success')
     } catch (err) {
-      console.error('Failed to create task:', err)
+      showAlert('Error', 'Something went wrong while trying to Assigne requirements to Site', 'error')
     }
   }
 
@@ -132,6 +140,7 @@ const CreateSite = ({
       {activeStep == 0 ? (
         <div className='bg-backgroundPaper p-6'>
           <form onSubmit={handleCreateSiteSubmit} ref={formStep1Ref}>
+            {isError && <Alert severity='error'>{(error as any)?.data?.message || 'Failed to create site'}</Alert>}
             <div className='mb-4'>
               <TextField size='small' name='label' label='label' placeholder='label' required fullWidth />
               <Typography variant='body2' color='textSecondary'>
@@ -163,6 +172,11 @@ const CreateSite = ({
         </div>
       ) : (
         <form>
+          {mapRequirementsIsError && (
+            <Alert severity='error'>
+              {(mapRequirementsError as any)?.data?.message || 'Failed to map requirement to site'}
+            </Alert>
+          )}
           <div className='my-8'>
             <Autocomplete
               multiple
@@ -207,8 +221,14 @@ const CreateSite = ({
 
       <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
         <Box sx={{ flex: '1 1 auto' }} />
-        <Button onClick={handleNext} sx={{ mr: 1 }} disabled={isLoading}>
-          {activeStep == 0 ? 'Next' : 'Complete'}
+        <Button onClick={handleNext} sx={{ mr: 1 }} disabled={isLoading || mapRequirementsLoading}>
+          {isLoading && activeStep === 0
+            ? 'Creating...'
+            : mapRequirementsLoading
+              ? 'Completing...'
+              : activeStep === 1
+                ? 'Complete'
+                : 'Next'}
         </Button>
       </Box>
     </Box>

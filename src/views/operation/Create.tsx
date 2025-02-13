@@ -13,6 +13,7 @@ import Checkbox from '@mui/material/Checkbox'
 import Stepper from '@mui/material/Stepper'
 import Step from '@mui/material/Step'
 import Box from '@mui/material/Box'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
 const steps = ['Create Operation', 'Affect Tasks to Operation']
 
@@ -37,6 +38,7 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
   const [isStep1Submitted, setStep1IsSubmitted] = React.useState(false)
   const [selectedTasks, setSelectedTasks] = React.useState<ITask[]>([])
   const [createdOperation, setCreatedOperation] = React.useState<IOperation>()
+  const { showAlert, showToast } = useSweetAlert()
 
   const formStep1Ref = useRef<HTMLFormElement | null>(null)
 
@@ -85,8 +87,9 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
       const response: IOperation = await createOperation({ label, description }).unwrap()
       setCreatedOperation(response)
       setActiveStep(1)
+      showToast('Operation created successfully!', 'success')
     } catch (err) {
-      console.error('Failed to create task:', err)
+      showAlert('Error', 'Something went wrong while trying to create a new operation', 'error')
     }
   }
 
@@ -96,15 +99,22 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
       [activeStep]: true
     })
 
-    if (!selectedTasks || !selectedTasks.length || !createdOperation?.id) return
+    if (!createdOperation?.id) return
+
+    if (!selectedTasks?.length) {
+      showToast('Tasks created successfully!', 'success')
+      close()
+      return
+    }
 
     const tasksIds = selectedTasks?.map((task: ITask) => task.id)
     try {
       await mapTasksToOperation({ operationId: createdOperation.id, tasksIds }).unwrap()
       setActiveStep(1)
       close()
+      showToast('Tasks Assigned to Operation successfully!', 'success')
     } catch (err) {
-      console.error('Failed to create task:', err)
+      showAlert('Error', 'Something went wrong while trying to Assigne Tasks to Operation', 'error')
     }
   }
 
@@ -190,7 +200,13 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
       <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
         <Box sx={{ flex: '1 1 auto' }} />
         <Button onClick={handleNext} sx={{ mr: 1 }} disabled={isLoading}>
-          {activeStep == 0 ? 'Next' : 'Complete'}
+          {isLoading && activeStep === 0
+            ? 'Creating...'
+            : mapTasksLoading
+              ? 'Completing...'
+              : activeStep === 1
+                ? 'Complete'
+                : 'Next'}
         </Button>
       </Box>
     </Box>

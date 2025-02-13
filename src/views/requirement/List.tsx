@@ -148,7 +148,7 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
           Add
         </CustomIconButton>
         <CustomModal onClose={() => setOpenModal(false)} open={openModal}>
-          <CreateRequirement mode={mode} />
+          <CreateRequirement mode={mode} onClose={() => setOpenModal(false)} />
         </CustomModal>
       </div>
       {/* <Table data={data} /> */}

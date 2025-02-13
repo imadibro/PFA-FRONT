@@ -1,11 +1,13 @@
 import CustomIconButton from '@/@core/components/mui/IconButton'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import { useCreateRequirementMutation } from '@/store/features/requirement/requirementApi'
 import type { SystemMode } from '@core/types'
-import { FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material'
+import { Alert, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 import Typography from '@mui/material/Typography'
 
-const CreateRequirement = ({ mode }: { mode: SystemMode }) => {
+const CreateRequirement = ({ mode, onClose }: { mode: SystemMode; onClose: () => void }) => {
   const [CreateRequirement, { isLoading, isError, error, isSuccess }] = useCreateRequirementMutation()
+  const { showAlert, showToast } = useSweetAlert()
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -13,14 +15,17 @@ const CreateRequirement = ({ mode }: { mode: SystemMode }) => {
     const label = formData.get('label') as string
     const description = formData.get('description') as string
     const priority = formData.get('priority') as string
-
-    await CreateRequirement({ label, description, priority }).unwrap()
-    console.log('Requirement submitted')
+    try {
+      await CreateRequirement({ label, description, priority }).unwrap()
+      showToast('Task created successfully!', 'success')
+      onClose()
+    } catch (err) {
+      showAlert('Error', 'Something went wrong while trying to create a new requirement', 'error')
+    }
   }
   return (
     <div className='bg-backgroundPaper p-2'>
-      {isError && <p className='text-red-500'>Error: {(error as any)?.data?.message || 'Failed to create task'}</p>}
-      {isSuccess && <p style={{ color: 'green' }}>Task created successfully!</p>}
+      {isError && <Alert severity='error'>{(error as any)?.data?.message || 'Failed to create requirement'}</Alert>}
       <Typography variant='h4' className='my-2'>
         Create Requirement
       </Typography>

@@ -132,7 +132,7 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
           Add
         </CustomIconButton>
         <CustomModal onClose={() => setOpenModal(false)} open={openModal}>
-          <CreateTask mode={mode} />
+          <CreateTask mode={mode} onClose={() => setOpenModal(false)} />
         </CustomModal>
       </div>
       <DataGrid

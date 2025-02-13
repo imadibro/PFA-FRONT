@@ -1,5 +1,5 @@
 import type { SystemMode } from '@core/types'
-import { Box } from '@mui/material'
+import { Alert, Box } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 import { Tab } from '@mui/material'
 import CustomTabList from '@/@core/components/mui/TabList'
@@ -17,6 +17,7 @@ import {
   useMapTasksToOperationMutation,
   useUpdateOperationMutation
 } from '@/store/features/operation/operationApi'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
 const StyledChip = styled(Chip)({
   '&.MuiChip-root': {
@@ -48,6 +49,8 @@ const UpdateOperation = ({
 
   const [selectedTasks, setSelectedTasks] = useState<ITask[]>([...(operationToEdit?.tasks || [])])
 
+  const { showAlert, showToast } = useSweetAlert()
+
   const [updateOperation, { isLoading, isError, error, isSuccess }] = useUpdateOperationMutation()
   const [
     mapTasksToOperation,
@@ -78,8 +81,9 @@ const UpdateOperation = ({
     try {
       await updateOperation({ id: operationToEdit.id, label, description }).unwrap()
       onClose()
+      showToast('Operation updated successfully!', 'success')
     } catch (err) {
-      console.error('Failed to create task:', err)
+      showAlert('Error', 'Something went wrong while trying to update operation', 'error')
     }
   }
 
@@ -109,8 +113,9 @@ const UpdateOperation = ({
         await Promise.all(requests)
       }
       onClose()
+      showToast('operation tasks updated successfully!', 'success')
     } catch (err) {
-      console.error('Failed to create task:', err)
+      showAlert('Error', 'Something went wrong while trying to update operation tasks', 'error')
     }
   }
   return (
@@ -124,6 +129,9 @@ const UpdateOperation = ({
 
           <TabPanel value='1'>
             <form onSubmit={handleUpdateOperationSubmit}>
+              {isError && (
+                <Alert severity='error'>{(error as any)?.data?.message || 'Failed to update operation'}</Alert>
+              )}
               <div className='mb-4'>
                 <TextField
                   size='small'
@@ -171,6 +179,16 @@ const UpdateOperation = ({
           </TabPanel>
           <TabPanel value='2'>
             <form onSubmit={handleUpdateOperationTasksSubmit}>
+              {detachTasksFromOperationIsError && (
+                <Alert severity='error'>
+                  {(detachTasksFromOperationError as any)?.data?.message || 'Failed to update operation tasks'}
+                </Alert>
+              )}
+              {mapTasksToOperationIsError && (
+                <Alert severity='error'>
+                  {(mapTasksToOperationError as any)?.data?.message || 'Failed to update operation tasks'}
+                </Alert>
+              )}
               <div className='my-8'>
                 <Autocomplete
                   multiple

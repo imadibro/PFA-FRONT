@@ -1,5 +1,5 @@
 import type { SystemMode } from '@core/types'
-import { Box } from '@mui/material'
+import { Alert, Box } from '@mui/material'
 import { TabContext, TabPanel } from '@mui/lab'
 import { Tab } from '@mui/material'
 import CustomTabList from '@/@core/components/mui/TabList'
@@ -17,6 +17,7 @@ import {
   useMapRequirementsToSiteMutation,
   useUpdateSiteMutation
 } from '@/store/features/site/siteApi'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
 const StyledChip = styled(Chip)({
   '&.MuiChip-root': {
@@ -52,22 +53,10 @@ const UpdateSite = ({
   const [selectedRequirements, setSelectedRequirements] = useState<IRequirement[]>([
     ...(siteToEdit?.requirements || [])
   ])
+  const { showAlert, showToast } = useSweetAlert()
+
   const [updateSite, { isLoading, isError, error, isSuccess }] = useUpdateSiteMutation()
 
-  const handleUpdateSiteSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    const formData = new FormData(event.currentTarget as HTMLFormElement)
-    const label = formData.get('label') as string
-    const siteNbr = formData.get('siteNbr') as string
-    const description = formData.get('description') as string
-    if (!siteToEdit?.id) return
-    try {
-      await updateSite({ id: siteToEdit.id, label, siteNbr, description }).unwrap()
-      onClose()
-    } catch (err) {
-      console.error('Failed to create task:', err)
-    }
-  }
   const [
     mapRequirementsToSite,
     {
@@ -87,6 +76,22 @@ const UpdateSite = ({
       isSuccess: detachRequirementsFromSiteSuccess
     }
   ] = useDetachRequirementsFromSiteMutation()
+
+  const handleUpdateSiteSubmit = async (event: React.FormEvent) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget as HTMLFormElement)
+    const label = formData.get('label') as string
+    const siteNbr = formData.get('siteNbr') as string
+    const description = formData.get('description') as string
+    if (!siteToEdit?.id) return
+    try {
+      await updateSite({ id: siteToEdit.id, label, siteNbr, description }).unwrap()
+      onClose()
+      showToast('Site updated successfully!', 'success')
+    } catch (err) {
+      showAlert('Error', 'Something went wrong while trying to update site', 'error')
+    }
+  }
 
   const handleUpdateSiteRequirementsSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -118,8 +123,9 @@ const UpdateSite = ({
         await Promise.all(requests)
       }
       onClose()
+      showToast('Site requirements updated successfully!', 'success')
     } catch (err) {
-      console.error('Failed to create task:', err)
+      showAlert('Error', 'Something went wrong while trying to update site requirements', 'error')
     }
   }
   return (
@@ -133,6 +139,7 @@ const UpdateSite = ({
 
           <TabPanel value='1'>
             <form onSubmit={handleUpdateSiteSubmit}>
+              {isError && <Alert severity='error'>{(error as any)?.data?.message || 'Failed to update site'}</Alert>}
               <div className='mb-4'>
                 <TextField
                   size='small'
@@ -194,6 +201,16 @@ const UpdateSite = ({
           </TabPanel>
           <TabPanel value='2'>
             <form onSubmit={handleUpdateSiteRequirementsSubmit}>
+              {detachRequirementsFromSiteIsError && (
+                <Alert severity='error'>
+                  {(detachRequirementsFromSiteError as any)?.data?.message || 'Failed to map requirement to site'}
+                </Alert>
+              )}
+              {mapRequirementsToSiteIsError && (
+                <Alert severity='error'>
+                  {(mapRequirementsToSiteError as any)?.data?.message || 'Failed to map requirement to site'}
+                </Alert>
+              )}
               <div className='my-8'>
                 <Autocomplete
                   multiple
