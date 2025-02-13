@@ -153,8 +153,6 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
             title: 'Tasks'
             // handleDateFilter,
             // clearDateFilter,
-            // data: dataToExport(),
-            // showExcel: true
           }
         }}
         disableRowSelectionOnClick
