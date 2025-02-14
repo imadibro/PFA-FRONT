@@ -13,7 +13,7 @@ import { Alert, Button, StepLabel, TextField } from '@mui/material'
 import { useCreateSiteMutation, useMapRequirementsToSiteMutation } from '@/store/features/site/siteApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
-const steps = ['Create Site', 'Affect Requirements to Site']
+const steps = ['Créer un site', 'Affecter les exigences au site']
 
 const StyledChip = styled(Chip)({
   '&.MuiChip-root': {
@@ -99,7 +99,7 @@ const CreateSite = ({
       const response: ISite = await createSite({ label, siteNbr, description }).unwrap()
       setCreatedSite(response)
       setActiveStep(1)
-      showToast('Operation created successfully!', 'success')
+      showToast('site créé avec succès!', 'success')
     } catch (err) {
       showAlert('Error', 'Something went wrong while trying to create a new site', 'error')
     }
@@ -114,7 +114,7 @@ const CreateSite = ({
     if (!createdSite?.id) return
     if (!selectedRequirements?.length) {
       close()
-      showToast(' Operation created successfully!', 'success')
+      showToast('site créé avec succès !', 'success')
       return
     }
     const requirementsIds = selectedRequirements?.map((task: ITask) => task.id)
@@ -122,7 +122,7 @@ const CreateSite = ({
       await mapRequirementToSite({ siteId: createdSite.id, requirementsIds }).unwrap()
       setActiveStep(1)
       close()
-      showToast('Tasks Assigned to Operation successfully!', 'success')
+      showToast('Exigences attribuée au site avec succès !', 'success')
     } catch (err) {
       showAlert('Error', 'Something went wrong while trying to Assigne requirements to Site', 'error')
     }
@@ -144,13 +144,13 @@ const CreateSite = ({
             <div className='mb-4'>
               <TextField size='small' name='label' label='label' placeholder='label' required fullWidth />
               <Typography variant='body2' color='textSecondary'>
-                Give your Site a clear and concise label.
+                Donnez à votre site une étiquette claire et concise.
               </Typography>
             </div>
             <div className='mb-4'>
               <TextField size='small' name='siteNbr' label='site Number' placeholder='site Number' required fullWidth />
               <Typography variant='body2' color='textSecondary'>
-                Give your Site Number a clear and concise Number.
+                Donnez à votre numéro de site un numéro clair et concis.
               </Typography>
             </div>
             <div className='mb-4'>
@@ -165,7 +165,7 @@ const CreateSite = ({
                 multiline
               />
               <Typography variant='body2' color='textSecondary'>
-                Give your operation a clear and concise description.
+                Donnez à votre site une description claire et concise.
               </Typography>
             </div>
           </form>
@@ -198,8 +198,8 @@ const CreateSite = ({
                 <TextField
                   {...params}
                   fullWidth
-                  label='Targeted Tasks'
-                  helperText='All the tasks that will be part of this operation.'
+                  label='Exigences ciblées'
+                  helperText='Toutes les exigences qui feront partie de ce site.'
                 />
               )}
               renderTags={(value, getTagProps) =>
@@ -223,12 +223,12 @@ const CreateSite = ({
         <Box sx={{ flex: '1 1 auto' }} />
         <Button onClick={handleNext} sx={{ mr: 1 }} disabled={isLoading || mapRequirementsLoading}>
           {isLoading && activeStep === 0
-            ? 'Creating...'
+            ? 'Soumettre...'
             : mapRequirementsLoading
-              ? 'Completing...'
+              ? 'Compléter...'
               : activeStep === 1
-                ? 'Complete'
-                : 'Next'}
+                ? 'Compléter'
+                : 'Suivant'}
         </Button>
       </Box>
     </Box>

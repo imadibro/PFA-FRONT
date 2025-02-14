@@ -15,7 +15,7 @@ import Step from '@mui/material/Step'
 import Box from '@mui/material/Box'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
-const steps = ['Create Operation', 'Affect Tasks to Operation']
+const steps = ['Créer une opération', "Affecter les tâches à l'opération"]
 
 const StyledChip = styled(Chip)({
   '&.MuiChip-root': {
@@ -87,7 +87,7 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
       const response: IOperation = await createOperation({ label, description }).unwrap()
       setCreatedOperation(response)
       setActiveStep(1)
-      showToast('Operation created successfully!', 'success')
+      showToast('Opération créée avec succès!', 'success')
     } catch (err) {
       showAlert('Error', 'Something went wrong while trying to create a new operation', 'error')
     }
@@ -102,7 +102,7 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
     if (!createdOperation?.id) return
 
     if (!selectedTasks?.length) {
-      showToast('Tasks created successfully!', 'success')
+      showToast('Tâches créées avec succès!', 'success')
       close()
       return
     }
@@ -112,7 +112,7 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
       await mapTasksToOperation({ operationId: createdOperation.id, tasksIds }).unwrap()
       setActiveStep(1)
       close()
-      showToast('Tasks Assigned to Operation successfully!', 'success')
+      showToast("Tâches assignées à l'opération avec succès !", 'success')
     } catch (err) {
       showAlert('Error', 'Something went wrong while trying to Assigne Tasks to Operation', 'error')
     }
@@ -133,7 +133,7 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
             <div className='mb-4'>
               <TextField size='small' name='label' label='label' placeholder='label' required fullWidth />
               <Typography variant='body2' color='textSecondary'>
-                Give your operation a clear and concise name.
+                Donnez à votre opération un nom clair et concis.
               </Typography>
             </div>
             <div className='mb-4'>
@@ -148,7 +148,7 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
                 multiline
               />
               <Typography variant='body2' color='textSecondary'>
-                Give your operation a clear and concise description.
+                Donnez à votre opération une description claire et concise.
               </Typography>
             </div>
           </form>
@@ -176,8 +176,8 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
                 <TextField
                   {...params}
                   fullWidth
-                  label='Targeted Tasks'
-                  helperText='All the tasks that will be part of this operation.'
+                  label='Tâches ciblées'
+                  helperText='Toutes les tâches qui feront partie de cette opération.'
                 />
               )}
               renderTags={(value, getTagProps) =>
@@ -201,12 +201,12 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
         <Box sx={{ flex: '1 1 auto' }} />
         <Button onClick={handleNext} sx={{ mr: 1 }} disabled={isLoading}>
           {isLoading && activeStep === 0
-            ? 'Creating...'
+            ? 'Soumettre...'
             : mapTasksLoading
-              ? 'Completing...'
+              ? 'Compléter...'
               : activeStep === 1
-                ? 'Complete'
-                : 'Next'}
+                ? 'Compléter'
+                : 'Suivant'}
         </Button>
       </Box>
     </Box>

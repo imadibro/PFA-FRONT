@@ -98,11 +98,16 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
   }
 
   const handleDelete = async (id: string) => {
-    const confirmed = await showConfirm('Are you sure?', "You won't be able to revert this!", 'Delete', 'Cancel')
+    const confirmed = await showConfirm(
+      'Es-tu sûr?',
+      'Vous ne pourrez pas annuler cette action',
+      'Supprimer',
+      'Annuler'
+    )
     if (confirmed) {
       try {
         await deleteTask({ taskId: id })
-        showToast('Deleted successfully!', 'success')
+        showToast('Supprimé avec succès!', 'success')
       } catch (error) {
         showAlert('Error', 'Something wrong went happedn while trying to delete the task', 'error')
       }
@@ -119,7 +124,7 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
         <Typography variant='h2' className='my-2'>
-          Tasks List
+          Liste des tâches
         </Typography>
         <CustomIconButton
           onClick={() => setOpenModal(true)}
@@ -129,7 +134,7 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
           className='h-10'
         >
           <span className='tabler-plus w-5 h-5 mr-2' />
-          Add
+          Ajouter
         </CustomIconButton>
         <CustomModal onClose={() => setOpenModal(false)} open={openModal}>
           <CreateTask mode={mode} onClose={() => setOpenModal(false)} />
@@ -150,7 +155,7 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
           toolbar: {
             defaultValue: searchText,
             onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
-            title: 'Tasks'
+            title: 'Taches'
             // handleDateFilter,
             // clearDateFilter,
           }

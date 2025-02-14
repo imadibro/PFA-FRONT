@@ -16,7 +16,7 @@ const CreateTask = ({ mode, onClose }: { mode: SystemMode; onClose: () => void }
     const description = formData.get('description') as string
     try {
       await createTask({ label, description }).unwrap()
-      showToast('Task created successfully!', 'success')
+      showToast('Tâche créée avec succès!', 'success')
       onClose()
     } catch (err) {
       showAlert('Error', 'Something went wrong while trying to create a new task', 'error')
@@ -25,14 +25,14 @@ const CreateTask = ({ mode, onClose }: { mode: SystemMode; onClose: () => void }
   return (
     <div className='bg-backgroundPaper p-2'>
       <Typography variant='h4' className='my-2'>
-        Create Task
+        Créer une tâche
       </Typography>
       <form action='' onSubmit={handleSubmit}>
         {isError && <Alert severity='error'>{(error as any)?.data?.message || 'Failed to create task'}</Alert>}
         <div className='mb-4'>
           <TextField size='small' name='label' label='label' placeholder='label' required fullWidth />
           <Typography variant='body2' color='textSecondary'>
-            Give your task a clear and concise name.
+            Donnez à votre tâche un nom clair et concis.
           </Typography>
         </div>
         <div className='mb-4'>
@@ -47,7 +47,7 @@ const CreateTask = ({ mode, onClose }: { mode: SystemMode; onClose: () => void }
             multiline
           />
           <Typography variant='body2' color='textSecondary'>
-            Give your task a clear and concise description.
+            Donnez à votre tâche une description claire et concise.
           </Typography>
         </div>
         <CustomIconButton
@@ -59,7 +59,7 @@ const CreateTask = ({ mode, onClose }: { mode: SystemMode; onClose: () => void }
           disabled={isLoading}
         >
           <span className='tabler-send w-5 h-5 mr-2' />
-          {isLoading ? 'Submit...' : 'Submit'}
+          {isLoading ? 'Soumettre...' : 'Soumettre'}
         </CustomIconButton>
       </form>
     </div>

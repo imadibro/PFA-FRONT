@@ -8,7 +8,7 @@ import { Drawer, Skeleton } from '@mui/material'
 import CustomModal from '@/@core/components/mui/Modal'
 import CustomIconButton from '@/@core/components/mui/IconButton'
 import CreateSite from './Create'
-import { useGetNotAssignedRequirementsQuery } from '@/store/features/requirement/requirementApi'
+import { useGetRequirementQuery } from '@/store/features/requirement/requirementApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import UpdateSite from './Update'
 import { GetColumns, renderChipsCell, renderDateCell, renderTypographyCell } from '@/components/common/GridColumns'
@@ -88,11 +88,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
   }
 
   const { data, error, isLoading } = useGetSiteQuery()
-  const {
-    data: requirementData,
-    error: requirementError,
-    isLoading: isLoadingRequirements
-  } = useGetNotAssignedRequirementsQuery()
+  const { data: requirementData, error: requirementError, isLoading: isLoadingRequirements } = useGetRequirementQuery()
 
   if (error) {
     const errorMessage =
@@ -120,11 +116,16 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
   }
 
   const handleDelete = async (id: string) => {
-    const confirmed = await showConfirm('Are you sure?', "You won't be able to revert this!", 'Delete', 'Cancel')
+    const confirmed = await showConfirm(
+      'Es-tu sûr?',
+      'Vous ne pourrez pas annuler cette action',
+      'Supprimer',
+      'Annuler'
+    )
     if (confirmed) {
       try {
         await deleteSite({ siteId: id })
-        showToast('Deleted successfully!', 'success')
+        showToast('Supprimé avec succès!', 'success')
       } catch (error) {
         showAlert('Error', 'Something wrong went happedn while trying to delete the site', 'error')
       }
@@ -142,7 +143,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
         <Typography variant='h2' className='my-2'>
-          Site List
+          Liste des sites
         </Typography>
         {!isLoadingRequirements && !requirementError && (
           <div>
@@ -154,7 +155,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
               className='h-10'
             >
               <span className='tabler-plus w-5 h-5 mr-2' />
-              Add
+              Ajouter
             </CustomIconButton>
             <CustomModal onClose={() => setOpenModal(false)} open={openModal}>
               <CreateSite mode={mode} requirements={requirementData} close={() => setOpenModal(false)} />
@@ -177,7 +178,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
           toolbar: {
             defaultValue: searchText,
             onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
-            title: 'Tasks'
+            title: 'Sites'
             // handleDateFilter,
             // clearDateFilter,
             // data: dataToExport(),

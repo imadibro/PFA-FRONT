@@ -45,14 +45,13 @@ const UpdateSite = ({
 }) => {
   const [tabValue, setTabValue] = useState('1')
 
-  const [combinedRequirements, setCombinedRequirements] = useState<IRequirement[] | null>([
-    ...requirements,
-    ...(siteToEdit?.requirements || [])
-  ])
+  const [combinedRequirements, setCombinedRequirements] = useState<IRequirement[] | null>(
+    Array.from(new Set([...requirements, ...(siteToEdit?.requirements || [])]))
+  )
 
-  const [selectedRequirements, setSelectedRequirements] = useState<IRequirement[]>([
-    ...(siteToEdit?.requirements || [])
-  ])
+  const [selectedRequirements, setSelectedRequirements] = useState<IRequirement[]>(
+    requirements.filter(req => siteToEdit?.requirements?.some(siteReq => siteReq.id === req.id))
+  )
   const { showAlert, showToast } = useSweetAlert()
 
   const [updateSite, { isLoading, isError, error, isSuccess }] = useUpdateSiteMutation()
@@ -87,7 +86,7 @@ const UpdateSite = ({
     try {
       await updateSite({ id: siteToEdit.id, label, siteNbr, description }).unwrap()
       onClose()
-      showToast('Site updated successfully!', 'success')
+      showToast('Site mis à jour avec succès!', 'success')
     } catch (err) {
       showAlert('Error', 'Something went wrong while trying to update site', 'error')
     }
@@ -134,7 +133,7 @@ const UpdateSite = ({
         <TabContext value={tabValue}>
           <CustomTabList onChange={(_, newValue) => setTabValue(newValue)} color='primary'>
             <Tab label='Site' value='1' />
-            <Tab label='Requirements' value='2' />
+            <Tab label='Exigences' value='2' />
           </CustomTabList>
 
           <TabPanel value='1'>
@@ -151,7 +150,7 @@ const UpdateSite = ({
                   fullWidth
                 />
                 <Typography variant='body2' color='textSecondary'>
-                  Give your site a clear and concise name.
+                  Donnez à votre site un nom clair et concis.
                 </Typography>
               </div>
               <div className='mb-4'>
@@ -165,7 +164,7 @@ const UpdateSite = ({
                   fullWidth
                 />
                 <Typography variant='body2' color='textSecondary'>
-                  Give your Site Number a clear and concise Number.
+                  Donnez à votre numéro de site un numéro clair et concis.
                 </Typography>
               </div>
               <div className='mb-4'>
@@ -181,7 +180,7 @@ const UpdateSite = ({
                   multiline
                 />
                 <Typography variant='body2' color='textSecondary'>
-                  Give your site a clear and concise description.
+                  Donnez à votre site une description claire et concise.
                 </Typography>
               </div>
               <CustomIconButton
@@ -194,8 +193,8 @@ const UpdateSite = ({
               >
                 <span className='tabler-edit w-5 h-5 mr-2' />
                 {isLoading || mapRequirementsToSiteIsLoading || detachRequirementsFromSiteIsLoading
-                  ? 'Updating...'
-                  : 'Update'}
+                  ? 'Mise à jour...'
+                  : 'Mise à jour'}
               </CustomIconButton>
             </form>
           </TabPanel>
@@ -215,7 +214,7 @@ const UpdateSite = ({
                 <Autocomplete
                   multiple
                   id='checkboxes-requirements'
-                  options={combinedRequirements || []}
+                  options={requirements || []}
                   disableCloseOnSelect
                   getOptionLabel={option => option.label}
                   value={selectedRequirements}
@@ -232,8 +231,8 @@ const UpdateSite = ({
                     <TextField
                       {...params}
                       fullWidth
-                      label='Targeted Requirements'
-                      helperText='All the requirements that will be part of this site.'
+                      label='Exigences ciblées'
+                      helperText='Toutes les exigences qui feront partie de ce site.'
                     />
                   )}
                   renderTags={(value, getTagProps) =>
@@ -260,8 +259,8 @@ const UpdateSite = ({
               >
                 <span className='tabler-edit w-5 h-5 mr-2' />
                 {isLoading || mapRequirementsToSiteIsLoading || detachRequirementsFromSiteIsLoading
-                  ? 'Updating...'
-                  : 'Update'}
+                  ? 'Mise à jour...'
+                  : 'Modifier'}
               </CustomIconButton>
             </form>
           </TabPanel>

@@ -17,7 +17,7 @@ const CreateRequirement = ({ mode, onClose }: { mode: SystemMode; onClose: () =>
     const priority = formData.get('priority') as string
     try {
       await CreateRequirement({ label, description, priority }).unwrap()
-      showToast('Task created successfully!', 'success')
+      showToast('Exigence créée avec succès!!', 'success')
       onClose()
     } catch (err) {
       showAlert('Error', 'Something went wrong while trying to create a new requirement', 'error')
@@ -27,13 +27,13 @@ const CreateRequirement = ({ mode, onClose }: { mode: SystemMode; onClose: () =>
     <div className='bg-backgroundPaper p-2'>
       {isError && <Alert severity='error'>{(error as any)?.data?.message || 'Failed to create requirement'}</Alert>}
       <Typography variant='h4' className='my-2'>
-        Create Requirement
+        Créer une exigence
       </Typography>
       <form action='' onSubmit={handleSubmit}>
         <div className='mb-4'>
           <TextField size='small' name='label' label='label' placeholder='label' fullWidth />
           <Typography variant='body2' color='textSecondary'>
-            Give your Requirement a clear and concise name.
+            Donnez à votre exigence un nom clair et concis.
           </Typography>
         </div>
         <div className='mb-4'>
@@ -47,13 +47,13 @@ const CreateRequirement = ({ mode, onClose }: { mode: SystemMode; onClose: () =>
             multiline
           />
           <Typography variant='body2' color='textSecondary'>
-            Give your Requirement a clear and concise description.
+            Donnez à votre exigence une description claire et concise.
           </Typography>
         </div>
 
         <div className='mb-4'>
           <FormControl fullWidth size='small'>
-            <InputLabel id='demo-simple-select-label'>priority</InputLabel>
+            <InputLabel id='demo-simple-select-label'>Priorité</InputLabel>
             <Select labelId='demo-simple-select-label' id='demo-simple-select' name='priority' label='PRIORITY'>
               <MenuItem value={'Faible'}>Faible</MenuItem>
               <MenuItem value={'Moyen'}>Moyen</MenuItem>
@@ -61,7 +61,7 @@ const CreateRequirement = ({ mode, onClose }: { mode: SystemMode; onClose: () =>
             </Select>
           </FormControl>
           <Typography variant='body2' color='textSecondary'>
-            Give your Requirement a clear and concise description.
+            Choisissez une priorité pour votre exigence
           </Typography>
         </div>
 
@@ -74,7 +74,7 @@ const CreateRequirement = ({ mode, onClose }: { mode: SystemMode; onClose: () =>
           disabled={isLoading}
         >
           <span className='tabler-send w-5 h-5 mr-2' />
-          {isLoading ? 'Submit...' : 'Submit'}
+          {isLoading ? 'Soumettre...' : 'Soumettre'}
         </CustomIconButton>
       </form>
     </div>
