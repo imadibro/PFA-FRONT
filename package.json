@@ -21,8 +21,8 @@
     "@mui/lab": "5.0.0-alpha.172",
     "@mui/material": "5.16.4",
     "@mui/material-nextjs": "5.16.4",
+    "@mui/x-data-grid": "^7.26.0",
     "@reduxjs/toolkit": "^2.5.1",
-    "@tanstack/react-query": "^5.66.0",
     "classnames": "2.5.1",
     "next": "14.2.5",
     "next-redux-wrapper": "^8.1.0",
@@ -32,7 +32,9 @@
     "react-perfect-scrollbar": "1.5.8",
     "react-redux": "^9.2.0",
     "react-use": "17.5.1",
-    "server-only": "0.0.1"
+    "server-only": "0.0.1",
+    "sweetalert2": "^11.16.0",
+    "sweetalert2-react-content": "^5.1.0"
   },
   "devDependencies": {
     "@iconify/json": "2.2.230",

@@ -1,67 +1,120 @@
 import type { SystemMode } from '@core/types'
-import Table from '@core/components/mui/Table'
 import Typography from '@mui/material/Typography'
 import CustomIconButton from '@/@core/components/mui/IconButton'
-import { useState } from 'react'
+import { ChangeEvent, useState } from 'react'
 import CustomModal from '@/@core/components/mui/Modal'
 import CreateTask from './Create'
+import { Drawer, Skeleton } from '@mui/material'
+import { useGetTasksQuery, useDeleteTaskMutation } from '@/store/features/task/taskApi'
+import { DataGrid } from '@mui/x-data-grid'
+import { escapeRegExp } from '@mui/x-data-grid/internals'
+import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import UpdateTask from './Update'
+import { GetColumns, renderDateCell, renderTypographyCell } from '@/components/common/GridColumns'
 
-const sampleData = [
+const customColumns = () => [
   {
-    id: 1,
-    label: 'Frozen yoghurt',
-    description: 'this is a description'
+    flex: 1,
+    field: 'label',
+    headerName: 'Label',
+    minWidth: 180,
+    renderCell: renderTypographyCell('label')
   },
   {
-    id: 2,
-    label: 'Ice cream sandwich',
-    description: 'this is a description'
+    flex: 1,
+    minWidth: 250,
+    field: 'description',
+    headerName: 'Description',
+    renderCell: renderTypographyCell('description')
   },
   {
-    id: 3,
-    label: 'Eclair',
-    description: 'this is a description'
-  },
-  {
-    id: 4,
-    label: 'Cupcake',
-    description: 'this is a description'
-  },
-  {
-    id: 5,
-    label: 'Gingerbread',
-    description: 'this is a description'
-  },
-  {
-    id: 6,
-    label: 'Lollipop',
-    description: 'this is a description'
-  },
-  {
-    id: 7,
-    label: 'Macaron',
-    description: 'this is a description'
-  },
-  {
-    id: 8,
-    label: 'Churros',
-    description: 'this is a description'
-  },
-  {
-    id: 9,
-    label: 'Pavlova',
-    description: 'this is a description'
-  },
-  {
-    id: 10,
-    label: 'Tiramisu',
-    description: 'this is a description'
+    flex: 1,
+    minWidth: 170,
+    field: 'createdAt',
+    headerName: 'Creation T',
+    renderCell: renderDateCell('createdAt')
   }
 ]
 
 const TaskList = ({ mode }: { mode: SystemMode }) => {
   const [openModal, setOpenModal] = useState(false)
+  const [searchText, setSearchText] = useState<string>('')
+  const [filteredData, setFilteredData] = useState<ITask[]>([])
+  const [isFiltering, setIsFiltering] = useState(false)
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [taskToEdit, setTaskToEdit] = useState<ITask | null>(null)
+  const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
+  const { showAlert, showConfirm, showToast } = useSweetAlert()
+
+  const { data, error, isLoading } = useGetTasksQuery()
+  const [deleteTask, { isLoading: deleteTaskIsLoading, isError, error: deleteTaskError, isSuccess }] =
+    useDeleteTaskMutation()
+
+  if (error) {
+    const errorMessage =
+      'status' in error
+        ? `Error ${error.status}: ${(error.data as any)?.message || 'Unknown error'}`
+        : error.message || 'An unknown error occurred'
+
+    return <div>Error: {errorMessage}</div>
+  }
+
+  if (isLoading)
+    return (
+      <div>
+        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
+        <Skeleton variant='rectangular' width={'100%'} height={50} />
+        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
+      </div>
+    )
+
+  const handleSearch = (searchValue: string) => {
+    setSearchText(searchValue)
+    const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
+    const filteredRows = data.filter((row: ITask) => {
+      return Object.keys(row).some(field => {
+        if (row[field as keyof ITask] !== null && row[field as keyof ITask] !== undefined) {
+          return searchRegex.test(row[field as keyof ITask]!.toString())
+        }
+      })
+    })
+    if (searchValue.length) {
+      setIsFiltering(true)
+      setFilteredData(filteredRows)
+    } else {
+      setIsFiltering(false)
+      setFilteredData([])
+    }
+  }
+  const toggleForm = () => setIsOpen(prevState => !prevState)
+
+  const toggleEditMode = (task: ITask) => {
+    setIsEditMode(true)
+    setTaskToEdit(task)
+    toggleForm()
+  }
+
+  const handleDelete = async (id: string) => {
+    const confirmed = await showConfirm('Are you sure?', "You won't be able to revert this!", 'Delete', 'Cancel')
+    if (confirmed) {
+      try {
+        await deleteTask({ taskId: id })
+        showToast('Deleted successfully!', 'success')
+      } catch (error) {
+        showAlert('Error', 'Something wrong went happedn while trying to delete the task', 'error')
+      }
+    }
+  }
+
+  const columns = GetColumns({
+    toggleEditMode,
+    deleteObject: handleDelete,
+    customColumns: customColumns(),
+    includeActions: true
+  })
   return (
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
@@ -79,10 +132,39 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
           Add
         </CustomIconButton>
         <CustomModal onClose={() => setOpenModal(false)} open={openModal}>
-          <CreateTask mode={mode} />
+          <CreateTask mode={mode} onClose={() => setOpenModal(false)} />
         </CustomModal>
       </div>
-      <Table data={sampleData} />
+      <DataGrid
+        rowHeight={62}
+        loading={isLoading}
+        rows={data}
+        localeText={{ noRowsLabel: 'Aucune donnes a afficher' }}
+        columns={columns}
+        // slots={{ toolbar: QuickSearchToolbar }}
+        slotProps={{
+          baseButton: {
+            size: 'medium',
+            variant: 'outlined'
+          },
+          toolbar: {
+            defaultValue: searchText,
+            onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
+            title: 'Tasks'
+            // handleDateFilter,
+            // clearDateFilter,
+          }
+        }}
+        disableRowSelectionOnClick
+        pageSizeOptions={[10, 25, 50]}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+      />
+
+      {/* Update Task */}
+      <Drawer open={isOpen} onClose={toggleForm} anchor={'right'}>
+        <UpdateTask mode={mode} taskToEdit={taskToEdit} onClose={toggleForm} />
+      </Drawer>
     </div>
   )
 }

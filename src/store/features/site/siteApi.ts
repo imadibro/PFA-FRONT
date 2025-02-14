@@ -1,0 +1,72 @@
+import { api } from '@/store/api'
+import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
+import { SerializedError } from '@reduxjs/toolkit'
+
+export const siteApi = api.injectEndpoints({
+  endpoints: builder => ({
+    getSite: builder.query<any, FetchBaseQueryError | SerializedError | void>({
+      query: () => 'site',
+      providesTags: [{ type: 'Site', id: 'LIST' }]
+    }),
+    createSite: builder.mutation<any, { label: string; siteNbr: string; description: string }>({
+      query: newSite => ({
+        url: 'site',
+        method: 'POST',
+        body: newSite
+      }),
+      invalidatesTags: [{ type: 'Site', id: 'LIST' }]
+    }),
+    mapRequirementsToSite: builder.mutation<any, { siteId: string; requirementsIds: string[] }>({
+      query: payload => ({
+        url: `site/${payload.siteId}/requirements`,
+        method: 'PATCH',
+        body: payload
+      }),
+      invalidatesTags: [
+        { type: 'Site', id: 'LIST' },
+        { type: 'RequirementsWithNoSite', id: 'LIST' }
+      ]
+    }),
+    deleteSite: builder.mutation<any, { siteId: string }>({
+      query: site => ({
+        url: `site/${site.siteId}`,
+        method: 'DELETE'
+      }),
+      invalidatesTags: [
+        { type: 'RequirementsWithNoSite', id: 'LIST' },
+        { type: 'Site', id: 'LIST' }
+      ]
+    }),
+    updateSite: builder.mutation<any, { id: string; label: string; siteNbr: string; description: string }>({
+      query: site => ({
+        url: `site/${site.id}`,
+        method: 'PATCH',
+        body: site
+      }),
+      invalidatesTags: [
+        { type: 'Site', id: 'LIST' },
+        { type: 'RequirementsWithNoSite', id: 'LIST' }
+      ]
+    }),
+    detachRequirementsFromSite: builder.mutation<any, { siteId: string; requirementsIds: string[] }>({
+      query: payload => ({
+        url: `site/${payload.siteId}/requirements/remove`,
+        method: 'PATCH',
+        body: payload
+      }),
+      invalidatesTags: [
+        { type: 'Site', id: 'LIST' },
+        { type: 'RequirementsWithNoSite', id: 'LIST' }
+      ]
+    })
+  })
+})
+
+export const {
+  useGetSiteQuery,
+  useCreateSiteMutation,
+  useMapRequirementsToSiteMutation,
+  useDeleteSiteMutation,
+  useUpdateSiteMutation,
+  useDetachRequirementsFromSiteMutation
+} = siteApi
