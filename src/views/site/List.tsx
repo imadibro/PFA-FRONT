@@ -39,7 +39,7 @@ const customColumns = () => [
     flex: 1,
     minWidth: 250,
     field: 'requirements',
-    headerName: 'Requirements',
+    headerName: 'Exigences',
     renderCell: renderChipsCell({
       field: 'requirements',
       chipProps: { variant: 'filled', color: 'primary' }
