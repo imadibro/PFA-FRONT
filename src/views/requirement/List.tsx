@@ -30,7 +30,7 @@ const customColumns = () => [
   },
   {
     field: 'priority',
-    headerName: 'Priority',
+    headerName: 'Priorité',
     renderCell: renderChipCell(
       'priority',
       [
@@ -45,7 +45,7 @@ const customColumns = () => [
     flex: 1,
     minWidth: 170,
     field: 'createdAt',
-    headerName: 'Creation T',
+    headerName: 'Creation E',
     renderCell: renderDateCell('createdAt')
   }
 ]
@@ -93,11 +93,16 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
   }
 
   const handleDelete = async (id: string) => {
-    const confirmed = await showConfirm('Are you sure?', "You won't be able to revert this!", 'Delete', 'Cancel')
+    const confirmed = await showConfirm(
+      'Es-tu sûr?',
+      'Vous ne pourrez pas annuler cette action',
+      'Supprimer',
+      'Annuler'
+    )
     if (confirmed) {
       try {
         await deleteRequirement({ requirementId: id })
-        showToast('Deleted successfully!', 'success')
+        showToast('Supprimé avec succès!', 'success')
       } catch (error) {
         showAlert('Error', 'Something wrong went happedn while trying to delete the task', 'error')
       }
@@ -135,7 +140,7 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
         <Typography variant='h2' className='my-2'>
-          Requirement List
+          Liste des exigences
         </Typography>
         <CustomIconButton
           onClick={() => setOpenModal(true)}
@@ -145,7 +150,7 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
           className='h-10'
         >
           <span className='tabler-plus w-5 h-5 mr-2' />
-          Add
+          Ajouter
         </CustomIconButton>
         <CustomModal onClose={() => setOpenModal(false)} open={openModal}>
           <CreateRequirement mode={mode} onClose={() => setOpenModal(false)} />
@@ -167,7 +172,7 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
           toolbar: {
             defaultValue: searchText,
             onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
-            title: 'Requirements'
+            title: 'Exigences'
             // handleDateFilter,
             // clearDateFilter,
             // data: dataToExport(),

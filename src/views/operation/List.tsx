@@ -42,7 +42,7 @@ const customColumns = () => [
     flex: 1,
     minWidth: 170,
     field: 'createdAt',
-    headerName: 'Creation T',
+    headerName: 'Creation O',
     renderCell: renderDateCell('createdAt')
   }
 ]
@@ -108,7 +108,12 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
   }
 
   const handleDelete = async (id: string) => {
-    const confirmed = await showConfirm('Are you sure?', "You won't be able to revert this!", 'Delete', 'Cancel')
+    const confirmed = await showConfirm(
+      'Es-tu sûr?',
+      'Vous ne pourrez pas annuler cette action',
+      'Supprimer',
+      'Annuler'
+    )
     if (confirmed) {
       try {
         await deleteOperation({ operationId: id })
@@ -129,7 +134,7 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
         <Typography variant='h2' className='my-2'>
-          Operation List
+          Liste des opérations
         </Typography>
         {!isLoadingTasks && !taskError && (
           <div>
@@ -141,7 +146,7 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
               className='h-10'
             >
               <span className='tabler-plus w-5 h-5 mr-2' />
-              Add
+              Ajouter
             </CustomIconButton>
             <CustomModal onClose={() => setOpenModal(false)} open={openModal}>
               <CreateOperation mode={mode} tasks={taskData} close={() => setOpenModal(false)} />
@@ -164,7 +169,7 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
           toolbar: {
             defaultValue: searchText,
             onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
-            title: 'Tasks'
+            title: 'Operations'
             // handleDateFilter,
             // clearDateFilter,
             // data: dataToExport(),

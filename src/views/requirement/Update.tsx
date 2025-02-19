@@ -33,7 +33,7 @@ const UpdateRequirement = ({
         description,
         priority: priority
       }).unwrap()
-      showToast('Requirement updated successfully!', 'success')
+      showToast('Exigence mise à jour avec succès !', 'success')
       onClose()
     } catch (err) {
       showAlert('Error', 'Something went wrong while trying to update requirement', 'error')
@@ -43,7 +43,7 @@ const UpdateRequirement = ({
   return (
     <div className='bg-backgroundPaper p-4'>
       <Typography variant='h4' className='my-4'>
-        Update Requirement
+        Mise à jour Exigence
       </Typography>
       <form action='' onSubmit={handleSubmit}>
         {isError && <Alert severity='error'>{(error as any)?.data?.message || 'Failed to update requirement'}</Alert>}
@@ -58,7 +58,7 @@ const UpdateRequirement = ({
             fullWidth
           />
           <Typography variant='body2' color='textSecondary'>
-            Give your requirement a clear and concise label.
+            Donnez à votre exigence une étiquette claire et concise.
           </Typography>
         </div>
         <div className='mb-4'>
@@ -74,12 +74,12 @@ const UpdateRequirement = ({
             multiline
           />
           <Typography variant='body2' color='textSecondary'>
-            Give your requirement a clear and concise description.
+            Donnez à votre exigence une description claire et concise.
           </Typography>
         </div>
         <div className='mb-4'>
           <FormControl fullWidth size='small'>
-            <InputLabel id='priority-label'>priority</InputLabel>
+            <InputLabel id='priority-label'>Priorité</InputLabel>
             <Select
               labelId='priority-label'
               id='demo-simple-select'
@@ -93,7 +93,7 @@ const UpdateRequirement = ({
             </Select>
           </FormControl>
           <Typography variant='body2' color='textSecondary'>
-            Give your Requirement a clear and concise description.
+            Choisissez une priorité pour votre exigence
           </Typography>
         </div>
         <CustomIconButton
@@ -105,7 +105,7 @@ const UpdateRequirement = ({
           disabled={isLoading}
         >
           <span className='tabler-edit w-5 h-5 mr-2' />
-          {isLoading ? 'Updating...' : 'Update'}
+          {isLoading ? 'Mise à jour...' : 'Modifier'}
         </CustomIconButton>
       </form>
     </div>

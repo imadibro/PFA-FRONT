@@ -27,7 +27,7 @@ const UpdateTask = ({
 
     try {
       await updateTask({ id: taskToEdit.id, label, description }).unwrap()
-      showToast('Task Updated successfully!', 'success')
+      showToast('Tâche mise à jour avec succès!', 'success')
       onClose()
     } catch (err) {
       showAlert('Error', 'Something went wrong while trying to Updated the task', 'error')
@@ -37,7 +37,7 @@ const UpdateTask = ({
   return (
     <div className='bg-backgroundPaper p-4'>
       <Typography variant='h4' className='my-4'>
-        Update Task
+        Mettre à jour la tâche
       </Typography>
       <form action='' onSubmit={handleSubmit}>
         {isError && <Alert severity='error'>{(error as any)?.data?.message || 'Failed to update task'}</Alert>}
@@ -52,7 +52,7 @@ const UpdateTask = ({
             fullWidth
           />
           <Typography variant='body2' color='textSecondary'>
-            Give your task a clear and concise name.
+            Donnez à votre tâche un nom clair et concis.
           </Typography>
         </div>
         <div className='mb-4'>
@@ -68,7 +68,7 @@ const UpdateTask = ({
             multiline
           />
           <Typography variant='body2' color='textSecondary'>
-            Give your task a clear and concise description.
+            Donnez à votre tâche une description claire et concise.
           </Typography>
         </div>
         <CustomIconButton
@@ -80,7 +80,7 @@ const UpdateTask = ({
           disabled={isLoading}
         >
           <span className='tabler-edit w-5 h-5 mr-2' />
-          {isLoading ? 'Updating...' : 'Update'}
+          {isLoading ? 'Mise à jour...' : 'Modifier'}
         </CustomIconButton>
       </form>
     </div>

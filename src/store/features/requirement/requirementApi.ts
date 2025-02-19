@@ -16,17 +16,12 @@ export const requirementApi = api.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Requirement', id: 'LIST' }]
     }),
-    getNotAssignedRequirements: builder.query<any, FetchBaseQueryError | SerializedError | void>({
-      query: () => `requirement/withNoSite`,
-      providesTags: [{ type: 'RequirementsWithNoSite', id: 'LIST' }]
-    }),
     deleteRequirement: builder.mutation<any, { requirementId: string }>({
       query: requirement => ({
         url: `requirement/${requirement.requirementId}`,
         method: 'DELETE'
       }),
       invalidatesTags: [
-        { type: 'RequirementsWithNoSite', id: 'LIST' },
         { type: 'Requirement', id: 'LIST' },
         { type: 'Site', id: 'LIST' }
       ]
@@ -37,10 +32,7 @@ export const requirementApi = api.injectEndpoints({
         method: 'PATCH',
         body: requirement
       }),
-      invalidatesTags: [
-        { type: 'Requirement', id: 'LIST' },
-        { type: 'RequirementsWithNoSite', id: 'LIST' }
-      ]
+      invalidatesTags: [{ type: 'Requirement', id: 'LIST' }]
     })
   })
 })
@@ -48,7 +40,6 @@ export const requirementApi = api.injectEndpoints({
 export const {
   useGetRequirementQuery,
   useCreateRequirementMutation,
-  useGetNotAssignedRequirementsQuery,
   useDeleteRequirementMutation,
   useUpdateRequirementMutation
 } = requirementApi

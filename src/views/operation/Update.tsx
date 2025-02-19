@@ -81,7 +81,7 @@ const UpdateOperation = ({
     try {
       await updateOperation({ id: operationToEdit.id, label, description }).unwrap()
       onClose()
-      showToast('Operation updated successfully!', 'success')
+      showToast('Opération mise à jour avec succès!', 'success')
     } catch (err) {
       showAlert('Error', 'Something went wrong while trying to update operation', 'error')
     }
@@ -113,7 +113,7 @@ const UpdateOperation = ({
         await Promise.all(requests)
       }
       onClose()
-      showToast('operation tasks updated successfully!', 'success')
+      showToast("tâches d'opération mises à jour avec succès!", 'success')
     } catch (err) {
       showAlert('Error', 'Something went wrong while trying to update operation tasks', 'error')
     }
@@ -143,7 +143,7 @@ const UpdateOperation = ({
                   fullWidth
                 />
                 <Typography variant='body2' color='textSecondary'>
-                  Give your operation a clear and concise name.
+                  Donnez à votre opération un nom clair et concis.
                 </Typography>
               </div>
               <div className='mb-4'>
@@ -159,7 +159,7 @@ const UpdateOperation = ({
                   multiline
                 />
                 <Typography variant='body2' color='textSecondary'>
-                  Give your operation a clear and concise description.
+                  Donnez à votre opération une description claire et concise.
                 </Typography>
               </div>
               <CustomIconButton
@@ -172,8 +172,8 @@ const UpdateOperation = ({
               >
                 <span className='tabler-edit w-5 h-5 mr-2' />
                 {isLoading || mapTasksToOperationIsLoading || detachTasksFromOperationIsLoading
-                  ? 'Updating...'
-                  : 'Update'}
+                  ? 'Mise à jour...'
+                  : 'Modifier'}
               </CustomIconButton>
             </form>
           </TabPanel>
@@ -210,8 +210,8 @@ const UpdateOperation = ({
                     <TextField
                       {...params}
                       fullWidth
-                      label='Targeted Tasks'
-                      helperText='All the tasks that will be part of this operation.'
+                      label='Tâches ciblées'
+                      helperText='Toutes les tâches qui feront partie de cette opération.'
                     />
                   )}
                   renderTags={(value, getTagProps) =>
@@ -238,8 +238,8 @@ const UpdateOperation = ({
               >
                 <span className='tabler-edit w-5 h-5 mr-2' />
                 {isLoading || mapTasksToOperationIsLoading || detachTasksFromOperationIsLoading
-                  ? 'Updating...'
-                  : 'Update'}
+                  ? 'Mise à jour...'
+                  : 'Modifier'}
               </CustomIconButton>
             </form>
           </TabPanel>
