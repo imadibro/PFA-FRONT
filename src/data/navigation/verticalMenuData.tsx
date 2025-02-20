@@ -13,6 +13,11 @@ const verticalMenuData = (): VerticalMenuDataType[] => [
     icon: 'tabler-info-circle'
   },
   {
+    label: 'Carte',
+    href: '/card',
+    icon: 'tabler-credit-card-filled'
+  },
+  {
     label: 'Operation',
     href: '/operation',
     icon: 'tabler-repeat'

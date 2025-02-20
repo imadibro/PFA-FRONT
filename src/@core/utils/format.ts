@@ -1,3 +1,7 @@
+import dayjs from 'dayjs'
+
+import { FR_DATE_TIME_FORMAT } from "./constants"
+
 // Format Date FR
 export const formatDateFR = (date: Date, isForExcel = false) => {
   const newDate = new Date(date)
@@ -22,4 +26,8 @@ export function formatDate(date: number | Date | string) {
   const year = d.getFullYear()
 
   return `${day}/${month}/${year}`
+}
+
+export const formatToFrDate = (date: Date | string) => {
+  return date ? dayjs(new Date(date)).format(FR_DATE_TIME_FORMAT) : ''
 }

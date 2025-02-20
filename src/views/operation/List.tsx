@@ -1,10 +1,14 @@
-import type { SystemMode } from '@core/types'
-import Typography from '@mui/material/Typography'
-import { useDeleteOperationMutation, useGetOperationsQuery } from '@/store/features/operation/operationApi'
+import type { ChangeEvent} from 'react';
+import { useState } from 'react'
+
 import { DataGrid } from '@mui/x-data-grid'
-import { ChangeEvent, useState } from 'react'
+import Typography from '@mui/material/Typography'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { Drawer, Skeleton } from '@mui/material'
+
+import { useDeleteOperationMutation, useGetOperationsQuery } from '@/store/features/operation/operationApi'
+
+import type { SystemMode } from '@core/types'
 import CustomModal from '@/@core/components/mui/Modal'
 import CreateOperation from './Create'
 import CustomIconButton from '@/@core/components/mui/IconButton'
@@ -58,12 +62,14 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
   const { showAlert, showConfirm, showToast } = useSweetAlert()
+
   const [deleteOperation, { isLoading: deleteOperationIsLoading, isError, error: deleteOperationError, isSuccess }] =
     useDeleteOperationMutation()
 
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
     const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
+
     const filteredRows = data.filter((row: IRequirement) => {
       return Object.keys(row).some(field => {
         if (row[field as keyof IRequirement] !== null && row[field as keyof IRequirement] !== undefined) {
@@ -71,6 +77,7 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
         }
       })
     })
+
     if (searchValue.length) {
       setIsFiltering(true)
       setFilteredData(filteredRows)
@@ -79,6 +86,7 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
       setFilteredData([])
     }
   }
+
   const { data, error, isLoading } = useGetOperationsQuery()
   const { data: taskData, error: taskError, isLoading: isLoadingTasks } = useGetNotAssignedTasksQuery()
 
@@ -114,6 +122,7 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
       'Supprimer',
       'Annuler'
     )
+
     if (confirmed) {
       try {
         await deleteOperation({ operationId: id })
@@ -130,7 +139,9 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
     customColumns: customColumns(),
     includeActions: true
   })
-  return (
+  
+return (
+
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
         <Typography variant='h2' className='my-2'>
@@ -160,6 +171,7 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
         rows={data}
         localeText={{ noRowsLabel: 'Aucune donnes a afficher' }}
         columns={columns}
+
         // slots={{ toolbar: QuickSearchToolbar }}
         slotProps={{
           baseButton: {
@@ -170,6 +182,7 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
             defaultValue: searchText,
             onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
             title: 'Operations'
+
             // handleDateFilter,
             // clearDateFilter,
             // data: dataToExport(),

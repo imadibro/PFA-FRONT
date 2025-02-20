@@ -1,7 +1,11 @@
-import type { SystemMode } from '@core/types'
+import type { ChangeEvent} from 'react';
+import { useState } from 'react'
 import Typography from '@mui/material/Typography'
+import { Drawer, Skeleton } from '@mui/material'
+import { DataGrid } from '@mui/x-data-grid'
+import { escapeRegExp } from '@mui/x-data-grid/internals'
+import type { SystemMode } from '@core/types'
 import CustomIconButton from '@/@core/components/mui/IconButton'
-import { ChangeEvent, useState } from 'react'
 import CustomModal from '@/@core/components/mui/Modal'
 import CreateTask from './Create'
 import { Drawer, Skeleton } from '@mui/material'
@@ -12,6 +16,12 @@ import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import UpdateTask from './Update'
 import { GetColumns, renderDateCell, renderTypographyCell } from '@/components/common/GridColumns'
+import { useGetTasksQuery, useDeleteTaskMutation } from '@/store/features/task/taskApi'
+import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import UpdateTask from './Update'
+import { GetColumns, renderDateCell, renderTypographyCell } from '@/components/common/GridColumns'
+import { ITask } from '@/@core/utils/types';
 
 const customColumns = () => [
   {
@@ -50,6 +60,7 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
   const { showAlert, showConfirm, showToast } = useSweetAlert()
 
   const { data, error, isLoading } = useGetTasksQuery()
+
   const [deleteTask, { isLoading: deleteTaskIsLoading, isError, error: deleteTaskError, isSuccess }] =
     useDeleteTaskMutation()
 
@@ -81,6 +92,7 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
         }
       })
     })
+
     if (searchValue.length) {
       setIsFiltering(true)
       setFilteredData(filteredRows)
@@ -89,6 +101,7 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
       setFilteredData([])
     }
   }
+
   const toggleForm = () => setIsOpen(prevState => !prevState)
 
   const toggleEditMode = (task: ITask) => {
@@ -104,6 +117,7 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
       'Supprimer',
       'Annuler'
     )
+
     if (confirmed) {
       try {
         await deleteTask({ taskId: id })
@@ -120,7 +134,8 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
     customColumns: customColumns(),
     includeActions: true
   })
-  return (
+ 
+return (
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
         <Typography variant='h2' className='my-2'>

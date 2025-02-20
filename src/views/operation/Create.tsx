@@ -1,10 +1,8 @@
 'use client'
 
 import React, { useRef } from 'react'
-import type { SystemMode } from '@core/types'
 import Typography from '@mui/material/Typography'
 import { Button, StepLabel, TextField } from '@mui/material'
-import { useCreateOperationMutation, useMapTasksToOperationMutation } from '@/store/features/operation/operationApi'
 import Autocomplete from '@mui/material/Autocomplete'
 import Chip from '@mui/material/Chip'
 import { styled } from '@mui/material/styles'
@@ -13,6 +11,8 @@ import Checkbox from '@mui/material/Checkbox'
 import Stepper from '@mui/material/Stepper'
 import Step from '@mui/material/Step'
 import Box from '@mui/material/Box'
+import { useCreateOperationMutation, useMapTasksToOperationMutation } from '@/store/features/operation/operationApi'
+import type { SystemMode } from '@core/types'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
 const steps = ['Créer une opération', "Affecter les tâches à l'opération"]
@@ -32,9 +32,11 @@ const checkedIcon = <i className='tabler:checkbox' />
 
 const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITask[]; close: () => void }) => {
   const [activeStep, setActiveStep] = React.useState(0)
+
   const [completed, setCompleted] = React.useState<{
     [k: number]: boolean
   }>({})
+
   const [isStep1Submitted, setStep1IsSubmitted] = React.useState(false)
   const [selectedTasks, setSelectedTasks] = React.useState<ITask[]>([])
   const [createdOperation, setCreatedOperation] = React.useState<IOperation>()
@@ -68,11 +70,13 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
     if (isStep1Submitted) {
       const newActiveStep =
         isLastStep() && !allStepsCompleted() ? steps.findIndex((step, i) => !(i in completed)) : activeStep + 1
+
       setActiveStep(newActiveStep)
     }
   }
 
   const [createOperation, { isLoading, isError, error, isSuccess }] = useCreateOperationMutation()
+
   const [
     mapTasksToOperation,
     { isLoading: mapTasksLoading, isError: mapTasksIsError, error: mapTasksError, isSuccess: mapTasksIsSuccess }
@@ -83,8 +87,10 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
     const formData = new FormData(event.currentTarget as HTMLFormElement)
     const label = formData.get('label') as string
     const description = formData.get('description') as string
+
     try {
       const response: IOperation = await createOperation({ label, description }).unwrap()
+
       setCreatedOperation(response)
       setActiveStep(1)
       showToast('Opération créée avec succès!', 'success')
@@ -104,10 +110,12 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
     if (!selectedTasks?.length) {
       showToast('Tâches créées avec succès!', 'success')
       close()
+      
       return
     }
 
     const tasksIds = selectedTasks?.map((task: ITask) => task.id)
+
     try {
       await mapTasksToOperation({ operationId: createdOperation.id, tasksIds }).unwrap()
       setActiveStep(1)
