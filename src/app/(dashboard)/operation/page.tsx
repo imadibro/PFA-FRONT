@@ -8,7 +8,7 @@ import Tabs from '@views/operation/Tabs'
 import { getServerMode } from '@core/utils/serverHelpers'
 
 export const metadata: Metadata = {
-  title: 'Operation',
+  title: 'Liste des opérations',
   description: 'Operation Page'
 }
 

@@ -9,21 +9,29 @@ import { formatToFrDate } from '@core/utils/format'
 import type { IActionColumnsProps, ICellType, ICard } from '@core/utils/types'
 
 import QuickSearchToolbar from '@core/components/quicksearch/QuickSearchToolbar'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
 const RowOptions = ({ row, toggleEditMode, deleteObject }: IActionColumnsProps<ICard>) => {
+  const { showConfirm } = useSweetAlert()
+
   const handleEdit = () => {
     toggleEditMode(row!)
   }
 
-  const handleDelete = () => {
-    row && deleteObject(row.id!)
+  const handleDelete = async () => {
+    const result = await showConfirm('Êtes-vous sûr de vouloir supprimer cette carte ?', '', 'confirme')
+
+    if (result) row && deleteObject(row.id!)
   }
 
   return (
     <>
-      <IconButton color='info' size='small' title='Detail' 
+      <IconButton
+        color='info'
+        size='small'
+        title='Detail'
 
-      // onClick={handleEdit}
+        // onClick={handleEdit}
       >
         <Icon icon='mdi:card-account-details-outline' />
       </IconButton>

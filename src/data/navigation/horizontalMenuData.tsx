@@ -13,38 +13,19 @@ const horizontalMenuData = (): HorizontalMenuDataType[] => [
     icon: 'tabler-info-circle'
   },
   {
+    label: 'Carte',
+    href: '/card',
+    icon: 'tabler-credit-card-filled'
+  },
+  {
     label: 'Operation',
     href: '/operation',
-    icon: 'tabler-list-check',
-    children: [
-      {
-        label: 'Operation List',
-        href: '/operation',
-        icon: 'tabler-list'
-      },
-      {
-        label: 'Create Operation',
-        href: '/operation/create',
-        icon: 'tabler-plus'
-      }
-    ]
+    icon: 'tabler-list-check'
   },
   {
     label: 'Site',
     href: '/site',
-    icon: 'tabler-building',
-    children: [
-      {
-        label: 'Site List',
-        href: '/site',
-        icon: 'tabler-list'
-      },
-      {
-        label: 'Create site',
-        href: '/site/create',
-        icon: 'tabler-plus'
-      }
-    ]
+    icon: 'tabler-building'
   }
 ]
 

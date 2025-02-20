@@ -73,20 +73,20 @@ export const CardCont = () => {
 
   const handleAdd = async (newCard: ICardRequest) => {
     if (!newCard) return
-  
+
     try {
-      setIsLoading(true) 
+      setIsLoading(true)
       const card = await cardService.postCard(newCard)
-  
-      setCards(prevCards => [card, ...prevCards]) 
+
+      setCards(prevCards => [card, ...prevCards])
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.ADD))
-      
+
       toggleForm()
     } catch (error) {
       console.error('Error adding card:', error)
       toast.error('Failed to add card')
     } finally {
-      setIsLoading(false) 
+      setIsLoading(false)
     }
   }
 

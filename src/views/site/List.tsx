@@ -1,107 +1,200 @@
 import type { SystemMode } from '@core/types'
-import Table from '@core/components/mui/Table'
 import Typography from '@mui/material/Typography'
+import { useDeleteSiteMutation, useGetSiteQuery } from '@/store/features/site/siteApi'
+import { DataGrid } from '@mui/x-data-grid'
+import { ChangeEvent, useState } from 'react'
+import { escapeRegExp } from '@mui/x-data-grid/internals'
+import { Drawer, Skeleton } from '@mui/material'
+import CustomModal from '@/@core/components/mui/Modal'
+import CustomIconButton from '@/@core/components/mui/IconButton'
+import CreateSite from './Create'
+import { useGetRequirementQuery } from '@/store/features/requirement/requirementApi'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import UpdateSite from './Update'
+import { GetColumns, renderChipsCell, renderDateCell, renderTypographyCell } from '@/components/common/GridColumns'
 
-const sampleData = [
+const customColumns = () => [
   {
-    id: 1,
-    label: 'Frozen yoghurt',
-    description: 'this is a description',
-    requirements: [
-      { id: 1, label: 'Task 1', description: 'Description for task 1' },
-      { id: 2, label: 'Task 2', description: 'Description for task 2' }
-    ]
+    flex: 1,
+    field: 'siteNbr',
+    headerName: 'site Number',
+    minWidth: 180,
+    renderCell: renderTypographyCell('siteNbr')
   },
   {
-    id: 2,
-    label: 'Ice cream sandwich',
-    description: 'this is a description',
-    requirements: [
-      { id: 3, label: 'Task 1', description: 'Description for task 1' },
-      { id: 4, label: 'Task 2', description: 'Description for task 2' }
-    ]
+    flex: 1,
+    field: 'label',
+    headerName: 'Label',
+    minWidth: 180,
+    renderCell: renderTypographyCell('label')
   },
   {
-    id: 3,
-    label: 'Eclair',
-    description: 'this is a description',
-    requirements: [
-      { id: 5, label: 'Task 1', description: 'Description for task 1' },
-      { id: 6, label: 'Task 2', description: 'Description for task 2' }
-    ]
+    flex: 1,
+    minWidth: 250,
+    field: 'description',
+    headerName: 'Description',
+    renderCell: renderTypographyCell('description')
   },
   {
-    id: 4,
-    label: 'Cupcake',
-    description: 'this is a description',
-    requirements: [
-      { id: 7, label: 'Task 1', description: 'Description for task 1' },
-      { id: 8, label: 'Task 2', description: 'Description for task 2' }
-    ]
+    flex: 1,
+    minWidth: 250,
+    field: 'requirements',
+    headerName: 'Exigences',
+    renderCell: renderChipsCell({
+      field: 'requirements',
+      chipProps: { variant: 'filled', color: 'primary' }
+    })
   },
   {
-    id: 5,
-    label: 'Gingerbread',
-    description: 'this is a description',
-    requirements: [
-      { id: 9, label: 'Task 1', description: 'Description for task 1' },
-      { id: 10, label: 'Task 2', description: 'Description for task 2' }
-    ]
-  },
-  {
-    id: 6,
-    label: 'Lollipop',
-    description: 'this is a description',
-    requirements: [
-      { id: 11, label: 'Task 1', description: 'Description for task 1' },
-      { id: 12, label: 'Task 2', description: 'Description for task 2' }
-    ]
-  },
-  {
-    id: 7,
-    label: 'Macaron',
-    description: 'this is a description',
-    requirements: [
-      { id: 13, label: 'Task 1', description: 'Description for task 1' },
-      { id: 14, label: 'Task 2', description: 'Description for task 2' }
-    ]
-  },
-  {
-    id: 8,
-    label: 'Churros',
-    description: 'this is a description',
-    requirements: [
-      { id: 15, label: 'Task 1', description: 'Description for task 1' },
-      { id: 16, label: 'Task 2', description: 'Description for task 2' }
-    ]
-  },
-  {
-    id: 9,
-    label: 'Pavlova',
-    description: 'this is a description',
-    requirements: [
-      { id: 17, label: 'Task 1', description: 'Description for task 1' },
-      { id: 18, label: 'Task 2', description: 'Description for task 2' }
-    ]
-  },
-  {
-    id: 10,
-    label: 'Tiramisu',
-    description: 'this is a description',
-    requirements: [
-      { id: 19, label: 'Task 1', description: 'Description for task 1' },
-      { id: 20, label: 'Task 2', description: 'Description for task 2' }
-    ]
+    flex: 1,
+    minWidth: 170,
+    field: 'createdAt',
+    headerName: 'Creation S',
+    renderCell: renderDateCell('createdAt')
   }
 ]
 
 const SiteList = ({ mode }: { mode: SystemMode }) => {
+  const [openModal, setOpenModal] = useState(false)
+  const [searchText, setSearchText] = useState<string>('')
+  const [filteredData, setFilteredData] = useState<IRequirement[]>([])
+  const [isFiltering, setIsFiltering] = useState(false)
+  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [siteToEdit, setSiteToEdit] = useState<ISite | null>(null)
+  const [isEditMode, setIsEditMode] = useState<boolean>(false)
+
+  const { showAlert, showConfirm, showToast } = useSweetAlert()
+  const [deleteSite, { isLoading: deleteSiteIsLoading, isError, error: deleteSiteError, isSuccess }] =
+    useDeleteSiteMutation()
+
+  const handleSearch = (searchValue: string) => {
+    setSearchText(searchValue)
+    const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
+    const filteredRows = data.filter((row: IRequirement) => {
+      return Object.keys(row).some(field => {
+        if (row[field as keyof IRequirement] !== null && row[field as keyof IRequirement] !== undefined) {
+          return searchRegex.test(row[field as keyof IRequirement]!.toString())
+        }
+      })
+    })
+    if (searchValue.length) {
+      setIsFiltering(true)
+      setFilteredData(filteredRows)
+    } else {
+      setIsFiltering(false)
+      setFilteredData([])
+    }
+  }
+
+  const { data, error, isLoading } = useGetSiteQuery()
+  const { data: requirementData, error: requirementError, isLoading: isLoadingRequirements } = useGetRequirementQuery()
+
+  if (error) {
+    const errorMessage =
+      'status' in error
+        ? `Error ${error.status}: ${(error.data as any)?.message || 'Unknown error'}`
+        : error.message || 'An unknown error occurred'
+
+    return <div>Error: {errorMessage}</div>
+  }
+  if (isLoading)
+    return (
+      <div>
+        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
+        <Skeleton variant='rectangular' width={'100%'} height={50} />
+        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
+      </div>
+    )
+
+  const toggleForm = () => setIsOpen(prevState => !prevState)
+
+  const toggleEditMode = (site: ISite) => {
+    setIsEditMode(true)
+    setSiteToEdit(site)
+    toggleForm()
+  }
+
+  const handleDelete = async (id: string) => {
+    const confirmed = await showConfirm(
+      'Es-tu sûr?',
+      'Vous ne pourrez pas annuler cette action',
+      'Supprimer',
+      'Annuler'
+    )
+    if (confirmed) {
+      try {
+        await deleteSite({ siteId: id })
+        showToast('Supprimé avec succès!', 'success')
+      } catch (error) {
+        showAlert('Error', 'Something wrong went happedn while trying to delete the site', 'error')
+      }
+    }
+  }
+
+  const columns = GetColumns({
+    toggleEditMode,
+    deleteObject: handleDelete,
+    customColumns: customColumns(),
+    includeActions: true
+  })
+
   return (
     <div className='bg-backgroundPaper p-6'>
-      <Typography variant='h2' className='my-2'>
-        Site List
-      </Typography>
-      <Table data={sampleData} />
+      <div className='flex justify-between items-center'>
+        <Typography variant='h2' className='my-2'>
+          Liste des sites
+        </Typography>
+        {!isLoadingRequirements && !requirementError && (
+          <div>
+            <CustomIconButton
+              onClick={() => setOpenModal(true)}
+              color='primary'
+              variant='tonal'
+              size='small'
+              className='h-10'
+            >
+              <span className='tabler-plus w-5 h-5 mr-2' />
+              Ajouter
+            </CustomIconButton>
+            <CustomModal onClose={() => setOpenModal(false)} open={openModal}>
+              <CreateSite mode={mode} requirements={requirementData} close={() => setOpenModal(false)} />
+            </CustomModal>
+          </div>
+        )}
+      </div>
+      <DataGrid
+        rowHeight={62}
+        loading={isLoading}
+        rows={data}
+        localeText={{ noRowsLabel: 'Aucune donnes a afficher' }}
+        columns={columns}
+        // slots={{ toolbar: QuickSearchToolbar }}
+        slotProps={{
+          baseButton: {
+            size: 'medium',
+            variant: 'outlined'
+          },
+          toolbar: {
+            defaultValue: searchText,
+            onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
+            title: 'Sites'
+            // handleDateFilter,
+            // clearDateFilter,
+            // data: dataToExport(),
+            // showExcel: true
+          }
+        }}
+        disableRowSelectionOnClick
+        pageSizeOptions={[10, 25, 50]}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+      />
+
+      {/* Update Operation */}
+      <Drawer open={isOpen} onClose={toggleForm} anchor={'right'}>
+        <UpdateSite mode={mode} siteToEdit={siteToEdit} requirements={requirementData} onClose={toggleForm} />
+      </Drawer>
     </div>
   )
 }

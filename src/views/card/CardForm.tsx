@@ -9,6 +9,7 @@ import CustomTextField from '@core/components/mui/TextField'
 
 import type { ICard, ICardRequest } from '@core/utils/types'
 import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
+import { formatToFrDate } from '@/@core/utils/format'
 
 interface Props {
   isOpen: boolean
@@ -35,10 +36,16 @@ const schema = yup
 export default function CardForm(props: Props) {
   const { isOpen, toggleForm, cardToEdit, isEditMode, handleAdd, cancleEditMode, handleEdit } = props
 
+  // const defaultValues: ICardRequest = {
+  //   matricule: isEditMode ? (cardToEdit?.matricule ?? '') : '',
+  //   expireDate: isEditMode ? (cardToEdit?.expireDate ?? '') : '',
+  //   balance: isEditMode ? (cardToEdit?.balance ?? 0) : 0
+  // }
+
   const defaultValues: ICardRequest = {
-    matricule: isEditMode ? (cardToEdit?.matricule ?? '') : '',
-    expireDate: isEditMode ? (cardToEdit?.expireDate ?? '') : '',
-    balance: isEditMode ? (cardToEdit?.balance ?? 0) : 0
+    matricule: isEditMode ? cardToEdit?.matricule : '',
+    expireDate: isEditMode ? formatToFrDate(cardToEdit?.expireDate as string) : '',
+    balance: isEditMode ? cardToEdit?.balance : 0
   }
 
   const {
