@@ -1,10 +1,8 @@
 'use client'
 
 import React, { useRef } from 'react'
-
 import Typography from '@mui/material/Typography'
 import { Button, StepLabel, TextField } from '@mui/material'
-
 import Autocomplete from '@mui/material/Autocomplete'
 import Chip from '@mui/material/Chip'
 import { styled } from '@mui/material/styles'
@@ -13,7 +11,6 @@ import Checkbox from '@mui/material/Checkbox'
 import Stepper from '@mui/material/Stepper'
 import Step from '@mui/material/Step'
 import Box from '@mui/material/Box'
-
 import { useCreateOperationMutation, useMapTasksToOperationMutation } from '@/store/features/operation/operationApi'
 import type { SystemMode } from '@core/types'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
@@ -114,7 +111,7 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
       showToast('Tâches créées avec succès!', 'success')
       close()
       
-return
+      return
     }
 
     const tasksIds = selectedTasks?.map((task: ITask) => task.id)

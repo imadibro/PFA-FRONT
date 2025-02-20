@@ -1,26 +1,22 @@
 import type { ChangeEvent} from 'react';
-
 import { useState } from 'react'
-
 import Typography from '@mui/material/Typography'
-
 import { Drawer, Skeleton } from '@mui/material'
-
 import { DataGrid } from '@mui/x-data-grid'
-
 import { escapeRegExp } from '@mui/x-data-grid/internals'
-
 import type { SystemMode } from '@core/types'
 import CustomIconButton from '@/@core/components/mui/IconButton'
-
-
 import CustomModal from '@/@core/components/mui/Modal'
 import CreateTask from './Create'
-
-
+import { Drawer, Skeleton } from '@mui/material'
 import { useGetTasksQuery, useDeleteTaskMutation } from '@/store/features/task/taskApi'
-
-
+import { DataGrid } from '@mui/x-data-grid'
+import { escapeRegExp } from '@mui/x-data-grid/internals'
+import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import UpdateTask from './Update'
+import { GetColumns, renderDateCell, renderTypographyCell } from '@/components/common/GridColumns'
+import { useGetTasksQuery, useDeleteTaskMutation } from '@/store/features/task/taskApi'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import UpdateTask from './Update'
@@ -89,7 +85,6 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
     const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
-
     const filteredRows = data.filter((row: ITask) => {
       return Object.keys(row).some(field => {
         if (row[field as keyof ITask] !== null && row[field as keyof ITask] !== undefined) {
@@ -139,8 +134,7 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
     customColumns: customColumns(),
     includeActions: true
   })
-
-  
+ 
 return (
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
@@ -167,7 +161,6 @@ return (
         rows={data}
         localeText={{ noRowsLabel: 'Aucune donnes a afficher' }}
         columns={columns}
-
         // slots={{ toolbar: QuickSearchToolbar }}
         slotProps={{
           baseButton: {
@@ -178,7 +171,6 @@ return (
             defaultValue: searchText,
             onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
             title: 'Taches'
-
             // handleDateFilter,
             // clearDateFilter,
           }

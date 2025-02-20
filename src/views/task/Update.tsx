@@ -1,11 +1,9 @@
 import Typography from '@mui/material/Typography'
 import { Alert, TextField } from '@mui/material'
-
 import type { SystemMode } from '@core/types'
 import CustomIconButton from '@/@core/components/mui/IconButton'
 import { useUpdateTaskMutation } from '@/store/features/task/taskApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-
 import type { ITask } from '@/@core/utils/types'
 
 const UpdateTask = ({
