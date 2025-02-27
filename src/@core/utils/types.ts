@@ -12,7 +12,7 @@ export interface ICard extends ICommonProps {
   balance: number
 }
 export interface ICardRequest {
-  id?:string
+  id?: string
   matricule?: string
   expireDate?: string
   balance?: number
@@ -36,26 +36,68 @@ export interface ITask {
   id: string
   label: string
   description: string
+  createdAt?: string
+  updatedAt?: string
 }
 
-interface IRequirement {
+export interface IRequirement {
   id: string
   label: string
   description: string
   priority: string
+  createdAt?: string
+  updatedAt?: string
 }
 
-interface IOperation {
+export interface IOperation {
   id: string
   label: string
   description: string
   tasks?: ITask[]
+  createdAt?: string
+  updatedAt?: string
 }
 
-interface ISite {
+export interface ISite {
   id: string
   label: string
   siteNbr: string
   description: string
   requirements?: IRequirement[]
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface IEmployee {
+  id: string
+  username: string
+  email: string
+  firstName: string
+  lastName: string
+  password: string
+  role: IRole
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface IRole {
+  id: string
+  role: string
+  employees?: IEmployee[]
+  createdAt?: string
+  updatedAt?: string
+}
+
+export type IAbsenceReasons = 'Malade' | 'Congie' | 'Autre'
+
+export interface IAbsence {
+  id: string
+  employee: IEmployee
+  absence: IAbsenceReasons
+  autre?: string
+  startDate: string
+  endDate: string
+  notes?: string
+  createdAt?: string
+  updatedAt?: string
 }

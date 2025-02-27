@@ -1,6 +1,6 @@
 import dayjs from 'dayjs'
 
-import { FR_DATE_TIME_FORMAT } from "./constants"
+import { FR_DATE_TIME_FORMAT } from './constants'
 
 // Format Date FR
 export const formatDateFR = (date: Date, isForExcel = false) => {
@@ -30,4 +30,24 @@ export function formatDate(date: number | Date | string) {
 
 export const formatToFrDate = (date: Date | string) => {
   return date ? dayjs(new Date(date)).format(FR_DATE_TIME_FORMAT) : ''
+}
+
+// Format time in French format (HH:MM) in UTC
+export const formatTimeFR = (date: Date) => {
+  const hours = String(date.getUTCHours()).padStart(2, '0')
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0')
+  return `${hours}:${minutes}`
+}
+
+// convert string date to Date object
+export const stringToDate = (date: string) => {
+  const [day, month, year] = date.split('/').map(Number)
+
+  // Validate that day, month, and year are valid numbers
+  if (!day || !month || !year) return null
+
+  const parsedDate = new Date(year, month - 1, day)
+
+  // Ensure the date is valid
+  return isNaN(parsedDate.getTime()) ? null : parsedDate
 }

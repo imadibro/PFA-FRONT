@@ -1,21 +1,18 @@
 'use client'
 
-import React, { useRef } from 'react'
+import React from 'react'
 import Typography from '@mui/material/Typography'
-import { Button, StepLabel, TextField } from '@mui/material'
+import { Button, IconButton, TextField } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
 import Chip from '@mui/material/Chip'
 import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
 import Checkbox from '@mui/material/Checkbox'
-import Stepper from '@mui/material/Stepper'
-import Step from '@mui/material/Step'
 import Box from '@mui/material/Box'
-import { useCreateOperationMutation, useMapTasksToOperationMutation } from '@/store/features/operation/operationApi'
+import { useCreateOperationMutation } from '@/store/features/operation/operationApi'
 import type { SystemMode } from '@core/types'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-
-const steps = ['Créer une opération', "Affecter les tâches à l'opération"]
+import { IOperation, ITask } from '@/@core/utils/types'
 
 const StyledChip = styled(Chip)({
   '&.MuiChip-root': {
@@ -31,56 +28,10 @@ const icon = <i className='tabler:circle-check' />
 const checkedIcon = <i className='tabler:checkbox' />
 
 const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITask[]; close: () => void }) => {
-  const [activeStep, setActiveStep] = React.useState(0)
-
-  const [completed, setCompleted] = React.useState<{
-    [k: number]: boolean
-  }>({})
-
-  const [isStep1Submitted, setStep1IsSubmitted] = React.useState(false)
   const [selectedTasks, setSelectedTasks] = React.useState<ITask[]>([])
-  const [createdOperation, setCreatedOperation] = React.useState<IOperation>()
   const { showAlert, showToast } = useSweetAlert()
 
-  const formStep1Ref = useRef<HTMLFormElement | null>(null)
-
-  const totalSteps = () => {
-    return steps.length
-  }
-
-  const completedSteps = () => {
-    return Object.keys(completed).length
-  }
-
-  const isLastStep = () => {
-    return activeStep === totalSteps() - 1
-  }
-
-  const allStepsCompleted = () => {
-    return completedSteps() === totalSteps()
-  }
-
-  const handleNext = async () => {
-    if (activeStep == 0 && formStep1Ref.current && !isStep1Submitted) {
-      formStep1Ref.current.requestSubmit()
-    } else if (activeStep == 1) {
-      await handleComplete()
-    }
-
-    if (isStep1Submitted) {
-      const newActiveStep =
-        isLastStep() && !allStepsCompleted() ? steps.findIndex((step, i) => !(i in completed)) : activeStep + 1
-
-      setActiveStep(newActiveStep)
-    }
-  }
-
   const [createOperation, { isLoading, isError, error, isSuccess }] = useCreateOperationMutation()
-
-  const [
-    mapTasksToOperation,
-    { isLoading: mapTasksLoading, isError: mapTasksIsError, error: mapTasksError, isSuccess: mapTasksIsSuccess }
-  ] = useMapTasksToOperationMutation()
 
   const handleCreateOperationSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
@@ -88,81 +39,38 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
     const label = formData.get('label') as string
     const description = formData.get('description') as string
 
-    try {
-      const response: IOperation = await createOperation({ label, description }).unwrap()
-
-      setCreatedOperation(response)
-      setActiveStep(1)
-      showToast('Opération créée avec succès!', 'success')
-    } catch (err) {
-      showAlert('Error', 'Something went wrong while trying to create a new operation', 'error')
-    }
-  }
-
-  const handleComplete = async () => {
-    setCompleted({
-      ...completed,
-      [activeStep]: true
-    })
-
-    if (!createdOperation?.id) return
-
     if (!selectedTasks?.length) {
-      showToast('Tâches créées avec succès!', 'success')
+      showAlert('', 'Veuillez sélectionner au moins une tâche', 'error')
       close()
-      
+
       return
     }
 
-    const tasksIds = selectedTasks?.map((task: ITask) => task.id)
-
     try {
-      await mapTasksToOperation({ operationId: createdOperation.id, tasksIds }).unwrap()
-      setActiveStep(1)
-      close()
-      showToast("Tâches assignées à l'opération avec succès !", 'success')
+      const tasksIds = selectedTasks?.map((task: ITask) => task.id)
+
+      const response: IOperation = await createOperation({ label, description, tasksIds }).unwrap()
+
+      showToast('Opération créée avec succès!', 'success')
     } catch (err) {
-      showAlert('Error', 'Something went wrong while trying to Assigne Tasks to Operation', 'error')
+      showAlert('Error', "Une erreur s'est produite lors de la tentative de création d'une nouvelle opération", 'error')
     }
   }
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Stepper activeStep={activeStep} className='mt-8'>
-        {steps.map((label, index) => (
-          <Step key={label} completed={completed[index]}>
-            <StepLabel color='inherit'>{label}</StepLabel>
-          </Step>
-        ))}
-      </Stepper>
-      {activeStep == 0 ? (
-        <div className='bg-backgroundPaper p-6'>
-          <form onSubmit={handleCreateOperationSubmit} ref={formStep1Ref}>
-            <div className='mb-4'>
-              <TextField size='small' name='label' label='label' placeholder='label' required fullWidth />
-              <Typography variant='body2' color='textSecondary'>
-                Donnez à votre opération un nom clair et concis.
-              </Typography>
-            </div>
-            <div className='mb-4'>
-              <TextField
-                size='small'
-                name='description'
-                label='description'
-                placeholder='description'
-                required
-                rows={4}
-                fullWidth
-                multiline
-              />
-              <Typography variant='body2' color='textSecondary'>
-                Donnez à votre opération une description claire et concise.
-              </Typography>
-            </div>
-          </form>
-        </div>
-      ) : (
-        <form>
+    <Box sx={{ width: '100%', position: 'relative', p: 4 }}>
+      <IconButton onClick={close} sx={{ position: 'absolute', top: 8, left: 8 }}>
+        <i className='tabler-x' />
+      </IconButton>
+      <Typography variant='h4' className='my-4  mt-10'>
+        Créer une opération
+      </Typography>
+
+      <div className='bg-backgroundPaper'>
+        <form onSubmit={handleCreateOperationSubmit}>
+          <div className='mb-4'>
+            <TextField size='small' name='label' label='Libellé' placeholder='Libellé' required fullWidth />
+          </div>
           <div className='my-8'>
             <Autocomplete
               multiple
@@ -180,14 +88,7 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
                 </li>
               )}
               limitTags={5}
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  fullWidth
-                  label='Tâches ciblées'
-                  helperText='Toutes les tâches qui feront partie de cette opération.'
-                />
-              )}
+              renderInput={params => <TextField {...params} fullWidth label='Tâches ciblées' size='small' />}
               renderTags={(value, getTagProps) =>
                 value.map((option, index) => (
                   <Tooltip title={`${option.label}`} key={option.id}>
@@ -202,21 +103,28 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
               }
             />
           </div>
+          <div className='mb-4'>
+            <TextField
+              size='small'
+              name='description'
+              label='description'
+              placeholder='description'
+              rows={4}
+              fullWidth
+              multiline
+            />
+          </div>
+          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, justifyContent: 'space-between', gap: 2 }}>
+            <Box sx={{ flex: '1 1 auto' }} />
+            <Button disabled={isLoading} variant='outlined' size='small' onClick={close} className='h-10 mt-4 w-full'>
+              Annuler
+            </Button>
+            <Button disabled={isLoading} variant='contained' size='small' className='h-10 mt-4 w-full' type='submit'>
+              {isLoading ? 'Soumettre ...' : 'Soumettre'}
+            </Button>
+          </Box>
         </form>
-      )}
-
-      <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-        <Box sx={{ flex: '1 1 auto' }} />
-        <Button onClick={handleNext} sx={{ mr: 1 }} disabled={isLoading}>
-          {isLoading && activeStep === 0
-            ? 'Soumettre...'
-            : mapTasksLoading
-              ? 'Compléter...'
-              : activeStep === 1
-                ? 'Compléter'
-                : 'Suivant'}
-        </Button>
-      </Box>
+      </div>
     </Box>
   )
 }

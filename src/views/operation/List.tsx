@@ -1,27 +1,26 @@
-import type { ChangeEvent} from 'react';
-import { useState } from 'react'
-
-import { DataGrid } from '@mui/x-data-grid'
-import Typography from '@mui/material/Typography'
-import { escapeRegExp } from '@mui/x-data-grid/internals'
-import { Drawer, Skeleton } from '@mui/material'
-
-import { useDeleteOperationMutation, useGetOperationsQuery } from '@/store/features/operation/operationApi'
-
 import type { SystemMode } from '@core/types'
-import CustomModal from '@/@core/components/mui/Modal'
+import Typography from '@mui/material/Typography'
+import { useDeleteOperationMutation, useGetOperationsQuery } from '@/store/features/operation/operationApi'
+import { DataGrid } from '@mui/x-data-grid'
+import { ChangeEvent, useState } from 'react'
+import { escapeRegExp } from '@mui/x-data-grid/internals'
+import { Alert, Drawer, Skeleton } from '@mui/material'
 import CreateOperation from './Create'
-import CustomIconButton from '@/@core/components/mui/IconButton'
 import { useGetNotAssignedTasksQuery } from '@/store/features/task/taskApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import UpdateOperation from './Update'
-import { GetColumns, renderChipsCell, renderDateCell, renderTypographyCell } from '@/components/common/GridColumns'
+import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
+import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
+import { formatDateFR, stringToDate } from '@/@core/utils/format'
+import exportData from '@/@core/utils/exportData'
+import { IOperation, IRequirement } from '@/@core/utils/types'
+import OperationDetails from './Details'
 
 const customColumns = () => [
   {
     flex: 1,
     field: 'label',
-    headerName: 'Label',
+    headerName: 'Libellé',
     minWidth: 180,
     renderCell: renderTypographyCell('label')
   },
@@ -31,45 +30,30 @@ const customColumns = () => [
     field: 'description',
     headerName: 'Description',
     renderCell: renderTypographyCell('description')
-  },
-  {
-    flex: 1,
-    minWidth: 250,
-    field: 'tasks',
-    headerName: 'Taches',
-    renderCell: renderChipsCell({
-      field: 'tasks',
-      chipProps: { variant: 'filled', color: 'primary' }
-    })
-  },
-  {
-    flex: 1,
-    minWidth: 170,
-    field: 'createdAt',
-    headerName: 'Creation O',
-    renderCell: renderDateCell('createdAt')
   }
 ]
 
 const OperationList = ({ mode }: { mode: SystemMode }) => {
   const [openModal, setOpenModal] = useState(false)
+  const [openUpdateModal, setOpenUpdateModal] = useState(false)
   const [searchText, setSearchText] = useState<string>('')
   const [filteredData, setFilteredData] = useState<IRequirement[]>([])
   const [isFiltering, setIsFiltering] = useState(false)
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  const [paginationModel, setPaginationModel] = useState({
+    page: 0,
+    pageSize: 10
+  })
+  const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false)
   const [operationToEdit, setOperationToEdit] = useState<IOperation | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
   const { showAlert, showConfirm, showToast } = useSweetAlert()
-
   const [deleteOperation, { isLoading: deleteOperationIsLoading, isError, error: deleteOperationError, isSuccess }] =
     useDeleteOperationMutation()
 
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
     const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
-
     const filteredRows = data.filter((row: IRequirement) => {
       return Object.keys(row).some(field => {
         if (row[field as keyof IRequirement] !== null && row[field as keyof IRequirement] !== undefined) {
@@ -77,7 +61,6 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
         }
       })
     })
-
     if (searchValue.length) {
       setIsFiltering(true)
       setFilteredData(filteredRows)
@@ -86,7 +69,6 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
       setFilteredData([])
     }
   }
-
   const { data, error, isLoading } = useGetOperationsQuery()
   const { data: taskData, error: taskError, isLoading: isLoadingTasks } = useGetNotAssignedTasksQuery()
 
@@ -96,7 +78,11 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
         ? `Error ${error.status}: ${(error.data as any)?.message || 'Unknown error'}`
         : error.message || 'An unknown error occurred'
 
-    return <div>Error: {errorMessage}</div>
+    return (
+      <Alert severity='error' sx={{ margin: '16px 0' }}>
+        {errorMessage}
+      </Alert>
+    )
   }
 
   if (isLoading)
@@ -107,41 +93,89 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
         <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
       </div>
     )
-  const toggleForm = () => setIsOpen(prevState => !prevState)
+  const toggleForm = () => {
+    setOpenModal(true)
+  }
 
   const toggleEditMode = (operation: IOperation) => {
     setIsEditMode(true)
     setOperationToEdit(operation)
-    toggleForm()
+    setOpenUpdateModal(true)
   }
 
   const handleDelete = async (id: string) => {
     const confirmed = await showConfirm(
-      'Es-tu sûr?',
-      'Vous ne pourrez pas annuler cette action',
+      '',
+      'Etes-vous sûr de vouloir supprimer cette opération ?',
       'Supprimer',
       'Annuler'
     )
-
     if (confirmed) {
       try {
         await deleteOperation({ operationId: id })
-        showToast('Deleted successfully!', 'success')
+        showToast('Supprimé avec succès !', 'success')
       } catch (error) {
-        showAlert('Error', 'Something wrong went happedn while trying to delete the operation', 'error')
+        showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression de l'opération", 'error')
       }
     }
+  }
+
+  const handleDateFilter = (start: Date, end: Date) => {
+    const filteredRows = data.filter((row: IOperation) => {
+      const formattedCreatedAt = stringToDate(row?.createdAt || '')
+
+      if (!formattedCreatedAt || isNaN(formattedCreatedAt.getTime())) {
+        return false
+      }
+
+      return formattedCreatedAt >= start && formattedCreatedAt <= end
+    })
+    setIsFiltering(true)
+    setFilteredData(filteredRows)
+  }
+
+  const clearDateFilter = () => {
+    setIsFiltering(false)
+    setFilteredData([])
+  }
+
+  const handleCustomAction = (operation: IOperation) => {
+    setOperationToEdit(operation)
+    setIsDetailsOpen(true)
   }
 
   const columns = GetColumns({
     toggleEditMode,
     deleteObject: handleDelete,
     customColumns: customColumns(),
-    includeActions: true
+    includeActions: true,
+    customAction: 'Détails',
+    handleCustomAction
   })
-  
-return (
 
+  const fieldHandlers = {
+    createdAt: (value: string) => formatDateFR(new Date(value)),
+    updatedAt: (value: string) => formatDateFR(new Date(value))
+  }
+
+  const toolbarProps = {
+    value: searchText,
+    clearSearch: () => handleSearch(''),
+    onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
+    handleChecked: () => {},
+    toggleForm,
+    title: 'Taches',
+    checkBoxLabel: '',
+    showCheckBox: false,
+    showDateFilter: false,
+    handleDateFilter,
+    clearDateFilter,
+    data: exportData(isFiltering ? filteredData : data, customColumns(), fieldHandlers),
+    showExcel: true,
+    hideAddButton: isLoadingTasks || taskError ? true : false
+  }
+
+  return (
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
         <Typography variant='h2' className='my-2'>
@@ -149,44 +183,26 @@ return (
         </Typography>
         {!isLoadingTasks && !taskError && (
           <div>
-            <CustomIconButton
-              onClick={() => setOpenModal(true)}
-              color='primary'
-              variant='tonal'
-              size='small'
-              className='h-10'
-            >
-              <span className='tabler-plus w-5 h-5 mr-2' />
-              Ajouter
-            </CustomIconButton>
-            <CustomModal onClose={() => setOpenModal(false)} open={openModal}>
+            <Drawer onClose={() => setOpenModal(false)} open={openModal} anchor={'right'}>
               <CreateOperation mode={mode} tasks={taskData} close={() => setOpenModal(false)} />
-            </CustomModal>
+            </Drawer>
           </div>
         )}
       </div>
       <DataGrid
-        rowHeight={62}
-        loading={isLoading}
-        rows={data}
-        localeText={{ noRowsLabel: 'Aucune donnes a afficher' }}
+        rowHeight={35}
+        loading={isLoading || deleteOperationIsLoading}
+        rows={isFiltering ? filteredData : data}
+        localeText={{ noRowsLabel: 'Aucune données a afficher' }}
         columns={columns}
-
-        // slots={{ toolbar: QuickSearchToolbar }}
+        slots={{ toolbar: () => <QuickSearchToolbar {...toolbarProps} /> }}
         slotProps={{
           baseButton: {
             size: 'medium',
             variant: 'outlined'
           },
-          toolbar: {
-            defaultValue: searchText,
-            onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
-            title: 'Operations'
-
-            // handleDateFilter,
-            // clearDateFilter,
-            // data: dataToExport(),
-            // showExcel: true
+          pagination: {
+            labelRowsPerPage: 'Lignes par page'
           }
         }}
         disableRowSelectionOnClick
@@ -196,8 +212,18 @@ return (
       />
 
       {/* Update Operation */}
-      <Drawer open={isOpen} onClose={toggleForm} anchor={'right'}>
-        <UpdateOperation mode={mode} operationToEdit={operationToEdit} tasks={taskData} onClose={toggleForm} />
+      <Drawer open={openUpdateModal} onClose={() => setOpenUpdateModal(false)} anchor={'right'}>
+        <UpdateOperation
+          mode={mode}
+          operationToEdit={operationToEdit}
+          tasks={taskData}
+          onClose={() => setOpenUpdateModal(false)}
+        />
+      </Drawer>
+
+      {/* details drawer */}
+      <Drawer open={isDetailsOpen} onClose={() => setIsDetailsOpen(false)} anchor='right'>
+        <OperationDetails mode={mode} close={() => setIsDetailsOpen(false)} operation={operationToEdit} />
       </Drawer>
     </div>
   )

@@ -1,10 +1,7 @@
 import type { SystemMode } from '@core/types'
-import { Alert, Box } from '@mui/material'
-import { TabContext, TabPanel } from '@mui/lab'
-import { Tab } from '@mui/material'
-import CustomTabList from '@/@core/components/mui/TabList'
+import { Alert, Box, IconButton } from '@mui/material'
 import { useState } from 'react'
-import { Button, StepLabel, TextField } from '@mui/material'
+import { TextField } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import Autocomplete from '@mui/material/Autocomplete'
 import Chip from '@mui/material/Chip'
@@ -12,12 +9,9 @@ import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
 import Checkbox from '@mui/material/Checkbox'
 import CustomIconButton from '@/@core/components/mui/IconButton'
-import {
-  useDetachTasksFromOperationMutation,
-  useMapTasksToOperationMutation,
-  useUpdateOperationMutation
-} from '@/store/features/operation/operationApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import { IOperation, ITask } from '@/@core/utils/types'
+import { useUpdateOperationMutation } from '@/store/features/operation/operationApi'
 
 const StyledChip = styled(Chip)({
   '&.MuiChip-root': {
@@ -43,8 +37,6 @@ const UpdateOperation = ({
   tasks: ITask[]
   onClose: () => void
 }) => {
-  const [tabValue, setTabValue] = useState('1')
-
   const [combinedTasks, setCombinedTasks] = useState<ITask[] | null>([...tasks, ...(operationToEdit?.tasks || [])])
 
   const [selectedTasks, setSelectedTasks] = useState<ITask[]>([...(operationToEdit?.tasks || [])])
@@ -52,198 +44,103 @@ const UpdateOperation = ({
   const { showAlert, showToast } = useSweetAlert()
 
   const [updateOperation, { isLoading, isError, error, isSuccess }] = useUpdateOperationMutation()
-  const [
-    mapTasksToOperation,
-    {
-      isLoading: mapTasksToOperationIsLoading,
-      isError: mapTasksToOperationIsError,
-      error: mapTasksToOperationError,
-      isSuccess: mapTasksToOperationIsSuccess
-    }
-  ] = useMapTasksToOperationMutation()
-
-  const [
-    detachTasksFromOperation,
-    {
-      isLoading: detachTasksFromOperationIsLoading,
-      isError: detachTasksFromOperationIsError,
-      error: detachTasksFromOperationError,
-      isSuccess: detachTasksFromOperationIsSuccess
-    }
-  ] = useDetachTasksFromOperationMutation()
 
   const handleUpdateOperationSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget as HTMLFormElement)
     const label = formData.get('label') as string
     const description = formData.get('description') as string
-    if (!operationToEdit?.id) return
-    try {
-      await updateOperation({ id: operationToEdit.id, label, description }).unwrap()
-      onClose()
-      showToast('Opération mise à jour avec succès!', 'success')
-    } catch (err) {
-      showAlert('Error', 'Something went wrong while trying to update operation', 'error')
-    }
-  }
-
-  const handleUpdateOperationTasksSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-    // new Tasks => tasks that present in selectedTasks but not in the operationToEdit?.tasks
-    // removed Tasks => tasks not present in selectedTasks but were in the initial operationToEdit?.tasks
 
     const initialTasks = operationToEdit?.tasks || []
-    const newTasks = selectedTasks.filter(task => !initialTasks.some(t => t.id === task.id))
-    const removedTasks = initialTasks.filter(task => !selectedTasks.some(t => t.id === task.id))
+    const tasksToAdd = selectedTasks.filter(task => !initialTasks.some(t => t.id === task.id))?.map(item => item.id)
+    const tasksToRemove = initialTasks.filter(task => !selectedTasks.some(t => t.id === task.id))?.map(item => item.id)
 
+    if (!operationToEdit?.id) return
     try {
-      if (!operationToEdit?.id) return
-
-      const requests = []
-
-      if (newTasks?.length) {
-        const tasksIds = newTasks.map((task: ITask) => task.id)
-        requests.push(mapTasksToOperation({ operationId: operationToEdit?.id, tasksIds }))
-      }
-      if (removedTasks?.length) {
-        const tasksIds = removedTasks.map((task: ITask) => task.id)
-        requests.push(detachTasksFromOperation({ operationId: operationToEdit?.id, tasksIds }))
-      }
-      if (requests.length) {
-        await Promise.all(requests)
-      }
+      await updateOperation({ id: operationToEdit.id, label, description, tasksToAdd, tasksToRemove }).unwrap()
       onClose()
-      showToast("tâches d'opération mises à jour avec succès!", 'success')
+      showToast('Opération modifiée avec succès!', 'success')
     } catch (err) {
-      showAlert('Error', 'Something went wrong while trying to update operation tasks', 'error')
+      showAlert('Error', "Une erreur s'est produite lors de la tentative de mise à jour de l'opération", 'error')
     }
   }
+
   return (
     <div className='bg-backgroundPaper p-4'>
+      <IconButton onClick={onClose} sx={{ position: 'absolute', top: 8, left: 8 }}>
+        <i className='tabler-x' />
+      </IconButton>
+      <Typography variant='h4' className='my-4  mt-10'>
+        Mise à jour de l'opération
+      </Typography>
       <Box sx={{ width: '100%' }}>
-        <TabContext value={tabValue}>
-          <CustomTabList onChange={(_, newValue) => setTabValue(newValue)} color='primary'>
-            <Tab label='Operations' value='1' />
-            <Tab label='Tasks' value='2' />
-          </CustomTabList>
+        <form onSubmit={handleUpdateOperationSubmit}>
+          {isError && (
+            <Alert severity='error'>{(error as any)?.data?.message || "Échec de la mise à jour de l'opération"}</Alert>
+          )}
+          <div className='mb-4'>
+            <TextField
+              size='small'
+              name='label'
+              label='Libellé'
+              placeholder='Libellé'
+              defaultValue={operationToEdit?.label}
+              required
+              fullWidth
+            />
+          </div>
+          <div className='mb-4'>
+            <TextField
+              size='small'
+              name='description'
+              label='description'
+              placeholder='description'
+              defaultValue={operationToEdit?.description}
+              rows={4}
+              fullWidth
+              multiline
+            />
+          </div>
 
-          <TabPanel value='1'>
-            <form onSubmit={handleUpdateOperationSubmit}>
-              {isError && (
-                <Alert severity='error'>{(error as any)?.data?.message || 'Failed to update operation'}</Alert>
+          <div className='my-8'>
+            <Autocomplete
+              multiple
+              id='checkboxes-tasks'
+              options={combinedTasks || []}
+              disableCloseOnSelect
+              getOptionLabel={option => option.label}
+              value={selectedTasks}
+              onChange={(event, newValue) => setSelectedTasks(newValue)}
+              ChipProps={{ color: 'warning' }}
+              renderOption={(props, option, { selected }) => (
+                <li {...props} key={option.id}>
+                  <Checkbox icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected} />
+                  {option.label}
+                </li>
               )}
-              <div className='mb-4'>
-                <TextField
-                  size='small'
-                  name='label'
-                  label='label'
-                  placeholder='label'
-                  defaultValue={operationToEdit?.label}
-                  required
-                  fullWidth
-                />
-                <Typography variant='body2' color='textSecondary'>
-                  Donnez à votre opération un nom clair et concis.
-                </Typography>
-              </div>
-              <div className='mb-4'>
-                <TextField
-                  size='small'
-                  name='description'
-                  label='description'
-                  placeholder='description'
-                  defaultValue={operationToEdit?.description}
-                  required
-                  rows={4}
-                  fullWidth
-                  multiline
-                />
-                <Typography variant='body2' color='textSecondary'>
-                  Donnez à votre opération une description claire et concise.
-                </Typography>
-              </div>
-              <CustomIconButton
-                type='submit'
-                color='primary'
-                variant='tonal'
-                size='small'
-                className='h-10 mt-4'
-                disabled={isLoading || mapTasksToOperationIsLoading || detachTasksFromOperationIsLoading}
-              >
-                <span className='tabler-edit w-5 h-5 mr-2' />
-                {isLoading || mapTasksToOperationIsLoading || detachTasksFromOperationIsLoading
-                  ? 'Mise à jour...'
-                  : 'Modifier'}
-              </CustomIconButton>
-            </form>
-          </TabPanel>
-          <TabPanel value='2'>
-            <form onSubmit={handleUpdateOperationTasksSubmit}>
-              {detachTasksFromOperationIsError && (
-                <Alert severity='error'>
-                  {(detachTasksFromOperationError as any)?.data?.message || 'Failed to update operation tasks'}
-                </Alert>
-              )}
-              {mapTasksToOperationIsError && (
-                <Alert severity='error'>
-                  {(mapTasksToOperationError as any)?.data?.message || 'Failed to update operation tasks'}
-                </Alert>
-              )}
-              <div className='my-8'>
-                <Autocomplete
-                  multiple
-                  id='checkboxes-tasks'
-                  options={combinedTasks || []}
-                  disableCloseOnSelect
-                  getOptionLabel={option => option.label}
-                  value={selectedTasks}
-                  onChange={(event, newValue) => setSelectedTasks(newValue)}
-                  ChipProps={{ color: 'warning' }}
-                  renderOption={(props, option, { selected }) => (
-                    <li {...props} key={option.id}>
-                      <Checkbox icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected} />
-                      {option.label}
-                    </li>
-                  )}
-                  limitTags={5}
-                  renderInput={params => (
-                    <TextField
-                      {...params}
-                      fullWidth
-                      label='Tâches ciblées'
-                      helperText='Toutes les tâches qui feront partie de cette opération.'
-                    />
-                  )}
-                  renderTags={(value, getTagProps) =>
-                    value.map((option, index) => (
-                      <Tooltip title={`${option.label}`} key={option.id}>
-                        <StyledChip
-                          {...getTagProps({ index })}
-                          variant='filled'
-                          label={`${option.label}`}
-                          deleteIcon={<i className='tabler:trash' />}
-                        />
-                      </Tooltip>
-                    ))
-                  }
-                />
-              </div>
-              <CustomIconButton
-                type='submit'
-                color='primary'
-                variant='tonal'
-                size='small'
-                className='h-10 mt-4'
-                disabled={isLoading || mapTasksToOperationIsLoading || detachTasksFromOperationIsLoading}
-              >
-                <span className='tabler-edit w-5 h-5 mr-2' />
-                {isLoading || mapTasksToOperationIsLoading || detachTasksFromOperationIsLoading
-                  ? 'Mise à jour...'
-                  : 'Modifier'}
-              </CustomIconButton>
-            </form>
-          </TabPanel>
-        </TabContext>
+              limitTags={5}
+              renderInput={params => <TextField {...params} fullWidth label='Tâches ciblées' />}
+              renderTags={(value, getTagProps) =>
+                value.map((option, index) => (
+                  <Tooltip title={`${option.label}`} key={option.id}>
+                    <StyledChip {...getTagProps({ index })} label={`${option.label}`} />
+                  </Tooltip>
+                ))
+              }
+            />
+          </div>
+          <CustomIconButton
+            type='submit'
+            color='primary'
+            variant='contained'
+            size='small'
+            className='h-10 mt-4'
+            disabled={isLoading}
+          >
+            <span className='tabler-edit w-5 h-5 mr-2' />
+            {isLoading ? 'Mise à jour...' : 'Modifier'}
+          </CustomIconButton>
+        </form>
       </Box>
     </div>
   )

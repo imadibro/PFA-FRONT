@@ -1,65 +1,85 @@
 import type { SystemMode } from '@core/types'
 import Typography from '@mui/material/Typography'
-import { useDeleteSiteMutation, useGetSiteQuery } from '@/store/features/site/siteApi'
+import { useGetEmployeesQuery, useDeleteEmployeeMutation } from '@/store/features/employee/employeeApi'
 import { DataGrid } from '@mui/x-data-grid'
 import { ChangeEvent, useState } from 'react'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { Alert, Drawer, Skeleton } from '@mui/material'
-import { useGetRequirementQuery } from '@/store/features/requirement/requirementApi'
+import { useGetRolesQuery } from '@/store/features/role/roleApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
-import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
+import {
+  GetColumns,
+  renderChipCell,
+  renderConcatenatedTypographyCell,
+  renderDateCell,
+  renderTypographyCell
+} from '@/components/common/GridColumns'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
 import exportData from '@/@core/utils/exportData'
-import SiteForm from './SiteForm'
-import { ISite } from '@/@core/utils/types'
-import SiteDetails from './Details'
+import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
+import EmployeeForm from './EmployeeForm'
+import { IEmployee } from '@/@core/utils/types'
 
 const customColumns = () => [
   {
     flex: 1,
-    field: 'siteNbr',
-    headerName: 'Numéro de site',
+    field: 'username',
+    headerName: "Nom d'utilisateur",
     minWidth: 180,
-    renderCell: renderTypographyCell('siteNbr')
-  },
-  {
-    flex: 1,
-    field: 'label',
-    headerName: 'Libellé',
-    minWidth: 180,
-    renderCell: renderTypographyCell('label')
+    renderCell: renderTypographyCell('username')
   },
   {
     flex: 1,
     minWidth: 250,
-    field: 'description',
-    headerName: 'Description',
-    renderCell: renderTypographyCell('description')
+    field: 'firstName',
+    headerName: 'Nom et Prénom',
+    renderCell: renderConcatenatedTypographyCell(['lastName', 'firstName'])
+  },
+  {
+    flex: 1,
+    minWidth: 250,
+    field: 'email',
+    headerName: 'E-mail',
+    renderCell: renderTypographyCell('email')
+  },
+  {
+    field: 'role',
+    headerName: 'Rôle',
+    minWidth: 250,
+    renderCell: renderChipCell(
+      'role',
+      [
+        { value: 'conducteur travaux', chipProps: { color: 'error', size: 'small' } },
+        { value: 'technicien', chipProps: { color: 'warning', size: 'small' } },
+        { value: "chef d'équipe", chipProps: { color: 'success', size: 'small' } }
+      ],
+      { color: 'default', size: 'small' },
+      undefined,
+      'role'
+    )
   }
 ]
 
-const SiteList = ({ mode }: { mode: SystemMode }) => {
-  const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false)
+const EmployeesList = ({ mode }: { mode: SystemMode }) => {
   const [searchText, setSearchText] = useState<string>('')
-  const [filteredData, setFilteredData] = useState<ISite[]>([])
+  const [filteredData, setFilteredData] = useState<IEmployee[]>([])
   const [isFiltering, setIsFiltering] = useState(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [siteToEdit, setSiteToEdit] = useState<ISite | null>(null)
+  const [employeeToEdit, setEmployeeToEdit] = useState<IEmployee | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
   const { showAlert, showConfirm, showToast } = useSweetAlert()
-  const [deleteSite, { isLoading: deleteSiteIsLoading, isError, error: deleteSiteError, isSuccess }] =
-    useDeleteSiteMutation()
+  const [deleteEmployee, { isLoading: deleteEmployeeIsLoading, isError, error: deleteEmployeeError, isSuccess }] =
+    useDeleteEmployeeMutation()
 
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
     const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
-    const filteredRows = data.filter((row: ISite) => {
+    const filteredRows = data.filter((row: IEmployee) => {
       return Object.keys(row).some(field => {
-        if (row[field as keyof ISite] !== null && row[field as keyof ISite] !== undefined) {
-          return searchRegex.test(row[field as keyof ISite]!.toString())
+        if (row[field as keyof IEmployee] !== null && row[field as keyof IEmployee] !== undefined) {
+          return searchRegex.test(row[field as keyof IEmployee]!.toString())
         }
       })
     })
@@ -72,8 +92,8 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
     }
   }
 
-  const { data, error, isLoading } = useGetSiteQuery()
-  const { data: requirementData, error: requirementError, isLoading: isLoadingRequirements } = useGetRequirementQuery()
+  const { data, error, isLoading } = useGetEmployeesQuery()
+  const { data: rolesData, error: rolesError, isLoading: isLoadingRoles } = useGetRolesQuery()
 
   if (error) {
     const errorMessage =
@@ -87,6 +107,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
       </Alert>
     )
   }
+
   if (isLoading)
     return (
       <div>
@@ -95,34 +116,33 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
         <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
       </div>
     )
-
   const toggleForm = () => setIsOpen(prevState => !prevState)
 
-  const toggleEditMode = (site: ISite) => {
+  const toggleEditMode = (employee: IEmployee) => {
     setIsEditMode(true)
-    setSiteToEdit(site)
+    setEmployeeToEdit(employee)
     toggleForm()
   }
 
   const onCloseForm = () => {
-    setSiteToEdit(null)
+    setEmployeeToEdit(null)
     toggleForm()
   }
 
   const handleDelete = async (id: string) => {
-    const confirmed = await showConfirm('', 'Etes-vous sûr de vouloir supprimer ce site ?', 'Supprimer', 'Annuler')
+    const confirmed = await showConfirm('', 'Etes-vous sûr de vouloir supprimer cet employé ?', 'Supprimer', 'Annuler')
     if (confirmed) {
       try {
-        await deleteSite({ siteId: id })
-        showToast('Supprimé avec succès!', 'success')
+        await deleteEmployee({ employeeId: id })
+        showToast('Supprimé avec succès !', 'success')
       } catch (error) {
-        showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression du site", 'error')
+        showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression de l'employé", 'error')
       }
     }
   }
 
   const handleDateFilter = (start: Date, end: Date) => {
-    const filteredRows = data.filter((row: ISite) => {
+    const filteredRows = data.filter((row: IEmployee) => {
       const formattedCreatedAt = stringToDate(row?.createdAt || '')
 
       if (!formattedCreatedAt || isNaN(formattedCreatedAt.getTime())) {
@@ -140,18 +160,11 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
     setFilteredData([])
   }
 
-  const handleCustomAction = (site: ISite) => {
-    setSiteToEdit(site)
-    setIsDetailsOpen(true)
-  }
-
   const columns = GetColumns({
     toggleEditMode,
     deleteObject: handleDelete,
     customColumns: customColumns(),
-    includeActions: true,
-    customAction: 'Détails',
-    handleCustomAction
+    includeActions: true
   })
 
   const fieldHandlers = {
@@ -180,14 +193,14 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
         <Typography variant='h2' className='my-2'>
-          Liste des sites
+          Liste des employés
         </Typography>
       </div>
       <DataGrid
-        rowHeight={35}
-        loading={isLoading || deleteSiteIsLoading}
+        rowHeight={44}
+        loading={isLoading || deleteEmployeeIsLoading}
         rows={isFiltering ? filteredData : data}
-        localeText={{ noRowsLabel: 'Aucune donnes a afficher' }}
+        localeText={{ noRowsLabel: 'Aucune données a afficher' }}
         columns={columns}
         slots={{ toolbar: () => <QuickSearchToolbar {...toolbarProps} /> }}
         slotProps={{
@@ -205,24 +218,19 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
         onPaginationModelChange={setPaginationModel}
       />
 
-      {/*  Site Form */}
-      {!isLoadingRequirements && !requirementError && (
+      {/* Employee Form*/}
+      {!isLoadingRoles && !rolesError && (
         <Drawer open={isOpen} onClose={onCloseForm} anchor={'right'}>
-          <SiteForm
+          <EmployeeForm
             mode={mode}
-            siteToEdit={siteToEdit}
+            employeeToEdit={employeeToEdit}
             onClose={onCloseForm}
             isEditMode={isEditMode}
-            requirements={requirementData}
+            roles={rolesData}
           />
         </Drawer>
       )}
-      {/* details drawer */}
-      <Drawer open={isDetailsOpen} onClose={() => setIsDetailsOpen(false)} anchor='right'>
-        <SiteDetails mode={mode} close={() => setIsDetailsOpen(false)} site={siteToEdit} />
-      </Drawer>
     </div>
   )
 }
-
-export default SiteList
+export default EmployeesList

@@ -2,6 +2,7 @@ import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 import type { SerializedError } from '@reduxjs/toolkit'
 
 import { api } from '@/store/api'
+import { IOperation } from '@/@core/utils/types'
 
 export const operationApi = api.injectEndpoints({
   endpoints: builder => ({
@@ -9,24 +10,17 @@ export const operationApi = api.injectEndpoints({
       query: () => 'operation',
       providesTags: [{ type: 'Operation', id: 'LIST' }]
     }),
-    createOperation: builder.mutation<any, { label: string; description: string }>({
+    getOperationById: builder.query<IOperation, string>({
+      query: operationId => `operation/${operationId}`,
+      providesTags: (result, error, operationId) => [{ type: 'Operation', id: operationId }]
+    }),
+    createOperation: builder.mutation<any, { label: string; description: string; tasksIds: string[] }>({
       query: newOperation => ({
         url: 'operation',
         method: 'POST',
         body: newOperation
       }),
       invalidatesTags: [{ type: 'Operation', id: 'LIST' }]
-    }),
-    mapTasksToOperation: builder.mutation<any, { operationId: string; tasksIds: string[] }>({
-      query: payload => ({
-        url: `operation/${payload.operationId}/tasks`,
-        method: 'PATCH',
-        body: payload
-      }),
-      invalidatesTags: [
-        { type: 'Operation', id: 'LIST' },
-        { type: 'TasksWithNoOperation', id: 'LIST' }
-      ]
     }),
     deleteOperation: builder.mutation<any, { operationId: string }>({
       query: operation => ({
@@ -38,23 +32,18 @@ export const operationApi = api.injectEndpoints({
         { type: 'Operation', id: 'LIST' }
       ]
     }),
-    updateOperation: builder.mutation<any, { id: string; label: string; description: string }>({
+    updateOperation: builder.mutation<
+      any,
+      { id: string; label: string; description: string; tasksToAdd: string[]; tasksToRemove: string[] }
+    >({
       query: operation => ({
         url: `operation/${operation.id}`,
         method: 'PATCH',
         body: operation
       }),
-      invalidatesTags: [{ type: 'Operation', id: 'LIST' }]
-    }),
-    detachTasksFromOperation: builder.mutation<any, { operationId: string; tasksIds: string[] }>({
-      query: payload => ({
-        url: `operation/${payload.operationId}/tasks/remove`,
-        method: 'PATCH',
-        body: payload
-      }),
-      invalidatesTags: [
+      invalidatesTags: (result, error, operation) => [
         { type: 'Operation', id: 'LIST' },
-        { type: 'TasksWithNoOperation', id: 'LIST' }
+        { type: 'Operation', id: operation.id }
       ]
     })
   })
@@ -62,9 +51,8 @@ export const operationApi = api.injectEndpoints({
 
 export const {
   useGetOperationsQuery,
+  useGetOperationByIdQuery,
   useCreateOperationMutation,
-  useMapTasksToOperationMutation,
   useDeleteOperationMutation,
-  useUpdateOperationMutation,
-  useDetachTasksFromOperationMutation
+  useUpdateOperationMutation
 } = operationApi

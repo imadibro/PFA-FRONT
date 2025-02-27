@@ -1,27 +1,17 @@
-import type { ChangeEvent} from 'react';
-import { useState } from 'react'
 import Typography from '@mui/material/Typography'
-import { Drawer, Skeleton } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
-import { escapeRegExp } from '@mui/x-data-grid/internals'
-import type { SystemMode } from '@core/types'
-import CustomIconButton from '@/@core/components/mui/IconButton'
-import CustomModal from '@/@core/components/mui/Modal'
-import CreateTask from './Create'
-import { Drawer, Skeleton } from '@mui/material'
+import { ChangeEvent, useState } from 'react'
+import { Alert, Drawer, Skeleton } from '@mui/material'
 import { useGetTasksQuery, useDeleteTaskMutation } from '@/store/features/task/taskApi'
 import { DataGrid } from '@mui/x-data-grid'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import UpdateTask from './Update'
+import TaskForm from './TaskForm'
 import { GetColumns, renderDateCell, renderTypographyCell } from '@/components/common/GridColumns'
-import { useGetTasksQuery, useDeleteTaskMutation } from '@/store/features/task/taskApi'
-import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import UpdateTask from './Update'
-import { GetColumns, renderDateCell, renderTypographyCell } from '@/components/common/GridColumns'
-import { ITask } from '@/@core/utils/types';
+import { formatDateFR, stringToDate } from '@/@core/utils/format'
+import exportData from '@/@core/utils/exportData'
+import { SystemMode } from '@/@core/types'
+import { ITask } from '@/@core/utils/types'
 
 const customColumns = () => [
   {
@@ -37,18 +27,10 @@ const customColumns = () => [
     field: 'description',
     headerName: 'Description',
     renderCell: renderTypographyCell('description')
-  },
-  {
-    flex: 1,
-    minWidth: 170,
-    field: 'createdAt',
-    headerName: 'Creation T',
-    renderCell: renderDateCell('createdAt')
   }
 ]
 
 const TaskList = ({ mode }: { mode: SystemMode }) => {
-  const [openModal, setOpenModal] = useState(false)
   const [searchText, setSearchText] = useState<string>('')
   const [filteredData, setFilteredData] = useState<ITask[]>([])
   const [isFiltering, setIsFiltering] = useState(false)
@@ -70,7 +52,11 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
         ? `Error ${error.status}: ${(error.data as any)?.message || 'Unknown error'}`
         : error.message || 'An unknown error occurred'
 
-    return <div>Error: {errorMessage}</div>
+    return (
+      <Alert severity='error' sx={{ margin: '16px 0' }}>
+        {errorMessage}
+      </Alert>
+    )
   }
 
   if (isLoading)
@@ -110,22 +96,41 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
     toggleForm()
   }
 
+  const onCloseForm = () => {
+    setTaskToEdit(null)
+    toggleForm()
+  }
+
   const handleDelete = async (id: string) => {
-    const confirmed = await showConfirm(
-      'Es-tu sûr?',
-      'Vous ne pourrez pas annuler cette action',
-      'Supprimer',
-      'Annuler'
-    )
+    const confirmed = await showConfirm('', 'Etes-vous sûr de vouloir supprimer cette tâche ?', 'Supprimer', 'Annuler')
 
     if (confirmed) {
       try {
         await deleteTask({ taskId: id })
         showToast('Supprimé avec succès!', 'success')
       } catch (error) {
-        showAlert('Error', 'Something wrong went happedn while trying to delete the task', 'error')
+        showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression de la tâche", 'error')
       }
     }
+  }
+
+  const handleDateFilter = (start: Date, end: Date) => {
+    const filteredRows = data.filter((row: ITask) => {
+      const formattedCreatedAt = stringToDate(row?.createdAt || '')
+
+      if (!formattedCreatedAt || isNaN(formattedCreatedAt.getTime())) {
+        return false
+      }
+
+      return formattedCreatedAt >= start && formattedCreatedAt <= end
+    })
+    setIsFiltering(true)
+    setFilteredData(filteredRows)
+  }
+
+  const clearDateFilter = () => {
+    setIsFiltering(false)
+    setFilteredData([])
   }
 
   const columns = GetColumns({
@@ -134,45 +139,50 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
     customColumns: customColumns(),
     includeActions: true
   })
- 
-return (
+
+  const fieldHandlers = {
+    createdAt: (value: string) => formatDateFR(new Date(value)),
+    updatedAt: (value: string) => formatDateFR(new Date(value))
+  }
+
+  const toolbarProps = {
+    value: searchText,
+    clearSearch: () => handleSearch(''),
+    onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
+    handleChecked: () => {},
+    toggleForm,
+    title: 'Taches',
+    checkBoxLabel: '',
+    showCheckBox: false,
+    showDateFilter: false,
+    handleDateFilter,
+    clearDateFilter,
+    data: exportData(isFiltering ? filteredData : data, customColumns(), fieldHandlers),
+    showExcel: true,
+    hideAddButton: false
+  }
+
+  return (
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
         <Typography variant='h2' className='my-2'>
           Liste des tâches
         </Typography>
-        <CustomIconButton
-          onClick={() => setOpenModal(true)}
-          color='primary'
-          variant='tonal'
-          size='small'
-          className='h-10'
-        >
-          <span className='tabler-plus w-5 h-5 mr-2' />
-          Ajouter
-        </CustomIconButton>
-        <CustomModal onClose={() => setOpenModal(false)} open={openModal}>
-          <CreateTask mode={mode} onClose={() => setOpenModal(false)} />
-        </CustomModal>
       </div>
       <DataGrid
-        rowHeight={62}
-        loading={isLoading}
-        rows={data}
-        localeText={{ noRowsLabel: 'Aucune donnes a afficher' }}
+        rowHeight={35}
+        loading={isLoading || deleteTaskIsLoading}
+        rows={isFiltering ? filteredData : data}
+        localeText={{ noRowsLabel: 'Aucune données a afficher' }}
         columns={columns}
-        // slots={{ toolbar: QuickSearchToolbar }}
+        slots={{ toolbar: () => <QuickSearchToolbar {...toolbarProps} /> }}
         slotProps={{
           baseButton: {
             size: 'medium',
             variant: 'outlined'
           },
-          toolbar: {
-            defaultValue: searchText,
-            onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
-            title: 'Taches'
-            // handleDateFilter,
-            // clearDateFilter,
+          pagination: {
+            labelRowsPerPage: 'Lignes par page'
           }
         }}
         disableRowSelectionOnClick
@@ -181,9 +191,9 @@ return (
         onPaginationModelChange={setPaginationModel}
       />
 
-      {/* Update Task */}
-      <Drawer open={isOpen} onClose={toggleForm} anchor={'right'}>
-        <UpdateTask mode={mode} taskToEdit={taskToEdit} onClose={toggleForm} />
+      {/* Task Form */}
+      <Drawer open={isOpen} onClose={onCloseForm} anchor={'right'}>
+        <TaskForm mode={mode} taskToEdit={taskToEdit} onClose={onCloseForm} isEditMode={isEditMode} />
       </Drawer>
     </div>
   )

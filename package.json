@@ -24,6 +24,7 @@
     "@mui/material": "5.16.4",
     "@mui/material-nextjs": "5.16.4",
     "@mui/x-data-grid": "^7.26.0",
+    "@mui/x-date-pickers": "^7.27.0",
     "@reduxjs/toolkit": "^2.5.1",
     "classnames": "2.5.1",
     "dayjs": "^1.11.13",
@@ -40,6 +41,7 @@
     "server-only": "0.0.1",
     "sweetalert2": "^11.16.0",
     "sweetalert2-react-content": "^5.1.0",
+    "xlsx": "^0.18.5",
     "yup": "^1.6.1"
   },
   "devDependencies": {

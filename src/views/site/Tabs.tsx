@@ -15,7 +15,7 @@ const Tabs = ({ mode }: { mode: SystemMode }) => {
     <TabContext value={tabValue}>
       <CustomTabList onChange={(_, newValue) => setTabValue(newValue)} color='primary'>
         <Tab label='Sites' value='1' />
-        <Tab label='Exigences' value='2' />
+        <Tab label='Prérequis' value='2' />
         {/* <Tab label='Alerts' value='3' /> */}
       </CustomTabList>
 

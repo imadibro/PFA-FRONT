@@ -6,12 +6,16 @@ import Checkbox from '@mui/material/Checkbox'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import CustomTextField from '@/@core/components/mui/TextField'
 import { DatePicker } from '@mui/lab'
-import { formatDate } from '@/@core/utils/format'
+import { formatDate, formatDateFR } from '@/@core/utils/format'
+import { GridToolbarContainer } from '@mui/x-data-grid'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import { ExcelComponent } from '@/@core/components/excel/ExcelComponent'
 
 interface Props {
   value: string
   clearSearch: () => void
-  onChange: (e: ChangeEvent) => void
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void
   toggleForm: () => void
   title: string
   handleChecked: (checked: boolean) => void
@@ -102,12 +106,12 @@ const QuickSearchToolbar = (props: Props) => {
           InputProps={{
             startAdornment: (
               <Box sx={{ mr: 2, display: 'flex' }}>
-                <i className='tabler:search' />
+                <i className='tabler-search' />
               </Box>
             ),
             endAdornment: (
               <IconButton size='small' title='Clear' aria-label='Clear' onClick={props.clearSearch}>
-                <i className='tabler:x' />
+                <i className='tabler-x' />
               </IconButton>
             )
           }}
@@ -124,17 +128,19 @@ const QuickSearchToolbar = (props: Props) => {
         />
 
         {props.showDateFilter ? (
-          <DatePicker
-            selectsRange
-            monthsShown={2}
-            endDate={endDateRange}
-            selected={startDateRange}
-            startDate={startDateRange}
-            shouldCloseOnSelect={false}
-            id='date-range-picker-months'
-            onChange={handleOnChangeRange}
-            customInput={<CustomInput end={endDateRange as Date | number} start={startDateRange as Date | number} />}
-          />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DatePicker
+              selectsRange
+              monthsShown={2}
+              endDate={endDateRange}
+              selected={startDateRange}
+              startDate={startDateRange}
+              shouldCloseOnSelect={false}
+              id='date-range-picker-months'
+              onChange={handleOnChangeRange}
+              customInput={<CustomInput end={endDateRange as Date | number} start={startDateRange as Date | number} />}
+            />
+          </LocalizationProvider>
         ) : null}
 
         {props.showCheckBox ? (
@@ -146,14 +152,17 @@ const QuickSearchToolbar = (props: Props) => {
         ) : null}
       </div>
       <div>
+        {props.showExcel && (
+          <ExcelComponent fileName={`${props.title}-${formatDateFR(new Date(), true)}.xlsx`} data={props.data} />
+        )}
         {!props.hideAddButton && (
           <Button
             title={'Ajouter '.concat(props.title)}
             onClick={props.toggleForm}
             variant='contained'
-            sx={{ '& svg': { mr: 2 } }}
+            sx={{ '& i, & svg': { mr: 2 } }}
           >
-            <i className='tabler:plus' />
+            <i className='tabler-plus' />
             Ajouter
           </Button>
         )}

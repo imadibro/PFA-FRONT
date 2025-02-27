@@ -18,14 +18,19 @@ const horizontalMenuData = (): HorizontalMenuDataType[] => [
     icon: 'tabler-credit-card-filled'
   },
   {
-    label: 'Operation',
+    label: 'Opérations',
     href: '/operation',
     icon: 'tabler-list-check'
   },
   {
-    label: 'Site',
+    label: 'Sites',
     href: '/site',
     icon: 'tabler-building'
+  },
+  {
+    label: 'Employés',
+    href: '/employee',
+    icon: 'tabler-users'
   }
 ]
 

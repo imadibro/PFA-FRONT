@@ -1,6 +1,7 @@
 import { api } from '@/store/api'
 import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 import { SerializedError } from '@reduxjs/toolkit'
+import { ISite } from '@/@core/utils/types'
 
 export const siteApi = api.injectEndpoints({
   endpoints: builder => ({
@@ -8,7 +9,14 @@ export const siteApi = api.injectEndpoints({
       query: () => 'site',
       providesTags: [{ type: 'Site', id: 'LIST' }]
     }),
-    createSite: builder.mutation<any, { label: string; siteNbr: string; description: string }>({
+    getSiteById: builder.query<ISite, string>({
+      query: siteId => `site/${siteId}`,
+      providesTags: (result, error, siteId) => [{ type: 'Site', id: siteId }]
+    }),
+    createSite: builder.mutation<
+      any,
+      { label: string; siteNbr: string; description: string; requirementsIds: string[] }
+    >({
       query: newSite => ({
         url: 'site',
         method: 'POST',
@@ -16,47 +24,33 @@ export const siteApi = api.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Site', id: 'LIST' }]
     }),
-    mapRequirementsToSite: builder.mutation<any, { siteId: string; requirementsIds: string[] }>({
-      query: payload => ({
-        url: `site/${payload.siteId}/requirements`,
-        method: 'PATCH',
-        body: payload
-      }),
-      invalidatesTags: [
-        { type: 'Site', id: 'LIST' },
-        { type: 'RequirementsWithNoSite', id: 'LIST' }
-      ]
-    }),
+
     deleteSite: builder.mutation<any, { siteId: string }>({
       query: site => ({
         url: `site/${site.siteId}`,
         method: 'DELETE'
       }),
-      invalidatesTags: [
-        { type: 'RequirementsWithNoSite', id: 'LIST' },
-        { type: 'Site', id: 'LIST' }
-      ]
+      invalidatesTags: [{ type: 'Site', id: 'LIST' }]
     }),
-    updateSite: builder.mutation<any, { id: string; label: string; siteNbr: string; description: string }>({
+    updateSite: builder.mutation<
+      any,
+      {
+        id: string
+        label: string
+        siteNbr: string
+        description: string
+        requirementsToAdd: string[]
+        requirementsToRemove: string[]
+      }
+    >({
       query: site => ({
         url: `site/${site.id}`,
         method: 'PATCH',
         body: site
       }),
-      invalidatesTags: [
+      invalidatesTags: (result, error, site) => [
         { type: 'Site', id: 'LIST' },
-        { type: 'RequirementsWithNoSite', id: 'LIST' }
-      ]
-    }),
-    detachRequirementsFromSite: builder.mutation<any, { siteId: string; requirementsIds: string[] }>({
-      query: payload => ({
-        url: `site/${payload.siteId}/requirements/remove`,
-        method: 'PATCH',
-        body: payload
-      }),
-      invalidatesTags: [
-        { type: 'Site', id: 'LIST' },
-        { type: 'RequirementsWithNoSite', id: 'LIST' }
+        { type: 'Site', id: site.id }
       ]
     })
   })
@@ -64,9 +58,8 @@ export const siteApi = api.injectEndpoints({
 
 export const {
   useGetSiteQuery,
+  useGetSiteByIdQuery,
   useCreateSiteMutation,
-  useMapRequirementsToSiteMutation,
   useDeleteSiteMutation,
-  useUpdateSiteMutation,
-  useDetachRequirementsFromSiteMutation
+  useUpdateSiteMutation
 } = siteApi

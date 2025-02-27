@@ -2,7 +2,7 @@ import { GridColDef } from '@mui/x-data-grid'
 import { Chip, IconButton, Menu, MenuItem } from '@mui/material'
 import { MouseEvent, useState } from 'react'
 import { GridBaseColDef } from '@mui/x-data-grid/internals'
-import { formatDateFR } from '@/@core/utils/format'
+import { formatDateFR, formatTimeFR } from '@/@core/utils/format'
 import { ChipProps, Typography, TypographyProps } from '@mui/material'
 
 export interface CellType {
@@ -22,6 +22,8 @@ interface RowOptionProps {
   row: Row
   toggleEditMode: (row: any) => void
   deleteObject: (id: string) => void
+  customAction?: any
+  handleCustomAction?: (row: any) => void
 }
 interface DynamicColumn extends GridBaseColDef {}
 interface ColumnsProps {
@@ -29,6 +31,8 @@ interface ColumnsProps {
   deleteObject?: (id: string) => void
   customColumns: DynamicColumn[]
   includeActions?: boolean
+  customAction?: any
+  handleCustomAction?: (row: any) => void
 }
 
 type Condition = {
@@ -75,7 +79,7 @@ export const useRowOptions = ({ toggleEditMode, deleteObject }: RowOptionsHookPr
     handleDelete
   }
 }
-export const RowOptions = ({ row, toggleEditMode, deleteObject }: RowOptionProps) => {
+export const RowOptions = ({ row, toggleEditMode, deleteObject, customAction, handleCustomAction }: RowOptionProps) => {
   const { anchorEl, rowOptionsOpen, handleRowOptionsClick, handleRowOptionsClose, handleEdit, handleDelete } =
     useRowOptions({ toggleEditMode, deleteObject })
 
@@ -99,6 +103,18 @@ export const RowOptions = ({ row, toggleEditMode, deleteObject }: RowOptionProps
         }}
         PaperProps={{ style: { minWidth: '8rem' } }}
       >
+        {customAction && handleCustomAction && (
+          <MenuItem
+            onClick={() => {
+              handleCustomAction(row)
+              handleRowOptionsClose()
+            }}
+            sx={{ '& i, & svg': { mr: 2 } }}
+          >
+            <i className='tabler-file-invoice text-gray-500' />
+            {customAction}
+          </MenuItem>
+        )}
         <MenuItem onClick={() => handleEdit(row)} sx={{ '& i, & svg': { mr: 2 } }}>
           <i className='tabler-edit text-green-500' />
           Modifier
@@ -116,7 +132,9 @@ export const GetColumns = ({
   toggleEditMode,
   deleteObject,
   customColumns,
-  includeActions = false // Default to false if not provided
+  includeActions = false, // Default to false if not provided
+  customAction = '',
+  handleCustomAction = () => {}
 }: ColumnsProps): GridColDef[] => {
   const columns: GridColDef[] = [...(customColumns as GridBaseColDef[])]
 
@@ -126,7 +144,15 @@ export const GetColumns = ({
       headerName: 'Actions',
       width: 100,
       sortable: false,
-      renderCell: ({ row }) => <RowOptions toggleEditMode={toggleEditMode} deleteObject={deleteObject} row={row} />
+      renderCell: ({ row }) => (
+        <RowOptions
+          toggleEditMode={toggleEditMode}
+          deleteObject={deleteObject}
+          row={row}
+          customAction={customAction}
+          handleCustomAction={handleCustomAction}
+        />
+      )
     })
   }
 
@@ -141,23 +167,63 @@ export const renderTypographyCell =
       {row[field]}
     </Typography>
   )
+export const renderConcatenatedTypographyCell =
+  (fields: string[]) =>
+  ({ row }: CellType) => {
+    const text = fields
+      .map(field => field.split('.').reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), row))
+      .filter(Boolean)
+      .join(' ')
+
+    return (
+      <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }} title={text}>
+        {text}
+      </Typography>
+    )
+  }
+
 export const renderDateCell =
-  (field: string) =>
-  ({ row }: CellType) => (
-    <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
-      {formatDateFR(new Date(row[field]))}
-    </Typography>
-  )
+  (field: string, showTime: boolean = false) =>
+  ({ row }: CellType) => {
+    const dateValue = new Date(row[field])
+
+    const formattedDate = showTime
+      ? formatDateFR(dateValue) + ' ⏱︎ ' + formatTimeFR(dateValue) // Add time if needed
+      : formatDateFR(dateValue)
+    return (
+      <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
+        {formattedDate}
+      </Typography>
+    )
+  }
 
 export const renderChipCell =
-  (field: string, conditions: Condition[], defaultChipProps: ChipProps = {}, typographyProps: TypographyProps = {}) =>
+  (
+    field: string,
+    conditions: Condition[],
+    defaultChipProps: ChipProps = {},
+    typographyProps: TypographyProps = {},
+    nestedField?: string
+  ) =>
   ({ row }: CellType) => {
-    const matchedCondition = conditions.find(condition => row[field] === condition.value)
+    let fieldValue = row[field]
 
-    const chipProps = matchedCondition ? matchedCondition.chipProps : defaultChipProps
+    if (nestedField && typeof fieldValue === 'object' && fieldValue !== null) {
+      fieldValue = fieldValue[nestedField]
+    }
+
+    const matchedCondition = conditions.find(condition => fieldValue === condition.value)
+
+    const chipProps = matchedCondition ? { ...matchedCondition.chipProps } : { ...defaultChipProps }
+
+    const updatedTypographyProps = {
+      ...typographyProps,
+      sx: { fontWeight: 500, color: 'text.secondary', ...typographyProps.sx }
+    }
+
     return (
-      <Typography sx={{ fontWeight: 500, color: 'text.secondary', ...typographyProps.sx }} {...typographyProps}>
-        <Chip label={row[field]} {...chipProps} className='mt-4' />
+      <Typography {...updatedTypographyProps}>
+        <Chip label={fieldValue} {...chipProps} className='mt-4' />
       </Typography>
     )
   }

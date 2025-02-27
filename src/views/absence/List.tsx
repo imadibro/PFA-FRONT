@@ -1,79 +1,79 @@
 import type { SystemMode } from '@core/types'
 import Typography from '@mui/material/Typography'
-import { useDeleteSiteMutation, useGetSiteQuery } from '@/store/features/site/siteApi'
-import { DataGrid } from '@mui/x-data-grid'
 import { ChangeEvent, useState } from 'react'
-import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { Alert, Drawer, Skeleton } from '@mui/material'
-import { useGetRequirementQuery } from '@/store/features/requirement/requirementApi'
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
+import { useGetAbsencesQuery, useDeleteAbsenceMutation } from '@/store/features/absence/absenceApi'
+import { DataGrid } from '@mui/x-data-grid'
+import { escapeRegExp } from '@mui/x-data-grid/internals'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import {
+  GetColumns,
+  renderConcatenatedTypographyCell,
+  renderDateCell,
+  renderTypographyCell
+} from '@/components/common/GridColumns'
+import { useGetEmployeesQuery } from '@/store/features/employee/employeeApi'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
 import exportData from '@/@core/utils/exportData'
-import SiteForm from './SiteForm'
-import { ISite } from '@/@core/utils/types'
-import SiteDetails from './Details'
+import AbsenceForm from './AbsenceForm'
+import { IAbsence } from '@/@core/utils/types'
 
 const customColumns = () => [
   {
     flex: 1,
-    field: 'siteNbr',
-    headerName: 'Numéro de site',
+    field: 'employee.firstName',
+    headerName: 'Employé',
     minWidth: 180,
-    renderCell: renderTypographyCell('siteNbr')
+    renderCell: renderConcatenatedTypographyCell(['employee.firstName', 'employee.lastName'])
+  },
+
+  {
+    flex: 1,
+    field: 'absence.label',
+    headerName: "Type d'absence/Motif",
+    minWidth: 180,
+    renderCell: renderConcatenatedTypographyCell(['absence', 'autre'])
   },
   {
     flex: 1,
-    field: 'label',
-    headerName: 'Libellé',
+    field: 'startDate',
+    headerName: 'Date de début',
     minWidth: 180,
-    renderCell: renderTypographyCell('label')
+    renderCell: renderDateCell('startDate', true)
+  },
+  {
+    flex: 1,
+    minWidth: 180,
+    field: 'endDate',
+    headerName: 'Date de fin',
+    renderCell: renderDateCell('endDate', true)
   },
   {
     flex: 1,
     minWidth: 250,
-    field: 'description',
-    headerName: 'Description',
-    renderCell: renderTypographyCell('description')
+    field: 'notes',
+    headerName: 'Notes supplémentaires',
+    renderCell: renderTypographyCell('notes')
   }
 ]
 
-const SiteList = ({ mode }: { mode: SystemMode }) => {
-  const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false)
+const AbsencesList = ({ mode }: { mode: SystemMode }) => {
   const [searchText, setSearchText] = useState<string>('')
-  const [filteredData, setFilteredData] = useState<ISite[]>([])
+  const [filteredData, setFilteredData] = useState<IAbsence[]>([])
   const [isFiltering, setIsFiltering] = useState(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [siteToEdit, setSiteToEdit] = useState<ISite | null>(null)
+  const [absenceToEdit, setAbsenceToEdit] = useState<IAbsence | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
   const { showAlert, showConfirm, showToast } = useSweetAlert()
-  const [deleteSite, { isLoading: deleteSiteIsLoading, isError, error: deleteSiteError, isSuccess }] =
-    useDeleteSiteMutation()
 
-  const handleSearch = (searchValue: string) => {
-    setSearchText(searchValue)
-    const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
-    const filteredRows = data.filter((row: ISite) => {
-      return Object.keys(row).some(field => {
-        if (row[field as keyof ISite] !== null && row[field as keyof ISite] !== undefined) {
-          return searchRegex.test(row[field as keyof ISite]!.toString())
-        }
-      })
-    })
-    if (searchValue.length) {
-      setIsFiltering(true)
-      setFilteredData(filteredRows)
-    } else {
-      setIsFiltering(false)
-      setFilteredData([])
-    }
-  }
+  const { data, error, isLoading } = useGetAbsencesQuery()
+  const { data: employeeData, error: employeeError, isLoading: employeeIsLoading } = useGetEmployeesQuery()
 
-  const { data, error, isLoading } = useGetSiteQuery()
-  const { data: requirementData, error: requirementError, isLoading: isLoadingRequirements } = useGetRequirementQuery()
+  const [deleteAbsence, { isLoading: deleteAbsenceIsLoading, isError, error: deleteAbsenceError, isSuccess }] =
+    useDeleteAbsenceMutation()
 
   if (error) {
     const errorMessage =
@@ -87,6 +87,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
       </Alert>
     )
   }
+
   if (isLoading)
     return (
       <div>
@@ -96,33 +97,56 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
       </div>
     )
 
+  const handleSearch = (searchValue: string) => {
+    setSearchText(searchValue)
+    const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
+    const filteredRows = data.filter((row: IAbsence) => {
+      return Object.keys(row).some(field => {
+        if (row[field as keyof IAbsence] !== null && row[field as keyof IAbsence] !== undefined) {
+          return searchRegex.test(row[field as keyof IAbsence]!.toString())
+        }
+      })
+    })
+    if (searchValue.length) {
+      setIsFiltering(true)
+      setFilteredData(filteredRows)
+    } else {
+      setIsFiltering(false)
+      setFilteredData([])
+    }
+  }
   const toggleForm = () => setIsOpen(prevState => !prevState)
 
-  const toggleEditMode = (site: ISite) => {
+  const toggleEditMode = (task: IAbsence) => {
     setIsEditMode(true)
-    setSiteToEdit(site)
+    setAbsenceToEdit(task)
     toggleForm()
   }
 
   const onCloseForm = () => {
-    setSiteToEdit(null)
+    setAbsenceToEdit(null)
     toggleForm()
   }
 
   const handleDelete = async (id: string) => {
-    const confirmed = await showConfirm('', 'Etes-vous sûr de vouloir supprimer ce site ?', 'Supprimer', 'Annuler')
+    const confirmed = await showConfirm(
+      '',
+      'Etes-vous sûr de vouloir supprimer cette absence ?',
+      'Supprimer',
+      'Annuler'
+    )
     if (confirmed) {
       try {
-        await deleteSite({ siteId: id })
+        await deleteAbsence({ absenceId: id })
         showToast('Supprimé avec succès!', 'success')
       } catch (error) {
-        showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression du site", 'error')
+        showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression de l'absence", 'error')
       }
     }
   }
 
   const handleDateFilter = (start: Date, end: Date) => {
-    const filteredRows = data.filter((row: ISite) => {
+    const filteredRows = data.filter((row: IAbsence) => {
       const formattedCreatedAt = stringToDate(row?.createdAt || '')
 
       if (!formattedCreatedAt || isNaN(formattedCreatedAt.getTime())) {
@@ -140,18 +164,11 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
     setFilteredData([])
   }
 
-  const handleCustomAction = (site: ISite) => {
-    setSiteToEdit(site)
-    setIsDetailsOpen(true)
-  }
-
   const columns = GetColumns({
     toggleEditMode,
     deleteObject: handleDelete,
     customColumns: customColumns(),
-    includeActions: true,
-    customAction: 'Détails',
-    handleCustomAction
+    includeActions: true
   })
 
   const fieldHandlers = {
@@ -180,14 +197,14 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
         <Typography variant='h2' className='my-2'>
-          Liste des sites
+          Liste des absences
         </Typography>
       </div>
       <DataGrid
-        rowHeight={35}
-        loading={isLoading || deleteSiteIsLoading}
+        rowHeight={62}
+        loading={isLoading || deleteAbsenceIsLoading}
         rows={isFiltering ? filteredData : data}
-        localeText={{ noRowsLabel: 'Aucune donnes a afficher' }}
+        localeText={{ noRowsLabel: 'Aucune données a afficher' }}
         columns={columns}
         slots={{ toolbar: () => <QuickSearchToolbar {...toolbarProps} /> }}
         slotProps={{
@@ -205,24 +222,20 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
         onPaginationModelChange={setPaginationModel}
       />
 
-      {/*  Site Form */}
-      {!isLoadingRequirements && !requirementError && (
-        <Drawer open={isOpen} onClose={onCloseForm} anchor={'right'}>
-          <SiteForm
+      {/* Update Absence */}
+      <Drawer open={isOpen} onClose={onCloseForm} anchor={'right'}>
+        {!employeeIsLoading && (
+          <AbsenceForm
             mode={mode}
-            siteToEdit={siteToEdit}
+            absenceToEdit={absenceToEdit}
             onClose={onCloseForm}
             isEditMode={isEditMode}
-            requirements={requirementData}
+            employees={employeeData}
           />
-        </Drawer>
-      )}
-      {/* details drawer */}
-      <Drawer open={isDetailsOpen} onClose={() => setIsDetailsOpen(false)} anchor='right'>
-        <SiteDetails mode={mode} close={() => setIsDetailsOpen(false)} site={siteToEdit} />
+        )}
       </Drawer>
     </div>
   )
 }
 
-export default SiteList
+export default AbsencesList

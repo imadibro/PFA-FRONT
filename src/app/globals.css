@@ -131,3 +131,8 @@ code {
   background-color: rgb(var(--mui-palette-info-mainChannel) / 0.08);
   border: 0;
 }
+
+/* sweet alert */
+.swal2-container {
+  z-index: 9999;
+}

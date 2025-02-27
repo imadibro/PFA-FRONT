@@ -1,23 +1,23 @@
 import type { SystemMode } from '@core/types'
 import Typography from '@mui/material/Typography'
-import CustomIconButton from '@/@core/components/mui/IconButton'
 import { ChangeEvent, useState } from 'react'
-import CustomModal from '@/@core/components/mui/Modal'
-import CreateRequirement from './Create'
-import { Drawer, Skeleton } from '@mui/material'
+import { Alert, Drawer, Skeleton } from '@mui/material'
 import { useDeleteRequirementMutation, useGetRequirementQuery } from '@/store/features/requirement/requirementApi'
 import { DataGrid } from '@mui/x-data-grid'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import UpdateRequirement from './Update'
 import { GetColumns, renderChipCell, renderDateCell, renderTypographyCell } from '@/components/common/GridColumns'
+import exportData from '@/@core/utils/exportData'
+import { formatDateFR, stringToDate } from '@/@core/utils/format'
+import RequirementForm from './RequirementForm'
+import { IRequirement } from '@/@core/utils/types'
 
 const customColumns = () => [
   {
     flex: 1,
     field: 'label',
-    headerName: 'Label',
+    headerName: 'Libellé',
     minWidth: 180,
     renderCell: renderTypographyCell('label')
   },
@@ -40,17 +40,9 @@ const customColumns = () => [
       ],
       { color: 'default', size: 'small' }
     )
-  },
-  {
-    flex: 1,
-    minWidth: 170,
-    field: 'createdAt',
-    headerName: 'Creation E',
-    renderCell: renderDateCell('createdAt')
   }
 ]
 const RequirementList = ({ mode }: { mode: SystemMode }) => {
-  const [openModal, setOpenModal] = useState(false)
   const [searchText, setSearchText] = useState<string>('')
   const [filteredData, setFilteredData] = useState<IRequirement[]>([])
   const [isFiltering, setIsFiltering] = useState(false)
@@ -92,10 +84,15 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
     toggleForm()
   }
 
+  const onCloseForm = () => {
+    setRequirementToEdit(null)
+    toggleForm()
+  }
+
   const handleDelete = async (id: string) => {
     const confirmed = await showConfirm(
       'Es-tu sûr?',
-      'Vous ne pourrez pas annuler cette action',
+      'Etes-vous sûr de vouloir supprimer ce prérequis ?',
       'Supprimer',
       'Annuler'
     )
@@ -104,7 +101,7 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
         await deleteRequirement({ requirementId: id })
         showToast('Supprimé avec succès!', 'success')
       } catch (error) {
-        showAlert('Error', 'Something wrong went happedn while trying to delete the task', 'error')
+        showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression de prérequis", 'error')
       }
     }
   }
@@ -117,7 +114,11 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
         ? `Error ${error.status}: ${(error.data as any)?.message || 'Unknown error'}`
         : error.message || 'An unknown error occurred'
 
-    return <div>Error: {errorMessage}</div>
+    return (
+      <Alert severity='error' sx={{ margin: '16px 0' }}>
+        {errorMessage}
+      </Alert>
+    )
   }
 
   if (isLoading)
@@ -129,6 +130,25 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
       </div>
     )
 
+  const handleDateFilter = (start: Date, end: Date) => {
+    const filteredRows = data.filter((row: IRequirement) => {
+      const formattedCreatedAt = stringToDate(row?.createdAt || '')
+
+      if (!formattedCreatedAt || isNaN(formattedCreatedAt.getTime())) {
+        return false
+      }
+
+      return formattedCreatedAt >= start && formattedCreatedAt <= end
+    })
+    setIsFiltering(true)
+    setFilteredData(filteredRows)
+  }
+
+  const clearDateFilter = () => {
+    setIsFiltering(false)
+    setFilteredData([])
+  }
+
   const columns = GetColumns({
     toggleEditMode,
     deleteObject: handleDelete,
@@ -136,47 +156,49 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
     includeActions: true
   })
 
+  const fieldHandlers = {
+    createdAt: (value: string) => formatDateFR(new Date(value)),
+    updatedAt: (value: string) => formatDateFR(new Date(value))
+  }
+
+  const toolbarProps = {
+    value: searchText,
+    clearSearch: () => handleSearch(''),
+    onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
+    handleChecked: () => {},
+    toggleForm,
+    title: 'Exigences',
+    checkBoxLabel: '',
+    showCheckBox: false,
+    showDateFilter: false,
+    handleDateFilter,
+    clearDateFilter,
+    data: exportData(isFiltering ? filteredData : data, customColumns(), fieldHandlers),
+    showExcel: true,
+    hideAddButton: false
+  }
+
   return (
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
         <Typography variant='h2' className='my-2'>
-          Liste des exigences
+          Liste des prérequis
         </Typography>
-        <CustomIconButton
-          onClick={() => setOpenModal(true)}
-          color='primary'
-          variant='tonal'
-          size='small'
-          className='h-10'
-        >
-          <span className='tabler-plus w-5 h-5 mr-2' />
-          Ajouter
-        </CustomIconButton>
-        <CustomModal onClose={() => setOpenModal(false)} open={openModal}>
-          <CreateRequirement mode={mode} onClose={() => setOpenModal(false)} />
-        </CustomModal>
       </div>
-      {/* <Table data={data} /> */}
       <DataGrid
-        rowHeight={62}
-        loading={isLoading}
-        rows={data}
-        localeText={{ noRowsLabel: 'Aucune donnes a afficher' }}
+        rowHeight={44}
+        loading={isLoading || deleteRequirementIsLoading}
+        rows={isFiltering ? filteredData : data}
+        localeText={{ noRowsLabel: 'Aucune données a afficher' }}
         columns={columns}
-        // slots={{ toolbar: QuickSearchToolbar }}
+        slots={{ toolbar: () => <QuickSearchToolbar {...toolbarProps} /> }}
         slotProps={{
           baseButton: {
             size: 'medium',
             variant: 'outlined'
           },
-          toolbar: {
-            defaultValue: searchText,
-            onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
-            title: 'Exigences'
-            // handleDateFilter,
-            // clearDateFilter,
-            // data: dataToExport(),
-            // showExcel: true
+          pagination: {
+            labelRowsPerPage: 'Lignes par page'
           }
         }}
         disableRowSelectionOnClick
@@ -184,9 +206,14 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
       />
-      {/* Update Task */}
-      <Drawer open={isOpen} onClose={toggleForm} anchor={'right'}>
-        <UpdateRequirement mode={mode} requirementToEdit={requirementToEdit} onClose={toggleForm} />
+      {/* Update Requirement */}
+      <Drawer open={isOpen} onClose={onCloseForm} anchor={'right'}>
+        <RequirementForm
+          mode={mode}
+          requirementToEdit={requirementToEdit}
+          onClose={onCloseForm}
+          isEditMode={isEditMode}
+        />
       </Drawer>
     </div>
   )
