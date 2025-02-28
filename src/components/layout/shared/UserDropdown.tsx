@@ -20,7 +20,7 @@ import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
-
+import { signOut, useSession } from 'next-auth/react'
 // Hook Imports
 import { useSettings } from '@core/hooks/useSettings'
 
@@ -37,12 +37,14 @@ const BadgeContentSpan = styled('span')({
 const UserDropdown = () => {
   // States
   const [open, setOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   // Refs
   const anchorRef = useRef<HTMLDivElement>(null)
 
   // Hooks
   const router = useRouter()
+  const session = useSession()
 
   const { settings } = useSettings()
 
@@ -62,9 +64,13 @@ const UserDropdown = () => {
     setOpen(false)
   }
 
-  const handleUserLogout = async () => {
-    // Redirect to login page
-    router.push('/login')
+  const handleUserLogout = async (e: any) => {
+    setIsLoading(true)
+    e.preventDefault()
+    await signOut({ callbackUrl: '/login', redirect: false }).finally(() => {
+      setIsLoading(false)
+      router.push('/login')
+    })
   }
 
   return (
@@ -106,9 +112,9 @@ const UserDropdown = () => {
                     <Avatar alt='Admin' src='/images/avatars/1.png' />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
-                        Admin
+                        {session?.data?.user?.firstName} {session?.data?.user?.lastName}
                       </Typography>
-                      <Typography variant='caption'>admin@uptel.com</Typography>
+                      <Typography variant='caption'>{session?.data?.user?.email}</Typography>
                     </div>
                   </div>
                   <Divider className='mlb-1' />
@@ -131,7 +137,7 @@ const UserDropdown = () => {
                       onClick={handleUserLogout}
                       sx={{ '& .MuiButton-endIcon': { marginInlineStart: 1.5 } }}
                     >
-                      Logout
+                      {isLoading ? 'Logout...' : 'Logout'}
                     </Button>
                   </div>
                 </MenuList>

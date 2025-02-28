@@ -4,178 +4,196 @@
 import { useState } from 'react'
 
 // Next Imports
+import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 // MUI Imports
-import useMediaQuery from '@mui/material/useMediaQuery'
-import { styled, useTheme } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 import Checkbox from '@mui/material/Checkbox'
 import Button from '@mui/material/Button'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import Divider from '@mui/material/Divider'
-
-// Third-party Imports
-import classnames from 'classnames'
+import { Controller, SubmitHandler, useForm } from 'react-hook-form'
 
 // Type Imports
 import type { SystemMode } from '@core/types'
 
 // Component Imports
-import Link from '@components/Link'
-import Logo from '@components/layout/shared/Logo'
 import CustomTextField from '@core/components/mui/TextField'
 
 // Config Imports
 import themeConfig from '@configs/themeConfig'
 
 // Hook Imports
-import { useImageVariant } from '@core/hooks/useImageVariant'
-import { useSettings } from '@core/hooks/useSettings'
+import { Alert, Box, Card, CardContent, useTheme } from '@mui/material'
+import AuthIllustrationV1Wrapper from '@/@layouts/components/auth/AuthIllustrationV1Wrapper'
 
-// Styled Custom Components
-const LoginIllustration = styled('img')(({ theme }) => ({
-  zIndex: 2,
-  blockSize: 'auto',
-  maxBlockSize: 680,
-  maxInlineSize: '100%',
-  margin: theme.spacing(12),
-  [theme.breakpoints.down(1536)]: {
-    maxBlockSize: 550
-  },
-  [theme.breakpoints.down('lg')]: {
-    maxBlockSize: 450
-  }
-}))
-
-const MaskImg = styled('img')({
-  blockSize: 'auto',
-  maxBlockSize: 355,
-  inlineSize: '100%',
-  position: 'absolute',
-  insetBlockEnd: 0,
-  zIndex: -1
-})
+type FormData = {
+  username: string
+  password: string
+}
 
 const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
-
-  // Vars
-  const darkImg = '/images/pages/auth-mask-dark.png'
-  const lightImg = '/images/pages/auth-mask-light.png'
-  const darkIllustration = '/images/illustrations/auth/v2-login-dark.png'
-  const lightIllustration = '/images/illustrations/auth/v2-login-light.png'
-  const borderedDarkIllustration = '/images/illustrations/auth/v2-login-dark-border.png'
-  const borderedLightIllustration = '/images/illustrations/auth/v2-login-light-border.png'
+  const [rememberMe, setRememberMe] = useState<boolean>(true)
 
   // Hooks
   const router = useRouter()
-  const { settings } = useSettings()
-  const theme = useTheme()
-  const hidden = useMediaQuery(theme.breakpoints.down('md'))
-  const authBackground = useImageVariant(mode, lightImg, darkImg)
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isLoading, isSubmitting },
+    setError
+  } = useForm<FormData>()
 
-  const characterIllustration = useImageVariant(
-    mode,
-    lightIllustration,
-    darkIllustration,
-    borderedLightIllustration,
-    borderedDarkIllustration
-  )
+  const submitForm: SubmitHandler<FormData> = async data => {
+    const { username, password } = data
+    try {
+      if (!username || !password) {
+        setError('root', {
+          type: 'manual',
+          message: 'Tous les champs sont obligatoires'
+        })
+        return
+      }
 
-  const handleClickShowPassword = () => setIsPasswordShown(show => !show)
+      const result = await signIn('credentials', {
+        username: username,
+        password: password,
+        redirect: false,
+        callbackUrl: '/home'
+      })
+      if (result?.error) {
+        setError('root', {
+          type: 'manual',
+          message: result?.error || 'Invalid username or password'
+        })
+        return
+      }
+      if (result?.ok) {
+        router.push('/')
+      }
+    } catch (error) {
+      setError('root', {
+        type: 'manual',
+        message: 'Service not available at the moment. Please contact support.'
+      })
+    }
+  }
 
   return (
-    <div className='flex bs-full justify-center'>
-      <div
-        className={classnames(
-          'flex bs-full items-center justify-center flex-1 min-bs-[100dvh] relative p-6 max-md:hidden',
-          {
-            'border-ie': settings.skin === 'bordered'
-          }
-        )}
-      >
-        <LoginIllustration src={characterIllustration} alt='character-illustration' />
-        {!hidden && (
-          <MaskImg
-            alt='mask'
-            src={authBackground}
-            className={classnames({ 'scale-x-[-1]': theme.direction === 'rtl' })}
-          />
-        )}
-      </div>
-      <div className='flex justify-center items-center bs-full bg-backgroundPaper !min-is-full p-6 md:!min-is-[unset] md:p-12 md:is-[480px]'>
-        <Link className='absolute block-start-5 sm:block-start-[33px] inline-start-6 sm:inline-start-[38px]'>
-          <Logo />
-        </Link>
-        <div className='flex flex-col gap-6 is-full sm:is-auto md:is-full sm:max-is-[400px] md:max-is-[unset] mbs-11 sm:mbs-14 md:mbs-0'>
-          <div className='flex flex-col gap-1'>
-            <Typography variant='h4'>{`Welcome to ${themeConfig.templateName}! 👋🏻`}</Typography>
-            <Typography>Please sign-in to your account and start the adventure</Typography>
-          </div>
-          <form
-            noValidate
-            autoComplete='off'
-            onSubmit={e => {
-              e.preventDefault()
-              router.push('/')
-            }}
-            className='flex flex-col gap-5'
-          >
-            <CustomTextField autoFocus fullWidth label='Email or Username' placeholder='Enter your email or username' />
-            <CustomTextField
-              fullWidth
-              label='Password'
-              placeholder='············'
-              id='outlined-adornment-password'
-              type={isPasswordShown ? 'text' : 'password'}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position='end'>
-                    <IconButton edge='end' onClick={handleClickShowPassword} onMouseDown={e => e.preventDefault()}>
-                      <i className={isPasswordShown ? 'tabler-eye-off' : 'tabler-eye'} />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }}
-            />
-            <div className='flex justify-between items-center gap-x-3 gap-y-1 flex-wrap'>
-              <FormControlLabel control={<Checkbox />} label='Remember me' />
-              <Typography className='text-end' color='primary' component={Link}>
-                Forgot password?
+    <Box className='content-center'>
+      <AuthIllustrationV1Wrapper>
+        <Card>
+          <CardContent sx={{ p: theme => `${theme.spacing(10.5, 8, 8)} !important` }}>
+            <Box sx={{ mb: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <img src='/images/logo.png' alt='UPTEL Logo' width='50' height='50' />
+              <Typography variant='h4' sx={{ mb: 1.5, textAlign: 'center' }}>
+                {themeConfig.templateName.toUpperCase()}
               </Typography>
-            </div>
-            <Button fullWidth variant='contained' type='submit'>
-              Login
-            </Button>
-            <div className='flex justify-center items-center flex-wrap gap-2'>
-              <Typography>New on our platform?</Typography>
-              <Typography component={Link} color='primary'>
-                Create an account
+              <Typography variant='h6' sx={{ mb: -5.5, textAlign: 'center' }} color={'primary'}>
+                planing
               </Typography>
-            </div>
-            <Divider className='gap-2 text-textPrimary'>or</Divider>
-            <div className='flex justify-center items-center gap-1.5'>
-              <IconButton className='text-facebook' size='small'>
-                <i className='tabler-brand-facebook-filled' />
-              </IconButton>
-              <IconButton className='text-twitter' size='small'>
-                <i className='tabler-brand-twitter-filled' />
-              </IconButton>
-              <IconButton className='text-textPrimary' size='small'>
-                <i className='tabler-brand-github-filled' />
-              </IconButton>
-              <IconButton className='text-error' size='small'>
-                <i className='tabler-brand-google-filled' />
-              </IconButton>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
+            </Box>
+            <Box sx={{ mb: 6, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Typography variant='h5' sx={{ mb: 1.5 }}>
+                {themeConfig.templateSlogan}
+              </Typography>
+            </Box>
+            <form noValidate autoComplete='off' onSubmit={handleSubmit(submitForm)}>
+              <div className='my-2'>
+                {errors.root && (
+                  <Alert variant='outlined' severity='error'>
+                    {errors.root.message}
+                  </Alert>
+                )}
+              </div>
+              <Box
+                sx={{
+                  mb: 1.75,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <Controller
+                  name='username'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <CustomTextField
+                      fullWidth
+                      autoFocus
+                      label="Nom d'utilisateur"
+                      value={value}
+                      onBlur={onBlur}
+                      onChange={onChange}
+                      placeholder="Nom d'utilisateur"
+                      error={Boolean(errors.username)}
+                      {...(errors.username && { helperText: errors.username.message })}
+                    />
+                  )}
+                />
+              </Box>
+              <Box sx={{ mb: 1.5 }}>
+                <Controller
+                  name='password'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange, onBlur } }) => (
+                    <CustomTextField
+                      fullWidth
+                      value={value}
+                      onBlur={onBlur}
+                      label='Mot de passe'
+                      onChange={onChange}
+                      placeholder='*********'
+                      id='auth-login-v2-password'
+                      error={Boolean(errors.password)}
+                      {...(errors.password && { helperText: errors.password.message })}
+                      type={isPasswordShown ? 'text' : 'password'}
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position='end'>
+                            <IconButton
+                              edge='end'
+                              onMouseDown={e => e.preventDefault()}
+                              onClick={() => setIsPasswordShown(!isPasswordShown)}
+                            >
+                              <i className={isPasswordShown ? 'tabler-eye' : 'tabler-eye-off'} />
+                            </IconButton>
+                          </InputAdornment>
+                        )
+                      }}
+                    />
+                  )}
+                />
+              </Box>
+              <Box
+                sx={{
+                  mb: 1.75,
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              >
+                <FormControlLabel
+                  label='Mémoriser mes informations'
+                  control={<Checkbox checked={rememberMe} onChange={e => setRememberMe(e.target.checked)} />}
+                />
+              </Box>
+              <Button fullWidth type='submit' variant='contained' sx={{ mb: 4 }} disabled={isSubmitting}>
+                {isSubmitting ? 'Se connecter ...' : 'Se connecter'}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </AuthIllustrationV1Wrapper>
+    </Box>
   )
 }
 

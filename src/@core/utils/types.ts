@@ -101,3 +101,36 @@ export interface IAbsence {
   createdAt?: string
   updatedAt?: string
 }
+
+interface IEmployee {
+  id: string
+  username: string
+  email: string
+  firstName: string
+  lastName: string
+  password: string
+  role: IRole
+}
+
+interface IRole {
+  id: string
+  role: string
+  employees?: IEmployee[]
+}
+
+interface IAbsenceReasons {
+  id: string
+  label: string
+  description: string
+}
+
+interface IAbsence {
+  id: string
+  employee: IEmployee
+  absence: IAbsenceReasons
+  startDate: string
+  endDate: string
+  notes?: string
+  createdAt?: string
+  updatedAt?: string
+}

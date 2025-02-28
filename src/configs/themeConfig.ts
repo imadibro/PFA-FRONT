@@ -35,6 +35,7 @@ type Footer = {
 
 export type Config = {
   templateName: string
+  templateSlogan: string
   homePageUrl: string
   settingsCookieName: string
   mode: Mode
@@ -51,6 +52,7 @@ export type Config = {
 
 const themeConfig: Config = {
   templateName: 'UPTEL',
+  templateSlogan: 'Le progrès vous appartient',
   homePageUrl: '/home',
   settingsCookieName: 'vuexy-mui-next-demo-1',
   mode: 'system', // 'system', 'light', 'dark'

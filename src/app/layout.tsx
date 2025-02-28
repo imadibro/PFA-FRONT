@@ -9,7 +9,8 @@ import '@/app/globals.css'
 
 // Generated Icon CSS Imports
 import '@assets/iconify-icons/generated-icons.css'
-import ReduxProvider from '@/store/provider'
+import ReduxProvider from '@/providers/redux-provider'
+import SessionsProvider from '@/providers/session-provider'
 
 export const metadata = {
   title: 'UPTEL - Company',
@@ -28,9 +29,11 @@ const RootLayout = ({ children }: ChildrenType) => {
 
   return (
     <html id='__next' lang='en' dir={direction}>
-      <body className='flex is-full min-bs-full flex-auto flex-col'>
-        <ReduxProvider>{children}</ReduxProvider>
-      </body>
+      <SessionsProvider>
+        <body className='flex is-full min-bs-full flex-auto flex-col'>
+          <ReduxProvider>{children}</ReduxProvider>
+        </body>
+      </SessionsProvider>
     </html>
   )
 }

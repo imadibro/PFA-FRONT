@@ -50,7 +50,7 @@ const AbsenceForm = ({
 
   const [selectedEmployee, setSelectedEmployee] = React.useState<IEmployee | null | undefined>(absenceToEdit?.employee)
   const [selectedAbsenceReason, setSelectedAbsenceReason] = React.useState<IAbsenceReasons | null | undefined>(
-    absenceToEdit?.absence
+    absenceToEdit?.absence as IAbsenceReasons | null | undefined
   )
 
   const [isSelectedEmployeeError, setIsSelectedEmployeeError] = React.useState(false)
