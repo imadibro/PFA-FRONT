@@ -1,4 +1,4 @@
-import { CardCont } from '@/views/card/CardCon'
+import { CardCont } from '@/views/card/CardContainer'
 
 const Cardpage = () => {
   return <CardCont />

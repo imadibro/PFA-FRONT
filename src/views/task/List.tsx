@@ -1,17 +1,22 @@
+import type { ChangeEvent} from 'react';
+
+import { useState } from 'react'
+
 import Typography from '@mui/material/Typography'
-import { ChangeEvent, useState } from 'react'
 import { Alert, Drawer, Skeleton } from '@mui/material'
-import { useGetTasksQuery, useDeleteTaskMutation } from '@/store/features/task/taskApi'
 import { DataGrid } from '@mui/x-data-grid'
+
 import { escapeRegExp } from '@mui/x-data-grid/internals'
+
+import { useGetTasksQuery, useDeleteTaskMutation } from '@/store/features/task/taskApi'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import TaskForm from './TaskForm'
-import { GetColumns, renderDateCell, renderTypographyCell } from '@/components/common/GridColumns'
+import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
 import exportData from '@/@core/utils/exportData'
-import { SystemMode } from '@/@core/types'
-import { ITask } from '@/@core/utils/types'
+import type { SystemMode } from '@/@core/types'
+import type { ITask } from '@/@core/utils/types'
 
 const customColumns = () => [
   {
@@ -43,7 +48,7 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
 
   const { data, error, isLoading } = useGetTasksQuery()
 
-  const [deleteTask, { isLoading: deleteTaskIsLoading, isError, error: deleteTaskError, isSuccess }] =
+  const [deleteTask, { isLoading: deleteTaskIsLoading}] =
     useDeleteTaskMutation()
 
   if (error) {
@@ -71,6 +76,7 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
     const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
+
     const filteredRows = data.filter((row: ITask) => {
       return Object.keys(row).some(field => {
         if (row[field as keyof ITask] !== null && row[field as keyof ITask] !== undefined) {
@@ -124,6 +130,7 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
 
       return formattedCreatedAt >= start && formattedCreatedAt <= end
     })
+
     setIsFiltering(true)
     setFilteredData(filteredRows)
   }

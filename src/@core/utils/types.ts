@@ -6,6 +6,14 @@ export interface ICommonProps {
   updatedBy?: string
 }
 
+export interface IVehiculeOwner extends ICommonProps {
+  name: string
+}
+
+export interface IVehiculeOwnerRequest {
+  id?: string
+  name?: string
+}
 export interface ICard extends ICommonProps {
   matricule: string
   expireDate: string
@@ -133,4 +141,27 @@ interface IAbsence {
   notes?: string
   createdAt?: string
   updatedAt?: string
+}
+
+export interface IVehiculeType extends ICommonProps {
+  vehicule_type: string;
+}
+export interface IVehiculeTypeRequest {
+  id? : string
+  vehicule_type?: string;
+}
+
+export interface IVehicule extends ICommonProps {
+  registrationId: string
+  cost: number
+  owner : IVehiculeOwnerRequest
+  type : IVehiculeTypeRequest
+}
+
+export interface IVehiculeRequest {
+  id?: string
+  registrationId?: string
+  cost?: number
+  owner?: IVehiculeOwnerRequest
+  type?: IVehiculeTypeRequest
 }

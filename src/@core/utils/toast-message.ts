@@ -8,10 +8,10 @@ export const enum TOAST_ACTIONS {
 }
 
 export const enum TOAST_COMPONENTS {
- CARD = 'carte',
- BADGE = 'Badge',
- VEHICUL = 'Vehicule',
- DEPOT = 'Depot'
+ CARD = 'Carte',
+ VEHICUL  = 'Vehicule',
+ VEHICUL_OWNER = 'Propriétaire du véhicule',
+ VEHICUL_TYPE = 'Type du véhicule',
 }
 
 export const toastMessageSuccess = (component: string, action: TOAST_ACTIONS) => {

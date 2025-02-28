@@ -1,18 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-
 import { TabContext, TabPanel } from '@mui/lab'
-
 import { Tab } from '@mui/material'
-
 import CustomTabList from '@/@core/components/mui/TabList'
-
-
-
 import OperationList from './List'
 import TaskList from '@/views/task/List'
 import type { SystemMode } from '@core/types'
+
 
 const Tabs = ({ mode }: { mode: SystemMode }) => {
   const [tabValue, setTabValue] = useState('1')
