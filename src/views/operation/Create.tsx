@@ -58,7 +58,7 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
   }
 
   return (
-    <Box sx={{ width: '100%', position: 'relative', p: 4 }}>
+    <Box sx={{ width: '100%', position: 'relative', p: 4, minWidth: 450 }}>
       <IconButton onClick={close} sx={{ position: 'absolute', top: 8, left: 8 }}>
         <i className='tabler-x' />
       </IconButton>

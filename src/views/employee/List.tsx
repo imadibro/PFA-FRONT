@@ -32,7 +32,7 @@ const customColumns = () => [
     flex: 1,
     minWidth: 250,
     field: 'firstName',
-    headerName: 'Nom et Prénom',
+    headerName: 'Nom complet',
     renderCell: renderConcatenatedTypographyCell(['lastName', 'firstName'])
   },
   {

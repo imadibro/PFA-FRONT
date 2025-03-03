@@ -26,7 +26,7 @@ const OperationDetails = ({
   const { data, error, isLoading } = useGetOperationByIdQuery(operation?.id || '')
 
   return (
-    <Box sx={{ width: '100%', position: 'relative', p: 4, px: 0, minWidth: 400 }}>
+    <Box sx={{ width: '100%', position: 'relative', p: 4, px: 0, minWidth: 450 }}>
       <IconButton onClick={close} sx={{ position: 'absolute', top: 8, left: 8, color: 'grey.600' }}>
         <i className='tabler-x' />
       </IconButton>

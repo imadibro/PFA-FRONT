@@ -81,5 +81,5 @@ export const authOptions: NextAuthOptions = {
       // nextCookies().delete('token')
     }
   },
-  secret: process.env.NEXTAUTH_SECRET || 'something'
+  secret: process.env.NEXT_PUBLIC_AUTH_SECRET || 'something'
 }

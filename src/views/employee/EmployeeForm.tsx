@@ -179,7 +179,7 @@ const EmployeeForm = ({
 
   return (
     <div className='bg-backgroundPaper'>
-      <Box sx={{ width: '100%' }}>
+      <Box sx={{ width: '100%', minWidth: 450 }}>
         <IconButton onClick={onClose} sx={{ position: 'absolute', top: 8, left: 8 }}>
           <i className='tabler-x' />
         </IconButton>

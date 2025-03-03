@@ -51,7 +51,7 @@ const TaskForm = ({
   }
 
   return (
-    <div className='bg-backgroundPaper p-4'>
+    <div className='bg-backgroundPaper p-4' style={{ minWidth: 450 }}>
       <IconButton onClick={onClose} sx={{ position: 'absolute', top: 8, left: 8 }}>
         <i className='tabler-x' />
       </IconButton>

@@ -63,7 +63,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
         username: username,
         password: password,
         redirect: false,
-        callbackUrl: '/home'
+        callbackUrl: '/planification'
       })
       if (result?.error) {
         setError('root', {

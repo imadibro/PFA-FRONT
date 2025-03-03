@@ -1,4 +1,4 @@
-import type { ChangeEvent} from 'react';
+import type { ChangeEvent } from 'react'
 
 import { useState } from 'react'
 
@@ -48,8 +48,7 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
 
   const { data, error, isLoading } = useGetTasksQuery()
 
-  const [deleteTask, { isLoading: deleteTaskIsLoading}] =
-    useDeleteTaskMutation()
+  const [deleteTask, { isLoading: deleteTaskIsLoading }] = useDeleteTaskMutation()
 
   if (error) {
     const errorMessage =

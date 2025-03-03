@@ -163,7 +163,18 @@ export const GetColumns = ({
 export const renderTypographyCell =
   (field: string) =>
   ({ row }: CellType) => (
-    <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }} title={row[field]}>
+    <Typography
+      noWrap
+      sx={{
+        fontWeight: 500,
+        color: 'text.secondary',
+        display: 'flex',
+        alignItems: 'center',
+        height: '100%',
+        width: '100%'
+      }}
+      title={row[field]}
+    >
       {row[field]}
     </Typography>
   )
@@ -176,7 +187,18 @@ export const renderConcatenatedTypographyCell =
       .join(' ')
 
     return (
-      <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }} title={text}>
+      <Typography
+        noWrap
+        sx={{
+          fontWeight: 500,
+          color: 'text.secondary',
+          display: 'flex',
+          alignItems: 'center',
+          height: '100%',
+          width: '100%'
+        }}
+        title={text}
+      >
         {text}
       </Typography>
     )
@@ -191,7 +213,17 @@ export const renderDateCell =
       ? formatDateFR(dateValue) + ' ⏱︎ ' + formatTimeFR(dateValue) // Add time if needed
       : formatDateFR(dateValue)
     return (
-      <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
+      <Typography
+        noWrap
+        sx={{
+          fontWeight: 500,
+          color: 'text.secondary',
+          display: 'flex',
+          alignItems: 'center',
+          height: '100%',
+          width: '100%'
+        }}
+      >
         {formattedDate}
       </Typography>
     )
@@ -218,12 +250,19 @@ export const renderChipCell =
 
     const updatedTypographyProps = {
       ...typographyProps,
-      sx: { fontWeight: 500, color: 'text.secondary', ...typographyProps.sx }
+      sx: {
+        fontWeight: 500,
+        color: 'text.secondary',
+        display: 'flex',
+        alignItems: 'center',
+        marginTop: -2,
+        ...typographyProps.sx
+      }
     }
 
     return (
       <Typography {...updatedTypographyProps}>
-        <Chip label={fieldValue} {...chipProps} className='mt-4' />
+        <Chip label={fieldValue} {...chipProps} className='mt-4' sx={{ margin: 'auto' }} />
       </Typography>
     )
   }
@@ -234,7 +273,12 @@ export const renderChipsCell =
     const items: any[] = row[field] || []
 
     return (
-      <div className='text-center space-x-1 overflow-auto' title={field} {...containerProps}>
+      <div
+        className='text-center space-x-1 overflow-auto'
+        title={field}
+        {...containerProps}
+        style={{ display: 'flex', alignItems: 'center', height: '100%', width: '100%' }}
+      >
         {items.map((item, index) => (
           <Chip key={index} label={item.label} {...chipProps} />
         ))}
