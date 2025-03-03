@@ -1,10 +1,10 @@
-import type { SystemMode } from '@core/types'
 import Typography from '@mui/material/Typography'
 import { Alert, Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material'
+import type { SystemMode } from '@core/types'
 import CustomIconButton from '@/@core/components/mui/IconButton'
 import { useUpdateRequirementMutation, useCreateRequirementMutation } from '@/store/features/requirement/requirementApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import { IRequirement } from '@/@core/utils/types'
+import type { IRequirement } from '@/@core/utils/types'
 
 const RequirementForm = ({
   mode,

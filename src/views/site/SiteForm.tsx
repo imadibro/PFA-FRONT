@@ -1,16 +1,15 @@
-import type { SystemMode } from '@core/types'
-import { Alert, Box, Button, IconButton } from '@mui/material'
 import { useState } from 'react'
-import { TextField } from '@mui/material'
+import { Alert, Box, Button, IconButton, TextField } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import Autocomplete from '@mui/material/Autocomplete'
 import Chip from '@mui/material/Chip'
 import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
 import Checkbox from '@mui/material/Checkbox'
+import type { SystemMode } from '@core/types'
 import { useCreateSiteMutation, useUpdateSiteMutation } from '@/store/features/site/siteApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import { IRequirement, ISite } from '@/@core/utils/types'
+import type { IRequirement, ISite } from '@/@core/utils/types'
 
 const StyledChip = styled(Chip)({
   '&.MuiChip-root': {

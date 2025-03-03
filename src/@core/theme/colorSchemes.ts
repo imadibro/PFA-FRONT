@@ -148,6 +148,7 @@ const colorSchemes = (skin: Skin): Theme['colorSchemes'] => {
           border: 'var(--mui-palette-divider)'
         },
         customColors: {
+          main: '47, 43, 61',
           bodyBg: '#F8F7FA',
           chatBg: '#F3F2F5',
           greyLightBg: '#FAFAFA',
@@ -300,6 +301,7 @@ const colorSchemes = (skin: Skin): Theme['colorSchemes'] => {
           border: 'var(--mui-palette-divider)'
         },
         customColors: {
+          main: '208, 212, 241',
           bodyBg: '#25293C',
           chatBg: '#202534',
           greyLightBg: '#353A52',

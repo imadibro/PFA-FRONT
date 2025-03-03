@@ -1,20 +1,21 @@
-import type { SystemMode } from '@core/types'
-import Typography from '@mui/material/Typography'
-import { Alert, Box, Button, IconButton, TextField } from '@mui/material'
 import CustomIconButton from '@/@core/components/mui/IconButton'
-import { useUpdateAbsenceMutation, useCreateAbsenceMutation } from '@/store/features/absence/absenceApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
-import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
-import dayjs, { Dayjs } from 'dayjs'
+import type { IAbsence, IAbsenceReasons, IEmployee } from '@/@core/utils/types'
+import { useCreateAbsenceMutation, useUpdateAbsenceMutation } from '@/store/features/absence/absenceApi'
+import type { SystemMode } from '@core/types'
+import { Alert, Box, Button, IconButton, TextField } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
-import React, { useEffect } from 'react'
-import { styled } from '@mui/material/styles'
-import Chip from '@mui/material/Chip'
 import Checkbox from '@mui/material/Checkbox'
+import Chip from '@mui/material/Chip'
+import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
-import { IAbsence, IAbsenceReasons, IEmployee } from '@/@core/utils/types'
+import Typography from '@mui/material/Typography'
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
+import type { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
+import React, { useEffect } from 'react'
 
 const StyledChip = styled(Chip)({
   '&.MuiChip-root': {
@@ -29,7 +30,7 @@ const StyledChip = styled(Chip)({
 const icon = <i className='tabler:circle-check' />
 const checkedIcon = <i className='tabler:checkbox' />
 
-const absenceReasons: IAbsenceReasons[] = ['Malade', 'Congie', 'Autre']
+const absenceReasons: IAbsenceReasons[] = ['Malade', 'Congé', 'Autre']
 
 const AbsenceForm = ({
   mode,

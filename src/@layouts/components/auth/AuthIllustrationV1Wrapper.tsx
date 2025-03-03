@@ -1,6 +1,7 @@
 // ** MUI Components
 import { styled } from '@mui/material/styles'
-import Box, { BoxProps } from '@mui/material/Box'
+import type { BoxProps } from '@mui/material/Box'
+import Box from '@mui/material/Box'
 
 // ** Styled Components
 const AuthIllustrationV1Wrapper = styled(Box)<BoxProps>(({ theme }) => ({

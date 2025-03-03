@@ -27,7 +27,7 @@ export const api = createApi({
     'AbsenceReason',
     'Absence'
   ],
-  endpoints: builder => ({})
+  endpoints: _builder => ({})
 })
 
 export default api

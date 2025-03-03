@@ -1,14 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import CustomTabList from '@/@core/components/mui/TabList'
+import type { SystemMode } from '@core/types'
 import { TabContext, TabPanel } from '@mui/lab'
 import { Tab } from '@mui/material'
-import CustomTabList from '@/@core/components/mui/TabList'
+import { useState } from 'react'
 import { VehiculeOwnerContainer } from '../vehiculeOwner/VehiculeOwnerContainer'
 import { VehiculeTypeContainer } from '../vehiculeType/VehiculeTypeContainer'
 import { VehiculeContainer } from './vehiculeContainer'
 
-const Tabs = () => {
+const Tabs = ({ mode }: { mode: SystemMode }) => {
   const [tabValue, setTabValue] = useState('1')
 
   return (

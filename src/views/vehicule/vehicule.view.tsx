@@ -1,10 +1,10 @@
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import QuickSearchToolbar from '@core/components/quicksearch/QuickSearchToolbar'
+import type { IActionColumnsProps, ICellType, IVehicule } from '@core/utils/types'
+import { Icon } from '@iconify/react'
 import { Card, IconButton, Typography } from '@mui/material'
 import type { GridColDef, GridPaginationModel } from '@mui/x-data-grid'
 import { DataGrid } from '@mui/x-data-grid'
-import { Icon } from '@iconify/react'
-import type { IActionColumnsProps, ICellType, IVehicule } from '@core/utils/types'
-import QuickSearchToolbar from '@core/components/quicksearch/QuickSearchToolbar'
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
 const RowOptions = ({ row, toggleEditMode, deleteObject }: IActionColumnsProps<IVehicule>) => {
   const { showConfirm } = useSweetAlert()
@@ -113,6 +113,20 @@ const VehiculeView = (props: Props) => {
     clearSearch
   } = props
 
+  const CustomToolbar = (toolbarProps: any) => {
+    return (
+      <QuickSearchToolbar
+        {...toolbarProps}
+        value={searchValue}
+        onChange={handleSearchChange}
+        clearSearch={clearSearch}
+        toggleForm={toggleForm}
+        title='Vehicule'
+        data={vehicules}
+      />
+    )
+  }
+
   const handlePaginationChange = (model: GridPaginationModel) => {
     setPaginationModel(model)
   }
@@ -135,18 +149,11 @@ const VehiculeView = (props: Props) => {
           noRowsLabel: 'Aucune donnes a afficher',
           MuiTablePagination: { labelRowsPerPage: 'Lignes par page' }
         }}
-        slots={{ toolbar: QuickSearchToolbar }}
+        slots={{ toolbar: CustomToolbar }}
         slotProps={{
           baseButton: {
             size: 'medium',
             variant: 'outlined'
-          },
-          toolbar: {
-            value: searchValue,
-            onChange: handleSearchChange,
-            clearSearch: clearSearch,
-            toggleForm,
-            title: 'Véhicules'
           }
         }}
       />

@@ -1,4 +1,4 @@
-import type { SystemMode } from '@core/types'
+import React from 'react'
 import {
   Alert,
   Box,
@@ -10,20 +10,20 @@ import {
   MenuItem,
   OutlinedInput,
   Select,
-  Tab
+  Tab,
+  TextField
 } from '@mui/material'
-import { TextField } from '@mui/material'
 import Typography from '@mui/material/Typography'
+import { TabContext, TabPanel } from '@mui/lab'
+import type { SystemMode } from '@core/types'
 import {
   useUpdateEmployeeMutation,
   useCreateEmployeeMutation,
   useUpdateEmployeePasswordMutation
 } from '@/store/features/employee/employeeApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import React from 'react'
 import CustomTabList from '@/@core/components/mui/TabList'
-import { TabContext, TabPanel } from '@mui/lab'
-import { IEmployee, IRole } from '@/@core/utils/types'
+import type { IEmployee, IRole } from '@/@core/utils/types'
 
 const EmployeeForm = ({
   mode,

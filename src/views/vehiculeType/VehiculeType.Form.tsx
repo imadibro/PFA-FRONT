@@ -1,11 +1,11 @@
+import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
+import CustomTextField from '@core/components/mui/TextField'
+import type { IVehiculeType, IVehiculeTypeRequest } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Grid } from '@mui/material'
 import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
-import CustomTextField from '@core/components/mui/TextField'
-import type { IVehiculeType, IVehiculeTypeRequest } from '@core/utils/types'
-import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
 
 interface Props {
   isOpen: boolean
@@ -19,7 +19,7 @@ interface Props {
 
 const schema = yup
   .object({
-    vehicule_type: yup.string().required('Type is required'),
+    vehicule_type: yup.string().required('Type is required')
   })
   .required()
 
@@ -35,7 +35,7 @@ export default function VehiculeTypeForm(props: Props) {
     control,
     handleSubmit,
     formState: { errors }
-  } = useForm<IVehiculeType>({
+  } = useForm<IVehiculeTypeRequest>({
     defaultValues,
     resolver: yupResolver(schema)
   })
@@ -61,7 +61,11 @@ export default function VehiculeTypeForm(props: Props) {
   }
 
   return (
-    <SidebarDrawerForm headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} type du vehicule`} open={isOpen} toggle={toggle}>
+    <SidebarDrawerForm
+      headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} type du vehicule`}
+      open={isOpen}
+      toggle={toggle}
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={5}>
           <Grid item xs={12} sm={12}>

@@ -1,15 +1,12 @@
+import { formatToFrDate } from '@/@core/utils/format'
+import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
+import CustomTextField from '@core/components/mui/TextField'
+import type { ICard, ICardRequest } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Grid } from '@mui/material'
 import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
-
 import * as yup from 'yup'
-
-import CustomTextField from '@core/components/mui/TextField'
-
-import type { ICard, ICardRequest } from '@core/utils/types'
-import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
-import { formatToFrDate } from '@/@core/utils/format'
 
 interface Props {
   isOpen: boolean
@@ -24,7 +21,35 @@ interface Props {
 const schema = yup
   .object({
     matricule: yup.string().required('Matricule is required'),
-    expireDate: yup.date().required('Expiration date is required'),
+    expireDate: yup
+      .string()
+      .required('Expiration date is required')
+      .test('is-date-format', 'Must be a valid date in DD/MM/YYYY format', value => {
+        if (!value) return false
+
+        // Check format using regex
+        if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return false
+
+        // Parse the date parts
+        const [day, month, year] = value.split('/').map(Number)
+
+        // Check if it's a valid date (e.g., not 31/02/2023)
+        const date = new Date(year, month - 1, day)
+        return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
+      })
+      .test('is-future-date', 'Expiration date must be in the future', value => {
+        if (!value) return false
+
+        // Parse the date
+        const [day, month, year] = value.split('/').map(Number)
+        const date = new Date(year, month - 1, day)
+
+        // Compare with current date (without time)
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+
+        return date >= today
+      }),
     balance: yup
       .number()
       .typeError('Balance must be a number')
@@ -36,16 +61,10 @@ const schema = yup
 export default function CardForm(props: Props) {
   const { isOpen, toggleForm, cardToEdit, isEditMode, handleAdd, cancleEditMode, handleEdit } = props
 
-  // const defaultValues: ICardRequest = {
-  //   matricule: isEditMode ? (cardToEdit?.matricule ?? '') : '',
-  //   expireDate: isEditMode ? (cardToEdit?.expireDate ?? '') : '',
-  //   balance: isEditMode ? (cardToEdit?.balance ?? 0) : 0
-  // }
-
   const defaultValues: ICardRequest = {
-    matricule: isEditMode ? cardToEdit?.matricule : '',
-    expireDate: isEditMode ? formatToFrDate(cardToEdit?.expireDate as string) : '',
-    balance: isEditMode ? cardToEdit?.balance : 0
+    matricule: isEditMode && cardToEdit ? cardToEdit.matricule : '',
+    expireDate: isEditMode && cardToEdit ? formatToFrDate(cardToEdit?.expireDate as string) : '',
+    balance: isEditMode && cardToEdit ? cardToEdit?.balance : 0
   }
 
   const {
@@ -53,7 +72,7 @@ export default function CardForm(props: Props) {
     control,
     handleSubmit,
     formState: { errors }
-  } = useForm<ICard>({
+  } = useForm<ICardRequest>({
     defaultValues,
     resolver: yupResolver(schema)
   })
@@ -114,7 +133,7 @@ export default function CardForm(props: Props) {
                   id='expireDate'
                   error={Boolean(errors.expireDate)}
                   aria-describedby='expireDate'
-                  {...(errors.expireDate && { helperText: 'Ce champs est obligatoire' })}
+                  {...(errors.expireDate && { helperText: errors.expireDate.message })}
                 />
               )}
             />

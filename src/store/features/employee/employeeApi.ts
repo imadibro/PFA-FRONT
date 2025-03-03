@@ -1,6 +1,7 @@
+import type { IRole } from '@/@core/utils/types'
 import { api } from '@/store/api'
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
-import { SerializedError } from '@reduxjs/toolkit'
+import type { SerializedError } from '@reduxjs/toolkit'
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 
 export const employeeApi = api.injectEndpoints({
   endpoints: builder => ({

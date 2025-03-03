@@ -8,7 +8,6 @@ import { useCookie, useMedia } from 'react-use'
 
 // Type Imports
 import { useColorScheme } from '@mui/material'
-
 import { useSettings } from '@core/hooks/useSettings'
 
 const useLayoutInit = (colorSchemeFallback: 'light' | 'dark') => {

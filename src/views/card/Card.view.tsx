@@ -1,13 +1,9 @@
 import { Card, IconButton, Typography } from '@mui/material'
 import type { GridColDef, GridPaginationModel } from '@mui/x-data-grid'
 import { DataGrid } from '@mui/x-data-grid'
-
 import { Icon } from '@iconify/react'
-
 import { formatToFrDate } from '@core/utils/format'
-
 import type { IActionColumnsProps, ICellType, ICard } from '@core/utils/types'
-
 import QuickSearchToolbar from '@core/components/quicksearch/QuickSearchToolbar'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
@@ -109,6 +105,20 @@ const CardView = (props: Props) => {
     clearSearch
   } = props
 
+  const CustomToolbar = (toolbarProps: any) => {
+    return (
+      <QuickSearchToolbar
+        {...toolbarProps}
+        value={searchValue}
+        onChange={handleSearchChange}
+        clearSearch={clearSearch}
+        toggleForm={toggleForm}
+        title='Carte'
+        data={cards}
+      />
+    )
+  }
+
   const handlePaginationChange = (model: GridPaginationModel) => {
     setPaginationModel(model)
   }
@@ -131,18 +141,11 @@ const CardView = (props: Props) => {
           noRowsLabel: 'Aucune donnes a afficher',
           MuiTablePagination: { labelRowsPerPage: 'Lignes par page' }
         }}
-        slots={{ toolbar: QuickSearchToolbar }}
+        slots={{ toolbar: CustomToolbar }}
         slotProps={{
           baseButton: {
             size: 'medium',
             variant: 'outlined'
-          },
-          toolbar: {
-            value: searchValue,
-            onChange: handleSearchChange,
-            clearSearch: clearSearch,
-            toggleForm,
-            title: 'Carte'
           }
         }}
       />

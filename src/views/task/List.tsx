@@ -1,13 +1,9 @@
 import type { ChangeEvent } from 'react'
-
 import { useState } from 'react'
-
 import Typography from '@mui/material/Typography'
 import { Alert, Drawer, Skeleton } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
-
 import { escapeRegExp } from '@mui/x-data-grid/internals'
-
 import { useGetTasksQuery, useDeleteTaskMutation } from '@/store/features/task/taskApi'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'

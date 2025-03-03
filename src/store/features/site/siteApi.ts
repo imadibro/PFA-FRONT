@@ -1,7 +1,7 @@
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
+import type { SerializedError } from '@reduxjs/toolkit'
 import { api } from '@/store/api'
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
-import { SerializedError } from '@reduxjs/toolkit'
-import { ISite } from '@/@core/utils/types'
+import type { ISite } from '@/@core/utils/types'
 
 export const siteApi = api.injectEndpoints({
   endpoints: builder => ({

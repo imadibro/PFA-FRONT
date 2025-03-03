@@ -1,11 +1,11 @@
+import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
+import CustomTextField from '@core/components/mui/TextField'
+import type { IVehiculeOwner, IVehiculeOwnerRequest } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Grid } from '@mui/material'
 import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
-import CustomTextField from '@core/components/mui/TextField'
-import type { IVehiculeOwner, IVehiculeOwnerRequest } from '@core/utils/types'
-import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
 
 interface Props {
   isOpen: boolean
@@ -19,18 +19,12 @@ interface Props {
 
 const schema = yup
   .object({
-    name: yup.string().required('Name is required'),
+    name: yup.string().required('Name is required')
   })
   .required()
 
 export default function VehiculeOwnerForm(props: Props) {
   const { isOpen, toggleForm, vehiculeOwnerToEdit, isEditMode, handleAdd, cancleEditMode, handleEdit } = props
-
-  // const defaultValues: ICardRequest = {
-  //   matricule: isEditMode ? (cardToEdit?.matricule ?? '') : '',
-  //   expireDate: isEditMode ? (cardToEdit?.expireDate ?? '') : '',
-  //   balance: isEditMode ? (cardToEdit?.balance ?? 0) : 0
-  // }
 
   const defaultValues: IVehiculeOwnerRequest = {
     name: isEditMode ? (vehiculeOwnerToEdit?.name ?? '') : ''
@@ -41,7 +35,7 @@ export default function VehiculeOwnerForm(props: Props) {
     control,
     handleSubmit,
     formState: { errors }
-  } = useForm<IVehiculeOwner>({
+  } = useForm<IVehiculeOwnerRequest>({
     defaultValues,
     resolver: yupResolver(schema)
   })
@@ -66,7 +60,11 @@ export default function VehiculeOwnerForm(props: Props) {
   }
 
   return (
-    <SidebarDrawerForm headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} propriétaire`} open={isOpen} toggle={toggle}>
+    <SidebarDrawerForm
+      headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} propriétaire`}
+      open={isOpen}
+      toggle={toggle}
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={5}>
           <Grid item xs={12} sm={12}>

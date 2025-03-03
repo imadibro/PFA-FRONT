@@ -3,11 +3,11 @@
 import { useState } from 'react'
 import { TabContext, TabPanel } from '@mui/lab'
 import { Tab } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import CustomTabList from '@/@core/components/mui/TabList'
 import SiteList from './List'
 import RequirementList from '@/views/requirement/List'
 import type { SystemMode } from '@core/types'
-import { useTheme } from '@mui/material/styles'
 
 const Tabs = ({ mode }: { mode: SystemMode }) => {
   const [tabValue, setTabValue] = useState('1')

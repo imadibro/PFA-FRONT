@@ -1,6 +1,3 @@
-import { IOperation } from '@/@core/utils/types'
-import { useGetOperationByIdQuery } from '@/store/features/operation/operationApi'
-import type { SystemMode } from '@core/types'
 import {
   Box,
   IconButton,
@@ -13,6 +10,9 @@ import {
   Divider,
   Skeleton
 } from '@mui/material'
+import type { IOperation } from '@/@core/utils/types'
+import { useGetOperationByIdQuery } from '@/store/features/operation/operationApi'
+import type { SystemMode } from '@core/types'
 
 const OperationDetails = ({
   mode,

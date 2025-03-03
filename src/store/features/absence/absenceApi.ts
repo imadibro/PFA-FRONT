@@ -1,7 +1,7 @@
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
+import type { SerializedError } from '@reduxjs/toolkit'
 import { api } from '@/store/api'
-import { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
-import { SerializedError } from '@reduxjs/toolkit'
-import { IAbsenceReasons, IEmployee } from '@/@core/utils/types'
+import type { IAbsenceReasons, IEmployee } from '@/@core/utils/types'
 
 export const absenceApi = api.injectEndpoints({
   endpoints: builder => ({

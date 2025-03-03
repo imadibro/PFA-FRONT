@@ -1,12 +1,10 @@
 import type { ReactNode } from 'react'
-
 import Drawer from '@mui/material/Drawer'
 import { styled } from '@mui/material/styles'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
-import type { BoxProps } from '@mui/material/Box';
+import type { BoxProps } from '@mui/material/Box'
 import Box from '@mui/material/Box'
-
 import Icon from '@core/components/icon'
 
 interface SidebarDrawerFormType {

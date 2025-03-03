@@ -1,6 +1,3 @@
-import { ISite } from '@/@core/utils/types'
-import { useGetSiteByIdQuery } from '@/store/features/site/siteApi'
-import type { SystemMode } from '@core/types'
 import {
   Box,
   IconButton,
@@ -13,6 +10,9 @@ import {
   Divider,
   Skeleton
 } from '@mui/material'
+import type { ISite } from '@/@core/utils/types'
+import { useGetSiteByIdQuery } from '@/store/features/site/siteApi'
+import type { SystemMode } from '@core/types'
 
 const SiteDetails = ({ mode, site, close }: { mode: SystemMode; site: ISite | null; close: () => void }) => {
   const { data, error, isLoading } = useGetSiteByIdQuery(site?.id || '')

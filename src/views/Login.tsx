@@ -4,8 +4,8 @@
 import { useState } from 'react'
 
 // Next Imports
-import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 
 // MUI Imports
 import Typography from '@mui/material/Typography'
@@ -14,9 +14,11 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Checkbox from '@mui/material/Checkbox'
 import Button from '@mui/material/Button'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import { Controller, SubmitHandler, useForm } from 'react-hook-form'
+import type { SubmitHandler } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
 
 // Type Imports
+import { Alert, Box, Card, CardContent, useTheme } from '@mui/material'
 import type { SystemMode } from '@core/types'
 
 // Component Imports
@@ -26,7 +28,6 @@ import CustomTextField from '@core/components/mui/TextField'
 import themeConfig from '@configs/themeConfig'
 
 // Hook Imports
-import { Alert, Box, Card, CardContent, useTheme } from '@mui/material'
 import AuthIllustrationV1Wrapper from '@/@layouts/components/auth/AuthIllustrationV1Wrapper'
 
 type FormData = {

@@ -1,6 +1,5 @@
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
-
 import type { ITableItems, ICard, ICardRequest } from '../utils/types'
 
 class CardService {

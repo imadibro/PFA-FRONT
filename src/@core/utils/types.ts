@@ -12,7 +12,7 @@ export interface IVehiculeOwner extends ICommonProps {
 
 export interface IVehiculeOwnerRequest {
   id?: string
-  name?: string
+  name: string
 }
 export interface ICard extends ICommonProps {
   matricule: string
@@ -21,9 +21,9 @@ export interface ICard extends ICommonProps {
 }
 export interface ICardRequest {
   id?: string
-  matricule?: string
-  expireDate?: string
-  balance?: number
+  matricule: string
+  expireDate: string
+  balance: number
 }
 
 export interface ITableItems<T> {
@@ -96,7 +96,7 @@ export interface IRole {
   updatedAt?: string
 }
 
-export type IAbsenceReasons = 'Malade' | 'Congie' | 'Autre'
+export type IAbsenceReasons = 'Malade' | 'Congé' | 'Autre'
 
 export interface IAbsence {
   id: string
@@ -110,58 +110,25 @@ export interface IAbsence {
   updatedAt?: string
 }
 
-interface IEmployee {
-  id: string
-  username: string
-  email: string
-  firstName: string
-  lastName: string
-  password: string
-  role: IRole
-}
-
-interface IRole {
-  id: string
-  role: string
-  employees?: IEmployee[]
-}
-
-interface IAbsenceReasons {
-  id: string
-  label: string
-  description: string
-}
-
-interface IAbsence {
-  id: string
-  employee: IEmployee
-  absence: IAbsenceReasons
-  startDate: string
-  endDate: string
-  notes?: string
-  createdAt?: string
-  updatedAt?: string
-}
-
 export interface IVehiculeType extends ICommonProps {
-  vehicule_type: string;
+  vehicule_type: string
 }
 export interface IVehiculeTypeRequest {
-  id? : string
-  vehicule_type?: string;
+  id?: string
+  vehicule_type: string
 }
 
 export interface IVehicule extends ICommonProps {
   registrationId: string
   cost: number
-  owner : IVehiculeOwnerRequest
-  type : IVehiculeTypeRequest
+  owner: IVehiculeOwnerRequest
+  type: IVehiculeTypeRequest
 }
 
 export interface IVehiculeRequest {
   id?: string
-  registrationId?: string
-  cost?: number
-  owner?: IVehiculeOwnerRequest
-  type?: IVehiculeTypeRequest
+  registrationId: string
+  cost: number
+  owner: string
+  type: string
 }

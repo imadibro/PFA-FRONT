@@ -1,15 +1,15 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { vehiculeOwnerService, vehiculeTypeService } from '@/@core/services'
+import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
+import CustomTextField from '@core/components/mui/TextField'
+import type { IVehicule, IVehiculeOwner, IVehiculeRequest, IVehiculeType } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Grid, MenuItem } from '@mui/material'
+import { useEffect, useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
-import CustomTextField from '@core/components/mui/TextField'
-import type { IVehicule, IVehiculeOwner, IVehiculeRequest, IVehiculeType } from '@core/utils/types'
-import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
-import { vehiculeOwnerService, vehiculeTypeService } from '@/@core/services'
 
 interface Props {
   isOpen: boolean
@@ -24,7 +24,7 @@ interface Props {
 const schema = yup
   .object({
     registrationId: yup.string().required('Registration est requis'),
-    cost: yup.string().required('Le coût est requis'),
+    cost: yup.number().required('Le coût est requis'),
     owner: yup.string().required('Le propriétaire est requis'),
     type: yup.string().required('Le type est requis')
   })
@@ -48,18 +48,11 @@ export default function VehiculeForm(props: Props) {
     })
   }, [])
 
-  // const defaultValues: IVehiculeRequest = {
-  //   registrationId: isEditMode ? vehiculeToEdit?.registrationId : '',
-  //   cost: isEditMode ? vehiculeToEdit?.cost : 0,
-  //   owner: isEditMode ? vehiculeToEdit?.owner : { id: '', name: '' },
-  //   type: isEditMode ? vehiculeToEdit?.type : { id: '', vehicule_type: '' }
-  // }
-
   const defaultValues: IVehiculeRequest = {
     registrationId: isEditMode && vehiculeToEdit ? vehiculeToEdit.registrationId : '',
     cost: isEditMode && vehiculeToEdit ? vehiculeToEdit.cost : 0,
-    owner: isEditMode && vehiculeToEdit && vehiculeToEdit.owner.name ? vehiculeToEdit.owner.id : '',
-    type: isEditMode && vehiculeToEdit && vehiculeToEdit.type.vehicule_type ? vehiculeToEdit.type.id : ''
+    owner: isEditMode && vehiculeToEdit && vehiculeToEdit.owner.name ? vehiculeToEdit.owner.id || '' : '',
+    type: isEditMode && vehiculeToEdit && vehiculeToEdit.type.vehicule_type ? vehiculeToEdit.type.id || '' : ''
   }
 
   const {
@@ -67,7 +60,7 @@ export default function VehiculeForm(props: Props) {
     control,
     handleSubmit,
     formState: { errors }
-  } = useForm<IVehicule>({
+  } = useForm<IVehiculeRequest>({
     defaultValues,
     resolver: yupResolver(schema)
   })

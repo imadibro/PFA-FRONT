@@ -12,7 +12,7 @@ import Box from '@mui/material/Box'
 import { useCreateOperationMutation } from '@/store/features/operation/operationApi'
 import type { SystemMode } from '@core/types'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import { IOperation, ITask } from '@/@core/utils/types'
+import type { IOperation, ITask } from '@/@core/utils/types'
 
 const StyledChip = styled(Chip)({
   '&.MuiChip-root': {

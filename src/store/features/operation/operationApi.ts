@@ -1,8 +1,7 @@
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 import type { SerializedError } from '@reduxjs/toolkit'
-
 import { api } from '@/store/api'
-import { IOperation } from '@/@core/utils/types'
+import type { IOperation } from '@/@core/utils/types'
 
 export const operationApi = api.injectEndpoints({
   endpoints: builder => ({

@@ -1,10 +1,10 @@
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import QuickSearchToolbar from '@core/components/quicksearch/QuickSearchToolbar'
+import type { IActionColumnsProps, ICellType, IVehiculeOwner } from '@core/utils/types'
+import { Icon } from '@iconify/react'
 import { Card, IconButton } from '@mui/material'
 import type { GridColDef, GridPaginationModel } from '@mui/x-data-grid'
 import { DataGrid } from '@mui/x-data-grid'
-import { Icon } from '@iconify/react'
-import type { IActionColumnsProps, ICellType, IVehiculeOwner } from '@core/utils/types'
-import QuickSearchToolbar from '@core/components/quicksearch/QuickSearchToolbar'
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
 const RowOptions = ({ row, toggleEditMode, deleteObject }: IActionColumnsProps<IVehiculeOwner>) => {
   const { showConfirm } = useSweetAlert()
@@ -14,7 +14,7 @@ const RowOptions = ({ row, toggleEditMode, deleteObject }: IActionColumnsProps<I
   }
 
   const handleDelete = async () => {
-    const result = await showConfirm('','Êtes-vous sûr de vouloir supprimer ce propriétaire ?', 'confirme')
+    const result = await showConfirm('', 'Êtes-vous sûr de vouloir supprimer ce propriétaire ?', 'confirme')
 
     if (result) row && deleteObject(row.id!)
   }
@@ -88,6 +88,20 @@ const VehiculeOwnerView = (props: Props) => {
     clearSearch
   } = props
 
+  const CustomToolbar = (toolbarProps: any) => {
+    return (
+      <QuickSearchToolbar
+        {...toolbarProps}
+        value={searchValue}
+        onChange={handleSearchChange}
+        clearSearch={clearSearch}
+        toggleForm={toggleForm}
+        title='Propriétaire du véhicule'
+        data={vehiculeOwner}
+      />
+    )
+  }
+
   const handlePaginationChange = (model: GridPaginationModel) => {
     setPaginationModel(model)
   }
@@ -110,18 +124,11 @@ const VehiculeOwnerView = (props: Props) => {
           noRowsLabel: 'Aucune donnes a afficher',
           MuiTablePagination: { labelRowsPerPage: 'Lignes par page' }
         }}
-        slots={{ toolbar: QuickSearchToolbar }}
+        slots={{ toolbar: CustomToolbar }}
         slotProps={{
           baseButton: {
             size: 'medium',
             variant: 'outlined'
-          },
-          toolbar: {
-            value: searchValue,
-            onChange: handleSearchChange,
-            clearSearch: clearSearch,
-            toggleForm,
-            title: 'Propriétaire du véhicule'
           }
         }}
       />

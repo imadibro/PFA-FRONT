@@ -13,8 +13,8 @@ import type { ComponentsOverrides } from '@mui/material/styles'
 // Type Imports
 import type {
   CustomInputHorizontalProps,
-  CustomInputVerticalProps,
-  CustomInputImgProps
+  CustomInputImgProps,
+  CustomInputVerticalProps
 } from '@core/components/custom-inputs/types'
 
 declare module '@mui/material/styles' {
@@ -156,6 +156,7 @@ declare module '@mui/material/styles' {
       paperChannel: string
     }
     customColors: {
+      main: string
       bodyBg: string
       chatBg: string
       greyLightBg: string

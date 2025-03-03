@@ -1,9 +1,10 @@
-import { GridColDef } from '@mui/x-data-grid'
-import { Chip, IconButton, Menu, MenuItem } from '@mui/material'
-import { MouseEvent, useState } from 'react'
-import { GridBaseColDef } from '@mui/x-data-grid/internals'
+import type { MouseEvent } from 'react'
+import { useState } from 'react'
+import type { GridColDef } from '@mui/x-data-grid'
+import type { ChipProps, TypographyProps } from '@mui/material'
+import { Chip, IconButton, Menu, MenuItem, Typography } from '@mui/material'
+import type { GridBaseColDef } from '@mui/x-data-grid/internals'
 import { formatDateFR, formatTimeFR } from '@/@core/utils/format'
-import { ChipProps, Typography, TypographyProps } from '@mui/material'
 
 export interface CellType {
   row: any

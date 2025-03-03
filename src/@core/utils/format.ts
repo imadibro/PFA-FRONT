@@ -1,5 +1,4 @@
 import dayjs from 'dayjs'
-
 import { FR_DATE_TIME_FORMAT } from './constants'
 
 // Format Date FR
