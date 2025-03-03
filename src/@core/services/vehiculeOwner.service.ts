@@ -3,10 +3,10 @@ import axios from 'axios'
 import type { ITableItems, IVehiculeOwner, IVehiculeOwnerRequest } from '../utils/types'
 
 class VehiculeOwnerService {
-  getVehiculeOwner(page: number, limit: number, filterByName:string) {
+  getVehiculeOwner(page: number, limit: number, filterByName: string) {
     return new Promise<ITableItems<IVehiculeOwner[]>>((resolve, reject) => {
       axios
-        .get(`http://localhost:5000/api/vehiculeOwner`, {
+        .get(`${process.env.NEXT_PUBLIC_API_URL}/vehiculeOwner`, {
           params: {
             page,
             itemsPerPage: limit,
@@ -38,7 +38,7 @@ class VehiculeOwnerService {
   getAllOwners() {
     return new Promise<IVehiculeOwner[]>((resolve, reject) => {
       axios
-        .get('http://localhost:5000/api/vehiculeOwner/All')
+        .get(`${process.env.NEXT_PUBLIC_API_URL}/vehiculeOwner/All`)
         .then(response => {
           if (response?.data?.data) {
             resolve(response.data.data)
@@ -53,7 +53,7 @@ class VehiculeOwnerService {
   postVehiculeOwner(vehiculeOwner: IVehiculeOwnerRequest) {
     return new Promise<IVehiculeOwner>((resolve, reject) => {
       axios
-        .post(`http://localhost:5000/api/vehiculeOwner`, vehiculeOwner)
+        .post(`${process.env.NEXT_PUBLIC_API_URL}/vehiculeOwner`, vehiculeOwner)
         .then(response => {
           if (response?.data) {
             resolve(response.data)
@@ -74,7 +74,7 @@ class VehiculeOwnerService {
   patchVehiculeOwner(id: string, vehiculeOwner: IVehiculeOwnerRequest) {
     return new Promise<IVehiculeOwner>((resolve, reject) => {
       axios
-        .patch(`http://localhost:5000/api/vehiculeOwner/${id}`, vehiculeOwner)
+        .patch(`${process.env.NEXT_PUBLIC_API_URL}/vehiculeOwner/${id}`, vehiculeOwner)
         .then(response => {
           if (response?.data) {
             resolve(response.data)
@@ -95,7 +95,7 @@ class VehiculeOwnerService {
   deleteVehiculeOwner(id: string) {
     return new Promise<number>((resolve, reject) => {
       axios
-        .delete(`http://localhost:5000/api/vehiculeOwner/${id}`)
+        .delete(`${process.env.NEXT_PUBLIC_API_URL}/vehiculeOwner/${id}`)
         .then(response => {
           if (response?.data === 1) {
             resolve(1)

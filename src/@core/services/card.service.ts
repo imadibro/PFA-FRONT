@@ -1,12 +1,12 @@
 import type { AxiosResponse } from 'axios'
 import axios from 'axios'
-import type { ITableItems, ICard, ICardRequest } from '../utils/types'
+import type { ICard, ICardRequest, ITableItems } from '../utils/types'
 
 class CardService {
   getCard(page: number, limit: number) {
     return new Promise<ITableItems<ICard[]>>((resolve, reject) => {
       axios
-        .get(`http://localhost:5000/api/carte`, {
+        .get(`${process.env.NEXT_PUBLIC_API_URL}/carte`, {
           params: {
             page,
             itemsPerPage: limit
@@ -37,7 +37,7 @@ class CardService {
   postCard(card: ICardRequest) {
     return new Promise<ICard>((resolve, reject) => {
       axios
-        .post(`http://localhost:5000/api/carte`, card)
+        .post(`${process.env.NEXT_PUBLIC_API_URL}/carte`, card)
         .then(response => {
           console.log(response)
 
@@ -60,7 +60,7 @@ class CardService {
   patchCard(id: string, card: ICardRequest) {
     return new Promise<ICard>((resolve, reject) => {
       axios
-        .patch(`http://localhost:5000/api/carte/${id}`, card)
+        .patch(`${process.env.NEXT_PUBLIC_API_URL}/carte/${id}`, card)
         .then(response => {
           if (response?.data) {
             resolve(response.data)
@@ -81,7 +81,7 @@ class CardService {
   deleteCard(id: string) {
     return new Promise<number>((resolve, reject) => {
       axios
-        .delete(`http://localhost:5000/api/carte/${id}`)
+        .delete(`${process.env.NEXT_PUBLIC_API_URL}/carte/${id}`)
         .then(response => {
           if (response?.data === 1) {
             resolve(1)
