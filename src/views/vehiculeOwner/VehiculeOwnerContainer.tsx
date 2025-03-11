@@ -33,11 +33,13 @@ export const VehiculeOwnerContainer = () => {
 
   useEffect(() => {
     setIsLoading(true)
-    vehiculeOwnerService.getVehiculeOwner(paginationModel.page + 1, paginationModel.pageSize, searchValue).then(data => {
-      setVehiculeOwner(data.items)
-      setTotalItems(data.totalItems)
-      setIsLoading(false)
-    })
+    vehiculeOwnerService
+      .getVehiculeOwner(paginationModel.page + 1, paginationModel.pageSize, searchValue)
+      .then(data => {
+        setVehiculeOwner(data.items)
+        setTotalItems(data.totalItems)
+        setIsLoading(false)
+      })
   }, [paginationModel, searchValue])
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,12 +132,12 @@ export const VehiculeOwnerContainer = () => {
   }
 
   return (
-    <Grid container spacing={6.5}>
+    <Grid>
       <Grid item xs={12}>
         <Card>
           <CardHeader title={`Propriétaire du véhicule`} />
-          <CardContent sx={{ p: '1.5rem 0' }}>
-            <Card sx={{ padding: 2 }}>
+          <CardContent sx={{ p: '0' }}>
+            <Card sx={{ boxShadow: 'none', padding: 2 }}>
               <VehiculeOwnerView
                 totalItems={totalItems}
                 vehiculeOwner={vehiculeOwner}

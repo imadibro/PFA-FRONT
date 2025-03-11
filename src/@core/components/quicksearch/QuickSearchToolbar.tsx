@@ -29,6 +29,7 @@ const QuickSearchToolbar = (props: Props) => {
     >
       <div style={{ display: 'flex' }}>
         <CustomTextField
+          autoFocus
           type='string'
           value={props.value}
           placeholder='Recherche…'

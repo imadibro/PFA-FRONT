@@ -130,12 +130,12 @@ export const CardCont = () => {
   }
 
   return (
-    <Grid container spacing={6.5}>
+    <Grid>
       <Grid item xs={12}>
         <Card>
           <CardHeader title={`Cartes`} />
-          <CardContent sx={{ p: '1.5rem 0' }}>
-            <Card sx={{ padding: 2 }}>
+          <CardContent sx={{ p: '0' }}>
+            <Card sx={{ boxShadow: 'none', padding: 2 }}>
               <CardView
                 totalItems={totalItems}
                 cards={cards}

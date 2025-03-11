@@ -132,8 +132,13 @@ const VehiculeView = (props: Props) => {
   }
 
   return (
-    <Card sx={{ padding: 2 }}>
+    <Card sx={{ boxShadow: 'none' }}>
       <DataGrid
+        sx={{
+          boxShadow: 'none',
+          border: 'none',
+          backgroundColor: 'transparent'
+        }}
         columns={columns({ toggleEditMode, deleteObject: handleDelete })}
         paginationModel={paginationModel}
         paginationMode='server'

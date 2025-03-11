@@ -73,7 +73,7 @@ export const VehiculeContainer = () => {
     try {
       setIsLoading(true)
       const vehicule = await vehiculeService.postVehicule(newVehicule)
-      
+
       setVehicules(prevVehicule => [vehicule, ...prevVehicule])
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL, TOAST_ACTIONS.ADD))
 
@@ -130,12 +130,12 @@ export const VehiculeContainer = () => {
   }
 
   return (
-    <Grid container spacing={6.5}>
+    <Grid>
       <Grid item xs={12}>
         <Card>
           <CardHeader title={`Véhicules`} />
-          <CardContent sx={{ p: '1.5rem 0' }}>
-            <Card sx={{ padding: 2 }}>
+          <CardContent sx={{ p: '0' }}>
+            <Card sx={{ boxShadow: 'none', padding: 2 }}>
               <VehiculeView
                 totalItems={totalItems}
                 vehicules={vehicules}

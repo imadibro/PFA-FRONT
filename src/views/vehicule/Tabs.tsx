@@ -8,26 +8,34 @@ import { useState } from 'react'
 import { VehiculeOwnerContainer } from '../vehiculeOwner/VehiculeOwnerContainer'
 import { VehiculeTypeContainer } from '../vehiculeType/VehiculeTypeContainer'
 import { VehiculeContainer } from './vehiculeContainer'
+import { useTheme } from '@mui/material/styles'
 
 const Tabs = ({ mode }: { mode: SystemMode }) => {
   const [tabValue, setTabValue] = useState('1')
-
+  const theme = useTheme()
+  const isDarkMode = theme.palette.mode === 'dark'
   return (
     <TabContext value={tabValue}>
-      <CustomTabList onChange={(_, newValue) => setTabValue(newValue)} color='primary'>
+      <CustomTabList
+        onChange={(_, newValue) => setTabValue(newValue)}
+        color='primary'
+        indicatorColor='primary'
+        className={isDarkMode ? 'bg-backgroundPaper' : 'bg-backgroundPaper'}
+      >
         <Tab label='Vehicule' value='1' />
         <Tab label='Propriétaire du véhicule' value='2' />
         <Tab label='Type du véhicule' value='3' />
       </CustomTabList>
 
-      <TabPanel value='1'>
-        <VehiculeContainer />
+      <TabPanel value='1' style={{ paddingBlockStart: 0 }}>
+        <VehiculeContainer mode={mode} />
       </TabPanel>
-      <TabPanel value='2'>
-        <VehiculeOwnerContainer />
+      <TabPanel value='2' style={{ paddingBlockStart: 0 }}>
+        <VehiculeOwnerContainer mode={mode} />
       </TabPanel>
-      <TabPanel value='3'>
-        <VehiculeTypeContainer />
+
+      <TabPanel value='3' style={{ paddingBlockStart: 0 }}>
+        <VehiculeTypeContainer mode={mode} />
       </TabPanel>
     </TabContext>
   )
