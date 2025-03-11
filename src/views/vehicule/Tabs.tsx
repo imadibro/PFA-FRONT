@@ -4,11 +4,11 @@ import CustomTabList from '@/@core/components/mui/TabList'
 import type { SystemMode } from '@core/types'
 import { TabContext, TabPanel } from '@mui/lab'
 import { Tab } from '@mui/material'
+import { useTheme } from '@mui/material/styles'
 import { useState } from 'react'
 import { VehiculeOwnerContainer } from '../vehiculeOwner/VehiculeOwnerContainer'
 import { VehiculeTypeContainer } from '../vehiculeType/VehiculeTypeContainer'
 import { VehiculeContainer } from './vehiculeContainer'
-import { useTheme } from '@mui/material/styles'
 
 const Tabs = ({ mode }: { mode: SystemMode }) => {
   const [tabValue, setTabValue] = useState('1')
@@ -28,14 +28,14 @@ const Tabs = ({ mode }: { mode: SystemMode }) => {
       </CustomTabList>
 
       <TabPanel value='1' style={{ paddingBlockStart: 0 }}>
-        <VehiculeContainer mode={mode} />
+        <VehiculeContainer />
       </TabPanel>
       <TabPanel value='2' style={{ paddingBlockStart: 0 }}>
-        <VehiculeOwnerContainer mode={mode} />
+        <VehiculeOwnerContainer />
       </TabPanel>
 
       <TabPanel value='3' style={{ paddingBlockStart: 0 }}>
-        <VehiculeTypeContainer mode={mode} />
+        <VehiculeTypeContainer />
       </TabPanel>
     </TabContext>
   )
