@@ -1,16 +1,16 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import { DndContext, DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import type { DragEndEvent } from '@dnd-kit/core'
+import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { add, CSS } from '@dnd-kit/utilities'
-import { Avatar, AvatarGroup, Button, IconButton } from '@mui/material'
-import PerfectScrollbar from 'react-perfect-scrollbar'
+import { CSS } from '@dnd-kit/utilities'
+import { Avatar, AvatarGroup, Button, Drawer, IconButton } from '@mui/material'
+import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import PerfectScrollbar from 'react-perfect-scrollbar'
 import { Resizable } from 'react-resizable'
 import 'react-resizable/css/styles.css'
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import { Alert, Drawer, Skeleton } from '@mui/material'
 
 // Define types
 type Task = {
@@ -32,7 +32,7 @@ type Week = {
 
 function generateWeeksOfYear(year: number): Week[] {
   const weeks: Week[] = []
-  let currentDate = new Date(year, 0, 1) // Start from the first day of the year
+  const currentDate = new Date(year, 0, 1) // Start from the first day of the year
   const lastDate = new Date(year + 1, 0, 0) // Last day of the year
 
   // Predefined list of tasks
@@ -50,7 +50,7 @@ function generateWeeksOfYear(year: number): Week[] {
 
   // Loop through the entire year
   while (currentDate <= lastDate) {
-    let currentWeek: Week = { days: [] }
+    const currentWeek: Week = { days: [] }
 
     // Generate the days of the current week
     for (let i = 0; i < 7; i++) {
@@ -570,7 +570,7 @@ const Page = () => {
       const updatedWeeks = [...prevWeeks]
       const originalTaskId = taskId.replace('task-', '').split('-')[0]?.trim()
 
-      let task =
+      const task =
         tasks.find(t => t.id === originalTaskId) ||
         updatedWeeks.flatMap(week => week.days.flatMap(day => day.tasks)).find(t => t.id === originalTaskId)
 
