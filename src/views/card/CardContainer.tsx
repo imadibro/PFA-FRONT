@@ -33,7 +33,7 @@ export const CardCont = () => {
 
   useEffect(() => {
     setIsLoading(true)
-    cardService.getCard(paginationModel.page + 1, paginationModel.pageSize).then(data => {
+    cardService.getCard(paginationModel.page + 1, paginationModel.pageSize, searchValue).then(data => {
       setCards(data.items)
       setTotalItems(data.totalItems)
       setIsLoading(false)

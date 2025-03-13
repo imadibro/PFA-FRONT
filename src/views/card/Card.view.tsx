@@ -2,7 +2,7 @@ import { Card, IconButton, Typography } from '@mui/material'
 import type { GridColDef, GridPaginationModel } from '@mui/x-data-grid'
 import { DataGrid } from '@mui/x-data-grid'
 import { Icon } from '@iconify/react'
-import { formatToFrDate } from '@core/utils/format'
+import { formatToShowingCardDate } from '@core/utils/format'
 import type { IActionColumnsProps, ICellType, ICard } from '@core/utils/types'
 import QuickSearchToolbar from '@core/components/quicksearch/QuickSearchToolbar'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
@@ -22,7 +22,7 @@ const RowOptions = ({ row, toggleEditMode, deleteObject }: IActionColumnsProps<I
 
   return (
     <>
-      <IconButton
+      {/* <IconButton
         color='info'
         size='small'
         title='Detail'
@@ -30,7 +30,7 @@ const RowOptions = ({ row, toggleEditMode, deleteObject }: IActionColumnsProps<I
         // onClick={handleEdit}
       >
         <Icon icon='mdi:card-account-details-outline' />
-      </IconButton>
+      </IconButton> */}
       <IconButton color='primary' size='small' title='Modifier' onClick={handleEdit}>
         <Icon icon='tabler:edit' />
       </IconButton>
@@ -54,7 +54,7 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<ICard>): 
       flex: 1,
       renderCell: ({ row }: ICellType<ICard>) => (
         <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
-          {formatToFrDate(row.expireDate)}
+          {formatToShowingCardDate(row.expireDate)}
         </Typography>
       )
     },

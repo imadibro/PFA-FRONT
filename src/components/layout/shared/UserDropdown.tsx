@@ -109,7 +109,7 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-6 gap-2' tabIndex={-1}>
-                    <Avatar alt='Admin' src='/images/avatars/1.png' />
+                    <Avatar alt='Admin' src='' />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
                         {session?.data?.user?.firstName} {session?.data?.user?.lastName}
@@ -118,14 +118,14 @@ const UserDropdown = () => {
                     </div>
                   </div>
                   <Divider className='mlb-1' />
-                  <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e)}>
+                  {/* <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e)}>
                     <i className='tabler-user' />
-                    <Typography color='text.primary'>My Profile</Typography>
+                    <Typography color='text.primary'>Profile</Typography>
                   </MenuItem>
                   <MenuItem className='mli-2 gap-3' onClick={e => handleDropdownClose(e)}>
                     <i className='tabler-settings' />
-                    <Typography color='text.primary'>Settings</Typography>
-                  </MenuItem>
+                    <Typography color='text.primary'>Paramètres</Typography>
+                  </MenuItem> */}
 
                   <div className='flex items-center plb-2 pli-3'>
                     <Button
@@ -137,7 +137,7 @@ const UserDropdown = () => {
                       onClick={handleUserLogout}
                       sx={{ '& .MuiButton-endIcon': { marginInlineStart: 1.5 } }}
                     >
-                      {isLoading ? 'Logout...' : 'Logout'}
+                      {isLoading ? 'déconnexion...' : 'Déconnexion'}
                     </Button>
                   </div>
                 </MenuList>

@@ -5,7 +5,7 @@ const horizontalMenuData = (): HorizontalMenuDataType[] => [
   {
     label: 'Planification',
     href: '/planification',
-    icon: 'tabler-smart-home'
+    icon: 'tabler-calendar-month'
   },
   {
     label: 'Vehicules',

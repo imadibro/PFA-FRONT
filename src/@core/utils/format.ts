@@ -1,5 +1,5 @@
 import dayjs from 'dayjs'
-import { FR_DATE_TIME_FORMAT } from './constants'
+import { FR_DATE_TIME_FORMAT, SHOWING_CARD_DATE } from './constants'
 
 // Format Date FR
 export const formatDateFR = (date: Date, isForExcel = false) => {
@@ -29,6 +29,10 @@ export function formatDate(date: number | Date | string) {
 
 export const formatToFrDate = (date: Date | string) => {
   return date ? dayjs(new Date(date)).format(FR_DATE_TIME_FORMAT) : ''
+}
+
+export const formatToShowingCardDate = (date: Date | string) => {
+  return date ? dayjs(new Date(date)).format(SHOWING_CARD_DATE) : ''
 }
 
 // Format time in French format (HH:MM) in UTC

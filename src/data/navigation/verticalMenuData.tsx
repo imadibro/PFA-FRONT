@@ -5,7 +5,7 @@ const verticalMenuData = (): VerticalMenuDataType[] => [
   {
     label: 'Planification',
     href: '/planification',
-    icon: 'tabler-smart-home'
+    icon: 'tabler-calendar-month'
   },
   {
     label: 'Vehicules',

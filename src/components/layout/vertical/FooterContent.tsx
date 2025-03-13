@@ -1,7 +1,7 @@
 'use client'
 
 // Next Imports
-import Link from 'next/link'
+// import Link from 'next/link'
 
 // Third-party Imports
 import classnames from 'classnames'
@@ -14,14 +14,15 @@ import { verticalLayoutClasses } from '@layouts/utils/layoutClasses'
 
 const FooterContent = () => {
   // Hooks
-  const { isBreakpointReached } = useVerticalNav()
+  // const { isBreakpointReached } = useVerticalNav()
+  const {} = useVerticalNav()
 
   return (
     <div
       className={classnames(verticalLayoutClasses.footerContent, 'flex items-center justify-between flex-wrap gap-4')}
     >
       <p>
-        <span className='text-textSecondary'>{`UPTEL © ${new Date().getFullYear()}`}</span>
+        <span className='text-textSecondary'>{`UPTEL PLANNING © ${new Date().getFullYear()}`}</span>
         {/* <span>{`❤️`}</span>
         <span className='text-textSecondary'>{` by `}</span>
         <Link href='https://pixinvent.com' target='_blank' className='text-primary uppercase'>

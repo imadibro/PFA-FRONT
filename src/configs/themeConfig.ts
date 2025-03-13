@@ -51,7 +51,7 @@ export type Config = {
 }
 
 const themeConfig: Config = {
-  templateName: 'UPTEL',
+  templateName: 'UPTEL PLANNING',
   templateSlogan: 'Le progrès vous appartient',
   homePageUrl: '/planification',
   settingsCookieName: 'vuexy-mui-next-demo-1',
