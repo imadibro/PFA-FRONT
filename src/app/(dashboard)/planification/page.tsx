@@ -1,16 +1,16 @@
 'use client'
 
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import type { DragEndEvent } from '@dnd-kit/core'
-import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core'
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { Button, Drawer, IconButton } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import { createPortal } from 'react-dom'
+import { DndContext, DragEndEvent, useDraggable, useDroppable } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { add, CSS } from '@dnd-kit/utilities'
+import { Avatar, AvatarGroup, Button, IconButton } from '@mui/material'
 import PerfectScrollbar from 'react-perfect-scrollbar'
+import { createPortal } from 'react-dom'
 import { Resizable } from 'react-resizable'
 import 'react-resizable/css/styles.css'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import { Alert, Drawer, Skeleton } from '@mui/material'
 
 // Define types
 type Task = {
@@ -32,15 +32,15 @@ type Week = {
 
 function generateWeeksOfYear(year: number): Week[] {
   const weeks: Week[] = []
-  const currentDate = new Date(year, 0, 1) // Start from the first day of the year
+  let currentDate = new Date(year, 0, 1) // Start from the first day of the year
   const lastDate = new Date(year + 1, 0, 0) // Last day of the year
 
   // Predefined list of tasks
   const initialTasks: Task[] = [
-    { id: generateUniqueId('1'), title: 'Task 1', startDate: `${year}-03-04`, endDate: `${year}-03-06` },
-    { id: generateUniqueId('2'), title: 'Task 2', startDate: `${year}-03-05`, endDate: `${year}-03-07` },
-    { id: generateUniqueId('3'), title: 'Task 3', startDate: `${year}-06-15`, endDate: `${year}-06-17` },
-    { id: generateUniqueId('4'), title: 'Task 4', startDate: `${year}-12-10`, endDate: `${year}-12-12` }
+    { id: generateUniqueId('1'), title: 'Mission 1', startDate: `${year}-03-04`, endDate: `${year}-03-06` },
+    { id: generateUniqueId('2'), title: 'Mission 2', startDate: `${year}-03-05`, endDate: `${year}-03-07` },
+    { id: generateUniqueId('3'), title: 'Mission 3', startDate: `${year}-06-15`, endDate: `${year}-06-17` },
+    { id: generateUniqueId('4'), title: 'Mission 4', startDate: `${year}-12-10`, endDate: `${year}-12-12` }
   ]
 
   // Adjust the current date to the first day of the week (Monday)
@@ -50,7 +50,7 @@ function generateWeeksOfYear(year: number): Week[] {
 
   // Loop through the entire year
   while (currentDate <= lastDate) {
-    const currentWeek: Week = { days: [] }
+    let currentWeek: Week = { days: [] }
 
     // Generate the days of the current week
     for (let i = 0; i < 7; i++) {
@@ -163,19 +163,47 @@ const generateUniqueId = (originalId: string) => {
   return `${originalId}-${Date.now()}`
 }
 
+// get week number
+function getISOWeekNumber(date: any): number {
+  const startOfYear: any = new Date(date.getFullYear(), 0, 1)
+  const pastDaysOfYear = (date - startOfYear) / 86400000
+  const weekNumber = Math.ceil((pastDaysOfYear + startOfYear.getDay() + 1) / 7)
+  return weekNumber
+}
+
+// Function to generate a unique color based on task ID
+const getTaskColor = (taskId: string): string => {
+  const colors = [
+    '#2196F3', // Blue
+    '#4CAF50', // Green
+    '#FFC107', // Amber
+    '#FF5722', // Deep Orange
+    '#9C27B0', // Purple
+    '#00BCD4', // Cyan
+    '#E91E63', // Pink
+    '#8BC34A' // Light Green
+  ]
+
+  // Hash the task ID to get an index
+  const hash = taskId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0)
+  const index = hash % colors.length
+
+  return colors[index]
+}
+
 // Mock data for weeks
 const initialWeeks: Week[] = generateWeeksOfYear(new Date().getFullYear())
 
 // Mock data for tasks and employees
 const initialTasks: Task[] = [
-  { id: '1', title: 'Task 1', startDate: '', endDate: '' },
-  { id: '2', title: 'Task 2', startDate: '', endDate: '' },
-  { id: '3', title: 'Task 3', startDate: '', endDate: '' },
-  { id: '4', title: 'Task 4', startDate: '', endDate: '' },
-  { id: '5', title: 'Task 5', startDate: '', endDate: '' },
-  { id: '6', title: 'Task 6', startDate: '', endDate: '' },
-  { id: '7', title: 'Task 7', startDate: '', endDate: '' },
-  { id: '8', title: 'Task 8', startDate: '', endDate: '' }
+  { id: '1', title: 'Mission 1', startDate: '', endDate: '' },
+  { id: '2', title: 'Mission 2', startDate: '', endDate: '' },
+  { id: '3', title: 'Mission 3', startDate: '', endDate: '' },
+  { id: '4', title: 'Mission 4', startDate: '', endDate: '' },
+  { id: '5', title: 'Mission 5', startDate: '', endDate: '' },
+  { id: '6', title: 'Mission 6', startDate: '', endDate: '' },
+  { id: '7', title: 'Mission 7', startDate: '', endDate: '' },
+  { id: '8', title: 'Mission 8', startDate: '', endDate: '' }
 ]
 
 // Task Item Component
@@ -184,13 +212,15 @@ const TaskItem = ({
   dayDate,
   isResizable = false,
   onResizeHandler,
-  removeTask
+  removeTask,
+  isOver = false
 }: {
   task: Task
   dayDate: string
   isResizable: boolean
   onResizeHandler: (taskId: string, newEndDate: string) => void
   removeTask: (taskId: string) => void
+  isOver: boolean
 }) => {
   const compositeId = `task-${task.id}-${dayDate}` // Composite ID for drag-and-drop
 
@@ -244,10 +274,21 @@ const TaskItem = ({
     onResizeHandler(task.id, newEndDate)
   }
 
+  // Get the unique color for this task
+  const taskColor = getTaskColor(task.id)
+
   const style = {
-    transform: `${transform ? CSS.Transform.toString(transform) : ''} translateX(${rightOffset}px)`,
+    transform: `${transform ? CSS.Transform.toString(transform) : ''} translateX(${rightOffset}rem)`,
     width: `${width}rem`,
-    transition: 'width 0.2s ease-in-out'
+    transition: 'width 0.2s ease-in-out',
+    backgroundColor: isOver ? 'red' : '#2196F3'
+  }
+  if (isDragging) {
+    style.backgroundColor = 'green'
+  }
+
+  if (/(\d{13})|(\d{4}-\d{2}-\d{2})/g.test(compositeId) && !isOver) {
+    style.backgroundColor = taskColor
   }
 
   const NativeItem = (
@@ -267,7 +308,26 @@ const TaskItem = ({
         </IconButton>
       )}
 
-      {task.title}
+      <span className='font-extralight truncate'>{task.title}</span>
+      <AvatarGroup max={4} spacing='medium' variant='circular'>
+        <Avatar
+          alt='Travis Howard'
+          src='https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/35af6a41332353.57a1ce913e889.jpg'
+          sx={{ width: 24, height: 24 }}
+        />
+        <Avatar
+          alt='Agnes Walker'
+          src='https://mir-s3-cdn-cf.behance.net/project_modules/max_1200/993a9141332353.57a1ce913ee47.jpg'
+          sx={{ width: 24, height: 24 }}
+        />
+        <Avatar
+          alt='Trevor Henderson'
+          content='+21'
+          sx={{ width: 24, height: 24, textAlign: 'center', fontSize: '0.75rem' }}
+        >
+          +21
+        </Avatar>
+      </AvatarGroup>
       <IconButton className='cursor-move float-right ' size='small' color='secondary' {...attributes} {...listeners}>
         <span className='tabler-grid-dots h-4 w-4 bg-white'></span>
       </IconButton>
@@ -281,7 +341,7 @@ const TaskItem = ({
       onResize={onResize}
       onResizeStop={onResizeStop}
       resizeHandles={['e']}
-      className='bg-blue-500 text-white rounded flex items-center px-3 overflow-hidden cursor-ew-resize min-w-36'
+      className='bg-blue-500 text-white rounded flex items-center px-3 overflow-hidden min-w-36'
     >
       {NativeItem}
     </Resizable>
@@ -303,21 +363,26 @@ const DayColumn = ({
   isDuplicated?: boolean
   removeTask: (taskId: string) => void
 }) => {
-  const { setNodeRef } = useDroppable({
+  const { setNodeRef, isOver } = useDroppable({
     id: day.date
   })
   // Get the day name from the date
   const dayName = new Date(day.date).toLocaleDateString('fr-FR', { weekday: 'long' })
+  const capitalizedDayName = dayName.charAt(0).toUpperCase() + dayName.slice(1)
 
   return (
     <div className='flex-1 pt-1 border border-spacing-0.5 max-w-44' ref={setNodeRef}>
       {!isDuplicated && (
-        <h3 className='font-semibold mb-4 p-1 rounded text-center'>
-          {dayName} <br />
-          {day.date}
-        </h3>
+        <div className='border-b'>
+          <h3 className='font-semibold p-1 rounded text-center'>
+            {capitalizedDayName} <br />
+          </h3>
+          <div className='p-2 pt-0 text-slate-400 dark:text-gray-600 text-center rounded-lg font-extralight'>
+            {day.date}
+          </div>
+        </div>
       )}
-      <div className='max-w-36'>
+      <div className='min-w-[10.5rem] max-w-36'>
         {day.tasks.length ? (
           <SortableContext items={[...day.tasks.map(task => task.id)]} strategy={verticalListSortingStrategy}>
             {day.tasks.map(task => (
@@ -328,6 +393,7 @@ const DayColumn = ({
                 isResizable={true}
                 onResizeHandler={onResizeHandler}
                 removeTask={removeTask}
+                isOver={isOver}
               />
             ))}
           </SortableContext>
@@ -352,7 +418,7 @@ const TaskList = ({
   return (
     <div className='p-2 px-1 border rounded-lg '>
       <div className='flex justify-between'>
-        <h3 className='font-bold mb-4 px-2'>Tasks</h3>
+        <h3 className='font-bold mb-4 px-2'>Missions</h3>
         <Button className='cursor-pointer float-right ' size='small' color='secondary' onClick={() => addTask()}>
           <span className='tabler-plus h-4 w-4 bg-white'></span>
         </Button>
@@ -371,6 +437,7 @@ const TaskList = ({
               isResizable={false}
               onResizeHandler={() => {}}
               removeTask={removeTask}
+              isOver={false}
             />
           ))}
         </div>
@@ -403,19 +470,24 @@ const Calendar = ({
   // Get the current date of the first day of the current week
   const currentDate = new Date(currentWeek.days[0].date)
 
+  // Get the week number
+  const weekNumber = getISOWeekNumber(currentDate)
   // Format the current month and year
-  const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(currentDate)
+  const monthName = new Intl.DateTimeFormat('fr-FR', { month: 'long' }).format(currentDate)
+  const capitalizedMonthName = monthName.charAt(0).toUpperCase() + monthName.slice(1)
   const year = currentDate.getFullYear()
 
   return (
     <div className='p-4' id='calendar'>
       <div className='flex justify-between mb-4'>
-        <Button onClick={onPrevWeek} aria-label='Previous Week' size='small' color='primary' variant='contained'>
-          Previous Week
+        <Button onClick={onPrevWeek} aria-label='Précédente' size='small' color='primary' variant='contained'>
+          Précédente
         </Button>
-        <h2 className='text-xl font-semibold'>{`${monthName} ${year}`}</h2>
-        <Button onClick={onNextWeek} aria-label='Next Week' size='small' color='primary' variant='contained'>
-          Next Week
+        <h2 className='text-xl font-semibold'>
+          {`${capitalizedMonthName} ${year}`} - S{weekNumber}
+        </h2>
+        <Button onClick={onNextWeek} aria-label='Prochaine' size='small' color='primary' variant='contained'>
+          Prochaine
         </Button>
       </div>
       <PerfectScrollbar options={{ suppressScrollX: false, suppressScrollY: false, useBothWheelAxes: false }}>
@@ -450,12 +522,12 @@ const Calendar = ({
       <div className='flex justify-end mt-4'>
         <Button
           onClick={duplicateCurrentWeek}
-          aria-label='Duplicate Week'
+          aria-label='Ajouter une ligne'
           size='small'
           color='secondary'
           variant='contained'
         >
-          Duplicate Week
+          Ajouter une ligne
         </Button>
       </div>
     </div>
@@ -498,7 +570,7 @@ const Page = () => {
       const updatedWeeks = [...prevWeeks]
       const originalTaskId = taskId.replace('task-', '').split('-')[0]?.trim()
 
-      const task =
+      let task =
         tasks.find(t => t.id === originalTaskId) ||
         updatedWeeks.flatMap(week => week.days.flatMap(day => day.tasks)).find(t => t.id === originalTaskId)
 
@@ -622,35 +694,37 @@ const Page = () => {
   }
 
   return (
-    <div className='flex'>
-      <DndContext
-        onDragEnd={(event: DragEndEvent) => {
-          const { active, over } = event
-          if (over && active.id !== over.id) {
-            if (active.id.toString().startsWith('task')) {
-              handleTaskMove(active.id as string, over.id as string)
+    <div className='container'>
+      <div className='flex'>
+        <DndContext
+          onDragEnd={(event: DragEndEvent) => {
+            const { active, over } = event
+            if (over && active.id !== over.id) {
+              if (active.id.toString().startsWith('task')) {
+                handleTaskMove(active.id as string, over.id as string)
+              }
             }
-          }
-        }}
-      >
-        <div className='w-1/4 p-4'>
-          <TaskList tasks={tasks} removeTask={removeTask} addTask={addTask} />
-          <Drawer onClose={() => setOpenModal(false)} open={openModal} anchor={'right'}>
-            Modal To Add Task
-          </Drawer>
-        </div>
-        <div className='w-3/4'>
-          <Calendar
-            weeks={weeks}
-            currentWeekIndex={currentWeekIndex}
-            onNextWeek={handleNextWeek}
-            onPrevWeek={handlePrevWeek}
-            onResizeHandler={onResizeHandler}
-            duplicateCurrentWeek={duplicateCurrentWeek}
-            removeTask={removeTask}
-          />
-        </div>
-      </DndContext>
+          }}
+        >
+          <div className='w-1/4 p-4'>
+            <TaskList tasks={tasks} removeTask={removeTask} addTask={addTask} />
+            <Drawer onClose={() => setOpenModal(false)} open={openModal} anchor={'right'}>
+              Modal To Add Task
+            </Drawer>
+          </div>
+          <div className='w-3/4'>
+            <Calendar
+              weeks={weeks}
+              currentWeekIndex={currentWeekIndex}
+              onNextWeek={handleNextWeek}
+              onPrevWeek={handlePrevWeek}
+              onResizeHandler={onResizeHandler}
+              duplicateCurrentWeek={duplicateCurrentWeek}
+              removeTask={removeTask}
+            />
+          </div>
+        </DndContext>
+      </div>
     </div>
   )
 }

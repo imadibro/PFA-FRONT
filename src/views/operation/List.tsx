@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
 import Typography from '@mui/material/Typography'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
@@ -52,26 +52,30 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
   const [deleteOperation, { isLoading: deleteOperationIsLoading, isError, error: deleteOperationError, isSuccess }] =
     useDeleteOperationMutation()
 
-  const handleSearch = (searchValue: string) => {
-    setSearchText(searchValue)
-    const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
-    const filteredRows = data.filter((row: IRequirement) => {
-      return Object.keys(row).some(field => {
-        if (row[field as keyof IRequirement] !== null && row[field as keyof IRequirement] !== undefined) {
-          return searchRegex.test(row[field as keyof IRequirement]!.toString())
-        }
-      })
-    })
-    if (searchValue.length) {
-      setIsFiltering(true)
-      setFilteredData(filteredRows)
-    } else {
-      setIsFiltering(false)
-      setFilteredData([])
-    }
-  }
   const { data, error, isLoading } = useGetOperationsQuery()
   const { data: taskData, error: taskError, isLoading: isLoadingTasks } = useGetNotAssignedTasksQuery()
+
+  const handleSearch = useCallback(
+    (searchValue: string) => {
+      setSearchText(searchValue)
+      const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
+      const filteredRows = data.filter((row: IRequirement) => {
+        return Object.keys(row).some(field => {
+          if (row[field as keyof IRequirement] !== null && row[field as keyof IRequirement] !== undefined) {
+            return searchRegex.test(row[field as keyof IRequirement]!.toString())
+          }
+        })
+      })
+      if (searchValue.length) {
+        setIsFiltering(true)
+        setFilteredData(filteredRows)
+      } else {
+        setIsFiltering(false)
+        setFilteredData([])
+      }
+    },
+    [data]
+  )
 
   if (error) {
     const errorMessage =
@@ -162,7 +166,9 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
   const toolbarProps = {
     value: searchText,
     clearSearch: () => handleSearch(''),
-    onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
+    onChange: (event: ChangeEvent<HTMLInputElement>) => {
+      handleSearch(event.target.value)
+    },
     handleChecked: () => {},
     toggleForm,
     title: 'Taches',
@@ -196,7 +202,9 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
         rows={isFiltering ? filteredData : data}
         localeText={{ noRowsLabel: 'Aucune données a afficher' }}
         columns={columns}
-        slots={{ toolbar: () => <QuickSearchToolbar {...toolbarProps} /> }}
+        slots={{
+          toolbar: () => <QuickSearchToolbar {...toolbarProps} />
+        }}
         slotProps={{
           baseButton: {
             size: 'medium',
