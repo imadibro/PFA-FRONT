@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import type { Mission } from '@/app/(dashboard)/planification/page'
 import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
-import { Avatar, AvatarGroup, Button, IconButton } from '@mui/material'
+import { Avatar, AvatarGroup, IconButton } from '@mui/material'
+import React, { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Resizable } from 'react-resizable'
 import 'react-resizable/css/styles.css'
-import { Mission } from '@/app/(dashboard)/planification/page'
 
 // Function to generate a unique color based on mission ID
 const getMissionColor = (missionId: string): string => {

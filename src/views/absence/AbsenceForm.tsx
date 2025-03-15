@@ -33,7 +33,6 @@ const checkedIcon = <i className='tabler:checkbox' />
 const absenceReasons: IAbsenceReasons[] = ['Malade', 'Congé', 'Autre']
 
 const AbsenceForm = ({
-  mode,
   absenceToEdit,
   employees,
   onClose,

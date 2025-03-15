@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
         },
         rememberMe: { label: 'Mémoriser mes informations', type: 'boolean' }
       },
-      async authorize(credentials: any, req: any): Promise<any | null> {
+      async authorize(credentials: any): Promise<any | null> {
         if (!credentials.username || !credentials.password) throw new Error('Tous les champs sont obligatoires.')
 
         const { username, password, rememberMe } = credentials
@@ -37,7 +37,7 @@ export const authOptions: NextAuthOptions = {
             throw new Error(errorMessage)
           }
 
-          // todo : implment remember functionality
+          // todo : implement remember functionality
           const maxAge = rememberMe === 'true' ? 30 * 24 * 60 * 60 : 24 * 60 * 60
 
           const data = await response.json()

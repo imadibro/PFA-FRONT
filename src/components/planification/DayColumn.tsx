@@ -1,7 +1,7 @@
+import type { Day, Mission } from '@/app/(dashboard)/planification/page'
 import { useDroppable } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import MissionItem from './MissionItem'
-import { Day, Mission } from '@/app/(dashboard)/planification/page'
 
 // Day Column Component
 const DayColumn = ({

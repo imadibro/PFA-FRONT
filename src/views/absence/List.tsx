@@ -1,24 +1,24 @@
-import type { ChangeEvent } from 'react'
-import { useState } from 'react'
-import Typography from '@mui/material/Typography'
-import { Alert, Drawer, Skeleton } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
-import { escapeRegExp } from '@mui/x-data-grid/internals'
-import { useGetAbsencesQuery, useDeleteAbsenceMutation } from '@/store/features/absence/absenceApi'
-import type { SystemMode } from '@core/types'
-import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import exportData from '@/@core/utils/exportData'
+import { formatDateFR, stringToDate } from '@/@core/utils/format'
+import type { IAbsence } from '@/@core/utils/types'
 import {
   GetColumns,
   renderConcatenatedTypographyCell,
   renderDateCell,
   renderTypographyCell
 } from '@/components/common/GridColumns'
+import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
+import { useDeleteAbsenceMutation, useGetAbsencesQuery } from '@/store/features/absence/absenceApi'
 import { useGetEmployeesQuery } from '@/store/features/employee/employeeApi'
-import { formatDateFR, stringToDate } from '@/@core/utils/format'
-import exportData from '@/@core/utils/exportData'
+import type { SystemMode } from '@core/types'
+import { Alert, Drawer, Skeleton } from '@mui/material'
+import Typography from '@mui/material/Typography'
+import { DataGrid } from '@mui/x-data-grid'
+import { escapeRegExp } from '@mui/x-data-grid/internals'
+import type { ChangeEvent } from 'react'
+import { useState } from 'react'
 import AbsenceForm from './AbsenceForm'
-import type { IAbsence } from '@/@core/utils/types'
 
 const customColumns = () => [
   {
@@ -71,10 +71,9 @@ const AbsencesList = ({ mode }: { mode: SystemMode }) => {
   const { showAlert, showConfirm, showToast } = useSweetAlert()
 
   const { data, error, isLoading } = useGetAbsencesQuery()
-  const { data: employeeData, error: employeeError, isLoading: employeeIsLoading } = useGetEmployeesQuery()
+  const { data: employeeData, isLoading: employeeIsLoading } = useGetEmployeesQuery()
 
-  const [deleteAbsence, { isLoading: deleteAbsenceIsLoading, isError, error: deleteAbsenceError, isSuccess }] =
-    useDeleteAbsenceMutation()
+  const [deleteAbsence, { isLoading: deleteAbsenceIsLoading }] = useDeleteAbsenceMutation()
 
   if (error) {
     const errorMessage =

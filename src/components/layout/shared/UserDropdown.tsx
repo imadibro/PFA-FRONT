@@ -1,24 +1,24 @@
 'use client'
 
 // React Imports
-import { useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
+import { useRef, useState } from 'react'
 
 // Next Imports
 import { useRouter } from 'next/navigation'
 
 // MUI Imports
-import { styled } from '@mui/material/styles'
-import Badge from '@mui/material/Badge'
 import Avatar from '@mui/material/Avatar'
-import Popper from '@mui/material/Popper'
-import Fade from '@mui/material/Fade'
-import Paper from '@mui/material/Paper'
+import Badge from '@mui/material/Badge'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
-import MenuList from '@mui/material/MenuList'
-import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
-import MenuItem from '@mui/material/MenuItem'
+import Fade from '@mui/material/Fade'
+import MenuList from '@mui/material/MenuList'
+import Paper from '@mui/material/Paper'
+import Popper from '@mui/material/Popper'
+import { styled } from '@mui/material/styles'
+import Typography from '@mui/material/Typography'
+// import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
 import { signOut, useSession } from 'next-auth/react'
 // Hook Imports

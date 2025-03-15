@@ -1,4 +1,13 @@
-import React from 'react'
+import CustomTabList from '@/@core/components/mui/TabList'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import type { IEmployee, IRole } from '@/@core/utils/types'
+import {
+  useCreateEmployeeMutation,
+  useUpdateEmployeeMutation,
+  useUpdateEmployeePasswordMutation
+} from '@/store/features/employee/employeeApi'
+import type { SystemMode } from '@core/types'
+import { TabContext, TabPanel } from '@mui/lab'
 import {
   Alert,
   Box,
@@ -14,19 +23,9 @@ import {
   TextField
 } from '@mui/material'
 import Typography from '@mui/material/Typography'
-import { TabContext, TabPanel } from '@mui/lab'
-import type { SystemMode } from '@core/types'
-import {
-  useUpdateEmployeeMutation,
-  useCreateEmployeeMutation,
-  useUpdateEmployeePasswordMutation
-} from '@/store/features/employee/employeeApi'
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import CustomTabList from '@/@core/components/mui/TabList'
-import type { IEmployee, IRole } from '@/@core/utils/types'
+import React from 'react'
 
 const EmployeeForm = ({
-  mode,
   roles,
   employeeToEdit,
   onClose,
@@ -166,7 +165,7 @@ const EmployeeForm = ({
       return
     }
     try {
-      const response: IEmployee = await updateEmployeePassword({
+      await updateEmployeePassword({
         id: employeeToEdit.id,
         currentPassword,
         newPassword

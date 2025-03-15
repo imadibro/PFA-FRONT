@@ -1,6 +1,6 @@
-import { Week } from '@/app/(dashboard)/planification/page'
-import PerfectScrollbar from 'react-perfect-scrollbar'
+import type { Week } from '@/app/(dashboard)/planification/page'
 import { Button } from '@mui/material'
+import PerfectScrollbar from 'react-perfect-scrollbar'
 import DayColumn from './DayColumn'
 
 // get week number

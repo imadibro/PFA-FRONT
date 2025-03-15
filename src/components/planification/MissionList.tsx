@@ -1,5 +1,5 @@
-import { Mission } from '@/app/(dashboard)/planification/page'
-import { Avatar, AvatarGroup, Button, IconButton } from '@mui/material'
+import type { Mission } from '@/app/(dashboard)/planification/page'
+import { Button } from '@mui/material'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import MissionItem from './MissionItem'
 
