@@ -9,7 +9,7 @@ class VehiculeOwnerService {
         .get(`${process.env.NEXT_PUBLIC_API_URL}/vehiculeOwner`, {
           params: {
             page,
-            itemsPerPage: limit,
+            limit,
             filterByName
           }
         })

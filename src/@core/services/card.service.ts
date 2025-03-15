@@ -9,7 +9,7 @@ class CardService {
         .get(`${process.env.NEXT_PUBLIC_API_URL}/carte`, {
           params: {
             page,
-            itemsPerPage: limit,
+            limit,
             filterByMatricule
           }
         })
