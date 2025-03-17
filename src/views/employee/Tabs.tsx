@@ -21,7 +21,7 @@ const Tabs = ({ mode }: { mode: SystemMode }) => {
         className={isDarkMode ? 'bg-backgroundPaper' : 'bg-backgroundPaper'}
       >
         <Tab label='Employés' value='1' />
-        <Tab label='Absences/Congés' value='2' />
+        <Tab label='Absences' value='2' />
       </CustomTabList>
 
       <TabPanel value='1' style={{ paddingBlockStart: 0 }}>

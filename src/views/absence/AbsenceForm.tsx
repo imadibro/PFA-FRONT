@@ -157,7 +157,7 @@ const AbsenceForm = ({
         <i className='tabler-x' />
       </IconButton>
       <Typography variant='h4' className='my-4 mt-10'>
-        {isUpdatingAbsence ? "Mettre à jour l'absence" : 'Créer une absence'}
+        {isUpdatingAbsence ? "Mettre à jour l'absence" : 'Ajouter une absence'}
       </Typography>
       <form onSubmit={handleSubmit}>
         {isError && (
@@ -182,15 +182,7 @@ const AbsenceForm = ({
                 {`${option.firstName} ${option.lastName}`}
               </li>
             )}
-            renderInput={params => (
-              <TextField
-                {...params}
-                fullWidth
-                label='Employé'
-                helperText='Employé absent.'
-                error={isSelectedEmployeeError}
-              />
-            )}
+            renderInput={params => <TextField {...params} fullWidth label='Employé' error={isSelectedEmployeeError} />}
             renderTags={(value, getTagProps) =>
               value.map((option, index) => (
                 <Tooltip title={`${option.firstName} ${option.lastName}`} key={option.id}>
@@ -222,7 +214,7 @@ const AbsenceForm = ({
               </li>
             )}
             renderInput={params => (
-              <TextField {...params} fullWidth label="Type d'absence" error={isSelectedAbsenceReasonError} />
+              <TextField {...params} fullWidth label="Raison d'absence" error={isSelectedAbsenceReasonError} />
             )}
             renderTags={(value, getTagProps) =>
               value.map((option, index) => (
@@ -323,7 +315,7 @@ const AbsenceForm = ({
                 : 'Création...'
               : isUpdatingAbsence
                 ? 'Modifier'
-                : 'Créer'}
+                : 'Ajouter'}
           </CustomIconButton>
         </Box>
       </form>

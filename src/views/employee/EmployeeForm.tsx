@@ -196,7 +196,7 @@ const EmployeeForm = ({
 
           <div className='bg-backgroundPaper p-6'>
             <Typography variant='h4' className='my-4 mt-5'>
-              {isUpdatingEmployee ? "Mettre à jour l'employé" : 'Créer un employé'}
+              {isUpdatingEmployee ? "Mettre à jour l'employé" : 'Ajouter un employé'}
             </Typography>
             <TabPanel value='1'>
               <form onSubmit={handleUpdateEmployeeSubmit}>
