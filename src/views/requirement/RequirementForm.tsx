@@ -93,8 +93,11 @@ const RequirementForm = ({
         </div>
         <div className='mb-4'>
           <FormControl fullWidth size='small'>
-            <InputLabel id='priority-label'>Priorité</InputLabel>
+            <InputLabel id='priority-label' shrink>
+              Priorité
+            </InputLabel>
             <Select
+              label='Priorité'
               labelId='priority-label'
               id='priority-select'
               name='priority'
