@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Typography from '@mui/material/Typography'
-import { Button, IconButton, TextField } from '@mui/material'
+import { Button, FormControlLabel, IconButton, Switch, TextField } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
 import Chip from '@mui/material/Chip'
 import { styled } from '@mui/material/styles'
@@ -29,6 +29,8 @@ const checkedIcon = <i className='tabler:checkbox' />
 
 const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITask[]; close: () => void }) => {
   const [selectedTasks, setSelectedTasks] = React.useState<ITask[]>([])
+  const [durationMode, setDurationMode] = React.useState(false)
+
   const { showAlert, showToast } = useSweetAlert()
 
   const [createOperation, { isLoading, isError, error, isSuccess }] = useCreateOperationMutation()
@@ -37,8 +39,9 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
     event.preventDefault()
     const formData = new FormData(event.currentTarget as HTMLFormElement)
     const label = formData.get('label') as string
+    const duration = formData.get('duration') as string
     const description = formData.get('description') as string
-
+    const durationModeChar = durationMode ? 'h' : 'j'
     if (!selectedTasks?.length) {
       showAlert('', 'Veuillez sélectionner au moins une tâche', 'error')
       close()
@@ -49,7 +52,13 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
     try {
       const tasksIds = selectedTasks?.map((task: ITask) => task.id)
 
-      const response: IOperation = await createOperation({ label, description, tasksIds }).unwrap()
+      const response: IOperation = await createOperation({
+        label,
+        duration: Number(duration),
+        durationMode: durationModeChar,
+        description,
+        tasksIds
+      }).unwrap()
 
       showToast('Opération créée avec succès!', 'success')
     } catch (err) {
@@ -101,6 +110,35 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
                   </Tooltip>
                 ))
               }
+            />
+          </div>
+          <div className='mb-4'>
+            <TextField
+              type='number'
+              size='small'
+              name='duration'
+              label={`durée ${durationMode ? 'en heures' : 'en jours'}`}
+              placeholder='Durée'
+              required
+              fullWidth
+              inputProps={{
+                inputMode: 'numeric',
+                pattern: '[0-9]*'
+              }}
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '')
+              }}
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  size='small'
+                  checked={durationMode}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setDurationMode(!durationMode)}
+                />
+              }
+              label='en heure'
+              className='float-end mb-3'
             />
           </div>
           <div className='mb-4'>

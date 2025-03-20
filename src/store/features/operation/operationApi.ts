@@ -13,7 +13,10 @@ export const operationApi = api.injectEndpoints({
       query: operationId => `operation/${operationId}`,
       providesTags: (result, error, operationId) => [{ type: 'Operation', id: operationId }]
     }),
-    createOperation: builder.mutation<any, { label: string; description: string; tasksIds: string[] }>({
+    createOperation: builder.mutation<
+      any,
+      { label: string; duration: number; durationMode: string; description: string; tasksIds: string[] }
+    >({
       query: newOperation => ({
         url: 'operation',
         method: 'POST',
@@ -33,7 +36,15 @@ export const operationApi = api.injectEndpoints({
     }),
     updateOperation: builder.mutation<
       any,
-      { id: string; label: string; description: string; tasksToAdd: string[]; tasksToRemove: string[] }
+      {
+        id: string
+        label: string
+        duration: number
+        durationMode: string
+        description: string
+        tasksToAdd: string[]
+        tasksToRemove: string[]
+      }
     >({
       query: operation => ({
         url: `operation/${operation.id}`,

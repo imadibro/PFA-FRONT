@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Alert, Box, IconButton, TextField } from '@mui/material'
+import { Alert, Box, FormControlLabel, IconButton, Switch, TextField } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import Autocomplete from '@mui/material/Autocomplete'
 import Chip from '@mui/material/Chip'
@@ -37,6 +37,7 @@ const UpdateOperation = ({
   onClose: () => void
 }) => {
   const [combinedTasks, setCombinedTasks] = useState<ITask[] | null>([...tasks, ...(operationToEdit?.tasks || [])])
+  const [durationMode, setDurationMode] = useState(operationToEdit?.durationMode === 'h' ? true : false)
 
   const [selectedTasks, setSelectedTasks] = useState<ITask[]>([...(operationToEdit?.tasks || [])])
 
@@ -48,6 +49,8 @@ const UpdateOperation = ({
     event.preventDefault()
     const formData = new FormData(event.currentTarget as HTMLFormElement)
     const label = formData.get('label') as string
+    const duration = formData.get('duration') as string
+    const durationModeChar = durationMode ? 'h' : 'j'
     const description = formData.get('description') as string
 
     const initialTasks = operationToEdit?.tasks || []
@@ -56,7 +59,15 @@ const UpdateOperation = ({
 
     if (!operationToEdit?.id) return
     try {
-      await updateOperation({ id: operationToEdit.id, label, description, tasksToAdd, tasksToRemove }).unwrap()
+      await updateOperation({
+        id: operationToEdit.id,
+        label,
+        duration: Number(duration),
+        durationMode: durationModeChar,
+        description,
+        tasksToAdd,
+        tasksToRemove
+      }).unwrap()
       onClose()
       showToast('Opération modifiée avec succès!', 'success')
     } catch (err) {
@@ -86,6 +97,36 @@ const UpdateOperation = ({
               defaultValue={operationToEdit?.label}
               required
               fullWidth
+            />
+          </div>
+          <div className='mb-4'>
+            <TextField
+              type='number'
+              size='small'
+              name='duration'
+              label={`durée ${durationMode ? 'en heures' : 'en jours'}`}
+              placeholder='Durée'
+              required
+              fullWidth
+              defaultValue={operationToEdit?.duration}
+              inputProps={{
+                inputMode: 'numeric',
+                pattern: '[0-9]*'
+              }}
+              onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '')
+              }}
+            />
+            <FormControlLabel
+              control={
+                <Switch
+                  size='small'
+                  checked={durationMode}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => setDurationMode(!durationMode)}
+                />
+              }
+              label='en heure'
+              className='float-end mb-3'
             />
           </div>
           <div className='mb-4'>

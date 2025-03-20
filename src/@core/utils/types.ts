@@ -60,6 +60,8 @@ export interface IRequirement {
 export interface IOperation {
   id: string
   label: string
+  duration: number
+  durationMode: string
   description: string
   tasks?: ITask[]
   createdAt?: string

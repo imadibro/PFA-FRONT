@@ -151,7 +151,7 @@ const SiteForm = ({
                 </li>
               )}
               limitTags={5}
-              renderInput={params => <TextField {...params} fullWidth label='Prérequis ciblées' size='small' />}
+              renderInput={params => <TextField {...params} fullWidth label="contraintes d'accès" size='small' />}
               renderTags={(value, getTagProps) =>
                 value.map((option, index) => (
                   <Tooltip title={`${option.label}`} key={option.id}>

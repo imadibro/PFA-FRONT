@@ -10,7 +10,7 @@ import CreateOperation from './Create'
 import { useGetNotAssignedTasksQuery } from '@/store/features/task/taskApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import UpdateOperation from './Update'
-import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
+import { GetColumns, renderConcatenatedTypographyCell, renderTypographyCell } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
 import exportData from '@/@core/utils/exportData'
@@ -24,6 +24,13 @@ const customColumns = () => [
     headerName: 'Libellé',
     minWidth: 180,
     renderCell: renderTypographyCell('label')
+  },
+  {
+    flex: 1,
+    field: 'duration',
+    headerName: 'Durée (H/J)',
+    minWidth: 180,
+    renderCell: renderConcatenatedTypographyCell(['duration', 'durationMode'])
   },
   {
     flex: 1,
