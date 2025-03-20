@@ -1,7 +1,13 @@
-import { CardCont } from '@/views/card/CardContainer'
+// Component Imports
+import Tabs from '@views/card/Tabs'
+
+// Server Action Imports
 
 const Cardpage = () => {
-  return <CardCont />
+  // return <CardCont />
+  // Vars
+
+  return <Tabs />
 }
 
 export default Cardpage

@@ -21,52 +21,24 @@ interface Props {
   cancleEditMode: () => void
   cardToEdit: ICard | null
   isEditMode: boolean
+  activeTab: string
 }
 
 const schema = yup
   .object({
     matricule: yup.string().required('Matricule is required'),
     expireDate: yup.string().required('Expiration date is required'),
-    //   if (!value) return false
-
-    //   // Check format using regex
-    //   if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) return false
-
-    //   // Parse the date parts
-    //   const [day, month, year] = value.split('/').map(Number)
-
-    //   // Check if it's a valid date (e.g., not 31/02/2023)
-    //   const date = new Date(year, month - 1, day)
-    //   return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day
-    // })
-    // .test('is-future-date', 'Expiration date must be in the future', value => {
-    //   if (!value) return false
-
-    //   // Parse the date
-    //   const [day, month, year] = value.split('/').map(Number)
-    //   const date = new Date(year, month - 1, day)
-
-    //   // Compare with current date (without time)
-    //   const today = new Date()
-    //   today.setHours(0, 0, 0, 0)
-
-    //   return date >= today
-    // }),
-    balance: yup
-      .number()
-      .typeError('Balance must be a number')
-      .positive('Balance must be positive')
-      .required('Balance is required')
+    type: yup.string().required()
   })
   .required()
 
 export default function CardForm(props: Props) {
-  const { isOpen, toggleForm, cardToEdit, isEditMode, handleAdd, cancleEditMode, handleEdit } = props
+  const { isOpen, toggleForm, cardToEdit, isEditMode, handleAdd, cancleEditMode, handleEdit, activeTab } = props
 
   const defaultValues: ICardRequest = {
     matricule: isEditMode && cardToEdit ? cardToEdit.matricule : '',
-    expireDate: isEditMode && cardToEdit ? formatToShowingCardDate(cardToEdit?.expireDate as string) : '',
-    balance: isEditMode && cardToEdit ? cardToEdit?.balance : 0
+    expireDate: isEditMode && cardToEdit ? dayjs(cardToEdit.expireDate).format('YYYY-MM-DD') : '',
+    type: activeTab
   }
 
   const {
@@ -80,11 +52,14 @@ export default function CardForm(props: Props) {
   })
 
   const onSubmit: SubmitHandler<ICardRequest> = data => {
+    const cardData = {
+      ...data,
+      type: activeTab
+    }
     if (isEditMode && cardToEdit) {
-      handleEdit({ ...data, id: cardToEdit?.id })
+      handleEdit({ ...cardData, id: cardToEdit?.id })
     } else {
-      handleAdd(data)
-      console.log(data)
+      handleAdd(cardData)
     }
 
     reset()
@@ -132,9 +107,11 @@ export default function CardForm(props: Props) {
                     views={['year', 'month']}
                     label='Date Expiration *'
                     format='MM/YYYY'
-                    value={field.value ? dayjs(field.value, 'MM-YYYY') : null}
+                    value={field.value ? dayjs(field.value, 'YYYY-MM-DD') : null}
                     onChange={newValue => {
-                      field.onChange(newValue ? newValue.format('MM-YYYY') : '')
+                      // Convertir la date en format ISO 8601
+                      const formattedDate = newValue ? dayjs(newValue).format('YYYY-MM-DD') : ''
+                      field.onChange(formattedDate)
                     }}
                     minDate={dayjs()}
                     maxDate={dayjs().add(5, 'year')}
@@ -150,25 +127,6 @@ export default function CardForm(props: Props) {
                     }}
                   />
                 </LocalizationProvider>
-              )}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={12}>
-            <Controller
-              name='balance'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <CustomTextField
-                  {...field}
-                  fullWidth
-                  label='Balance *'
-                  id='balance'
-                  error={Boolean(errors.balance)}
-                  aria-describedby='Balance'
-                  {...(errors.balance && { helperText: 'Ce champs est obligatoire' })}
-                />
               )}
             />
           </Grid>

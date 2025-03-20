@@ -17,13 +17,13 @@ export interface IVehiculeOwnerRequest {
 export interface ICard extends ICommonProps {
   matricule: string
   expireDate: string
-  balance: number
+  type: string
 }
 export interface ICardRequest {
   id?: string
   matricule: string
   expireDate: string
-  balance: number
+  type: string
 }
 
 export interface ITableItems<T> {

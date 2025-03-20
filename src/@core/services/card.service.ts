@@ -3,14 +3,15 @@ import axios from 'axios'
 import type { ICard, ICardRequest, ITableItems } from '../utils/types'
 
 class CardService {
-  getCard(page: number, limit: number, filterByMatricule: string) {
+  getCard(page: number, limit: number, filterByMatricule: string, filterByType: string) {
     return new Promise<ITableItems<ICard[]>>((resolve, reject) => {
       axios
         .get(`${process.env.NEXT_PUBLIC_API_URL}/carte`, {
           params: {
             page,
             limit,
-            filterByMatricule
+            filterByMatricule,
+            filterByType
           }
         })
         .then((response: AxiosResponse<{ data: ICard[]; total: number; page: number; pages: number }>) => {
@@ -40,8 +41,6 @@ class CardService {
       axios
         .post(`${process.env.NEXT_PUBLIC_API_URL}/carte`, card)
         .then(response => {
-          console.log(response)
-
           if (response?.data) {
             resolve(response.data)
           } else {

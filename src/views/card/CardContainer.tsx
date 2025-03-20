@@ -16,13 +16,14 @@ import type { ICard, ICardRequest } from '@core/utils/types'
 import CardForm from './CardForm'
 import CardView from './Card.view'
 
-export const CardCont = () => {
+export const CardCont = ({ type }: { type: string }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [cards, setCards] = useState<ICard[]>([])
   const [totalItems, setTotalItems] = useState<number>(0)
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [cardToEdit, setCardToEdit] = useState<ICard | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
+  const [activeTab] = useState(type)
 
   const [paginationModel, setPaginationModel] = React.useState({
     pageSize: DEFAULT_SIZE_PER_PAGE,
@@ -33,12 +34,12 @@ export const CardCont = () => {
 
   useEffect(() => {
     setIsLoading(true)
-    cardService.getCard(paginationModel.page + 1, paginationModel.pageSize, searchValue).then(data => {
+    cardService.getCard(paginationModel.page + 1, paginationModel.pageSize, searchValue, type).then(data => {
       setCards(data.items)
       setTotalItems(data.totalItems)
       setIsLoading(false)
     })
-  }, [paginationModel, searchValue])
+  }, [paginationModel, searchValue, type])
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value)
@@ -133,7 +134,7 @@ export const CardCont = () => {
     <Grid>
       <Grid item xs={12}>
         <Card>
-          <CardHeader title={`Cartes`} />
+          {/* <CardHeader title={`Cartes`} /> */}
           <CardContent sx={{ p: '0' }}>
             <Card sx={{ boxShadow: 'none', padding: 2 }}>
               <CardView
@@ -162,6 +163,7 @@ export const CardCont = () => {
           cardToEdit={cardToEdit}
           isEditMode={isEditMode}
           cancleEditMode={cancleEditMode}
+          activeTab={activeTab}
         />
       )}
     </Grid>

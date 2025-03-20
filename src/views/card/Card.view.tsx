@@ -59,12 +59,6 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<ICard>): 
       )
     },
     {
-      field: 'balance',
-      headerName: 'Balance',
-      flex: 1
-    },
-
-    {
       flex: 1,
       sortable: false,
       field: 'actions',

@@ -8,6 +8,21 @@ const verticalMenuData = (): VerticalMenuDataType[] => [
     icon: 'tabler-calendar-month'
   },
   {
+    label: 'Sites',
+    href: '/site',
+    icon: 'tabler-building'
+  },
+  {
+    label: 'Opérations',
+    href: '/operation',
+    icon: 'tabler-list-check'
+  },
+  {
+    label: 'Employés',
+    href: '/employee',
+    icon: 'tabler-users'
+  },
+  {
     label: 'Vehicules',
     href: '/vehicules',
     icon: 'tabler-car'
@@ -16,21 +31,6 @@ const verticalMenuData = (): VerticalMenuDataType[] => [
     label: 'Carte',
     href: '/card',
     icon: 'tabler-credit-card-filled'
-  },
-  {
-    label: 'Opérations',
-    href: '/operation',
-    icon: 'tabler-list-check'
-  },
-  {
-    label: 'Sites',
-    href: '/site',
-    icon: 'tabler-building'
-  },
-  {
-    label: 'Employés',
-    href: '/employee',
-    icon: 'tabler-users'
   }
 ]
 

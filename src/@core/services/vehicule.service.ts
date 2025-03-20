@@ -3,14 +3,14 @@ import axios from 'axios'
 import type { ITableItems, IVehicule, IVehiculeRequest } from '../utils/types'
 
 class VehiculeService {
-  getVehicule(page: number, limit: number, name: string) {
+  getVehicule(page: number, limit: number, search: string) {
     return new Promise<ITableItems<IVehicule[]>>((resolve, reject) => {
       axios
         .get(`${process.env.NEXT_PUBLIC_API_URL}/vehicule`, {
           params: {
             page,
             limit,
-            name
+            search
           }
         })
         .then((response: AxiosResponse<{ data: IVehicule[]; total: number; page: number; pages: number }>) => {
