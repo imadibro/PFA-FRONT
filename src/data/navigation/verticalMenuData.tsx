@@ -3,6 +3,11 @@ import type { VerticalMenuDataType } from '@/types/menuTypes'
 
 const verticalMenuData = (): VerticalMenuDataType[] => [
   {
+    label: 'Planning',
+    href: '/planning',
+    icon: 'tabler-calendar-month'
+  },
+  {
     label: 'Planification',
     href: '/planification',
     icon: 'tabler-calendar-month'
