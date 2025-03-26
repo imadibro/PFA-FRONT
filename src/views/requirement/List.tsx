@@ -183,7 +183,7 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
         <Typography variant='h2' className='my-2'>
-          Liste des prérequis
+          Liste des contraintes d'accès
         </Typography>
       </div>
       <DataGrid

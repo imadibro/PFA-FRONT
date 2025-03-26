@@ -43,7 +43,7 @@ const SiteDetails = ({ mode, site, close }: { mode: SystemMode; site: ISite | nu
           <Divider sx={{ my: 4 }} />
 
           <Typography variant='h6' fontWeight={500} gutterBottom>
-            Prérequis associées
+            Contraintes d'accès associées
           </Typography>
           {isLoading ? (
             <div>

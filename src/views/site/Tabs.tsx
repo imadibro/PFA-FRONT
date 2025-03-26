@@ -21,7 +21,7 @@ const Tabs = ({ mode }: { mode: SystemMode }) => {
         className={isDarkMode ? 'bg-backgroundPaper' : 'bg-backgroundPaper'}
       >
         <Tab label='Sites' value='1' />
-        <Tab label="contraintes d'accès" value='2' />
+        <Tab label="Contraintes d'accès" value='2' />
         {/* <Tab label='Alerts' value='3' /> */}
       </CustomTabList>
 

@@ -28,7 +28,7 @@ export const ExcelComponent = (props: Props) => {
       onClick={() => exportToXLSX(data, fileName)}
     >
       <span className='tabler-file-spreadsheet' />
-      Export
+      Exporter
     </Button>
   )
 }

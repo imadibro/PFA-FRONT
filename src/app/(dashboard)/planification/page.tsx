@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { DndContext } from '@dnd-kit/core'
+import { rectIntersection, DndContext } from '@dnd-kit/core'
 import 'react-resizable/css/styles.css'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import { Drawer } from '@mui/material'
@@ -331,6 +331,7 @@ const Page = () => {
     <div className='container'>
       <div className='flex'>
         <DndContext
+          collisionDetection={rectIntersection}
           onDragEnd={(event: any) => {
             const { active, over } = event
             if (over && active.id !== over.id) {

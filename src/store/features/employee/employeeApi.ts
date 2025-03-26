@@ -1,4 +1,4 @@
-import type { IRole } from '@/@core/utils/types'
+import type { IEmployee, IRole } from '@/@core/utils/types'
 import { api } from '@/store/api'
 import type { SerializedError } from '@reduxjs/toolkit'
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
@@ -60,6 +60,14 @@ export const employeeApi = api.injectEndpoints({
         body: employee
       }),
       invalidatesTags: [{ type: 'Employee', id: 'LIST' }]
+    }),
+    getEmployeesByUsernames: builder.query<IEmployee[], string[]>({
+      query: usernames => ({
+        url: 'employee/search/by-usernames',
+        params: {
+          usernames: usernames.join(',')
+        }
+      })
     })
   })
 })
@@ -69,5 +77,7 @@ export const {
   useCreateEmployeeMutation,
   useDeleteEmployeeMutation,
   useUpdateEmployeeMutation,
-  useUpdateEmployeePasswordMutation
+  useUpdateEmployeePasswordMutation,
+  useGetEmployeesByUsernamesQuery,
+  useLazyGetEmployeesByUsernamesQuery
 } = employeeApi

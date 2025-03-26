@@ -10,15 +10,17 @@ import {
 } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import { useDeleteAbsenceMutation, useGetAbsencesQuery } from '@/store/features/absence/absenceApi'
-import { useGetEmployeesQuery } from '@/store/features/employee/employeeApi'
+import { useGetEmployeesQuery, useLazyGetEmployeesByUsernamesQuery } from '@/store/features/employee/employeeApi'
 import type { SystemMode } from '@core/types'
 import { Alert, Drawer, Skeleton } from '@mui/material'
 import Typography from '@mui/material/Typography'
 import { DataGrid } from '@mui/x-data-grid'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import type { ChangeEvent } from 'react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import AbsenceForm from './AbsenceForm'
+import { useCreateAbsenceMutation } from '@/store/features/absence/absenceApi'
+import { getAbsencesFromDB, removeAbsenceFromDB } from '@/utils/idbUtils'
 
 const customColumns = () => [
   {
@@ -67,13 +69,92 @@ const AbsencesList = ({ mode }: { mode: SystemMode }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [absenceToEdit, setAbsenceToEdit] = useState<IAbsence | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
-
+  const [isProcessing, setIDBIsProcessing] = useState(false)
+  const workerRef = useRef<Worker>()
   const { showAlert, showConfirm, showToast } = useSweetAlert()
 
   const { data, error, isLoading } = useGetAbsencesQuery()
   const { data: employeeData, isLoading: employeeIsLoading } = useGetEmployeesQuery()
+  // Initialize the RTK Query hook
+  const [triggerGetEmployees] = useLazyGetEmployeesByUsernamesQuery()
 
   const [deleteAbsence, { isLoading: deleteAbsenceIsLoading }] = useDeleteAbsenceMutation()
+  const [createAbsence, { isLoading: isCreating, isError: createError, error: createErr }] = useCreateAbsenceMutation()
+
+  const processAbsencesFromDB = async () => {
+    setIDBIsProcessing(true)
+
+    const absences = await getAbsencesFromDB()
+    if (!absences.length) {
+      setIDBIsProcessing(false)
+      return
+    }
+    // Extract unique usernames first to minimize API calls
+    const uniqueUsernames = [...new Set(absences.map(a => a['username']))]
+    try {
+      // Fetch all wanted employees in one batch
+      const { data: employees } = await triggerGetEmployees(uniqueUsernames)
+      const employeeMap = new Map(employees?.map(emp => [emp.username, emp]) || [])
+      for (const absence of absences) {
+        try {
+          if (absence['motif'] && absence['Date de dÃ©but'] && absence['Date de fin'] && absence['username']) {
+            const employee = employeeMap.get(absence['username'])
+
+            if (!employee) {
+              console.warn(`Employee not found: ${absence['username']}`)
+              continue
+            }
+
+            const absenceObj: any = {
+              startDate: new Date(absence['Date de dÃ©but']).toISOString(),
+              endDate: new Date(absence['Date de fin']).toISOString(),
+              notes: absence['notes'],
+              absence: absence['motif'],
+              employee
+            }
+            await createAbsence(absenceObj)
+              .unwrap()
+              .then(async () => {
+                await removeAbsenceFromDB(absence.id)
+              })
+              .finally(async () => {
+                await new Promise(resolve => setTimeout(resolve, 800))
+              })
+          } else {
+            showToast("Le format des données n'est pas correct !", 'error')
+          }
+        } catch (error) {
+          console.error('Error inserting absence:', error)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching employees:', error)
+      showToast('Erreur lors de la récupération des employés', 'error')
+    } finally {
+      setIDBIsProcessing(false)
+    }
+  }
+
+  useEffect(() => {
+    workerRef.current = new Worker(new URL('@/utils/excelWorker.ts', import.meta.url))
+    workerRef.current.onmessage = async event => {
+      if (event.data.status === 'success') {
+        showToast(
+          'Les données ont été stockées avec succès. Vous êtes libre de faire autre chose maintenant',
+          'success'
+        )
+        processAbsencesFromDB()
+      }
+    }
+
+    return () => {
+      workerRef.current?.terminate()
+    }
+  }, [])
+
+  useEffect(() => {
+    processAbsencesFromDB() // Start processing absences from IndexedDB
+  }, [createAbsence])
 
   if (error) {
     const errorMessage =
@@ -159,6 +240,12 @@ const AbsencesList = ({ mode }: { mode: SystemMode }) => {
     setFilteredData(filteredRows)
   }
 
+  const handleImport = (file: File) => {
+    if (workerRef.current) {
+      workerRef.current.postMessage({ file, type: 'absence' })
+    }
+  }
+
   const clearDateFilter = () => {
     setIsFiltering(false)
     setFilteredData([])
@@ -190,7 +277,8 @@ const AbsencesList = ({ mode }: { mode: SystemMode }) => {
     clearDateFilter,
     data: exportData(isFiltering ? filteredData : data, customColumns(), fieldHandlers),
     showExcel: true,
-    hideAddButton: false
+    hideAddButton: false,
+    handleImport: !isProcessing ? handleImport : undefined
   }
 
   return (

@@ -1,6 +1,7 @@
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 import type { SerializedError } from '@reduxjs/toolkit'
 import { api } from '@/store/api'
+import { IRequirement } from '@/@core/utils/types'
 
 export const requirementApi = api.injectEndpoints({
   endpoints: builder => ({
@@ -33,6 +34,14 @@ export const requirementApi = api.injectEndpoints({
         body: requirement
       }),
       invalidatesTags: [{ type: 'Requirement', id: 'LIST' }]
+    }),
+    getRequirementsByLabels: builder.query<IRequirement[], string[]>({
+      query: labels => ({
+        url: 'requirement/search/by-labels',
+        params: {
+          labels: labels.join(',')
+        }
+      })
     })
   })
 })
@@ -41,5 +50,6 @@ export const {
   useGetRequirementQuery,
   useCreateRequirementMutation,
   useDeleteRequirementMutation,
-  useUpdateRequirementMutation
+  useUpdateRequirementMutation,
+  useLazyGetRequirementsByLabelsQuery
 } = requirementApi

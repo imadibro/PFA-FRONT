@@ -1,5 +1,5 @@
 import type { Mission } from '@/app/(dashboard)/planification/page'
-import { useDraggable } from '@dnd-kit/core'
+import { useDraggable, closestCenter } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { Avatar, AvatarGroup, IconButton } from '@mui/material'
 import React, { useEffect, useState } from 'react'
@@ -11,27 +11,16 @@ import 'react-resizable/css/styles.css'
 const getMissionColor = (missionId: string): string => {
   // Define specific patterns and their corresponding colors
   const colorMap: { [key: string]: string } = {
-    'mission-1': '#2196F3', // Blue for missions with "1" in their ID
+    'mission-1': '#FF5733', // Coral for missions with "1" in their ID
     'mission-2': '#4CAF50', // Green for missions with "2" in their ID
     'mission-3': '#FFC107', // Amber for missions with "3" in their ID
-    'mission-4': '#FF5722', // Deep Orange for missions with "4" in their ID
+    'mission-4': '#33FF57', //  Lime Green for missions with "4" in their ID
     'mission-5': '#A133FF', // Purple
     'mission-6': '#33FFF5', // Cyan
-    'mission-7': '#FFC733', // Gold
+    'mission-7': '#9C53FF', // Pink
     'mission-8': '#33FF8C', // Mint
     'mission-9': '#8C33FF', // Violet
-    'mission-10': '#FF5733', // Coral (repeated for demonstration)
-    'mission-11': '#33FF57', // Lime Green (repeated for demonstration)
-    'mission-12': '#3357FF', // Blue (repeated for demonstration)
-    'mission-13': '#FF33A1', // Pink (repeated for demonstration)
-    'mission-14': '#A133FF', // Purple (repeated for demonstration)
-    'mission-15': '#33FFF5', // Cyan (repeated for demonstration)
-    'mission-16': '#FFC733', // Gold (repeated for demonstration)
-    'mission-17': '#33FF8C', // Mint (repeated for demonstration)
-    'mission-18': '#8C33FF', // Violet (repeated for demonstration)
-    'mission-19': '#FF5733', // Coral (repeated for demonstration)
-    'mission-20': '#33FF57', // Lime Green (repeated for demonstration)
-    'mission-100': '#FF3333' // Red
+    'mission-10': '#FF33A1' // Gold
   }
 
   // Check if the mission ID matches any specific pattern
@@ -213,7 +202,7 @@ const MissionItem = ({
       onResize={onResize}
       onResizeStop={onResizeStop}
       resizeHandles={['e']}
-      className='bg-blue-500 text-white rounded flex items-center px-3 overflow-hidden min-w-[10.5rem]'
+      className='bg-blue-500 text-white rounded px-3 overflow-hidden min-w-[10.5rem]'
     >
       {NativeItem}
     </Resizable>

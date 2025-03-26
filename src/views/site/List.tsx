@@ -1,12 +1,15 @@
 import type { ChangeEvent } from 'react'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
 import Typography from '@mui/material/Typography'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { Alert, Drawer, Skeleton } from '@mui/material'
-import { useDeleteSiteMutation, useGetSiteQuery } from '@/store/features/site/siteApi'
+import { useCreateSiteMutation, useDeleteSiteMutation, useGetSiteQuery } from '@/store/features/site/siteApi'
 import type { SystemMode } from '@core/types'
-import { useGetRequirementQuery } from '@/store/features/requirement/requirementApi'
+import {
+  useGetRequirementQuery,
+  useLazyGetRequirementsByLabelsQuery
+} from '@/store/features/requirement/requirementApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
@@ -15,6 +18,7 @@ import exportData from '@/@core/utils/exportData'
 import SiteForm from './SiteForm'
 import type { ISite } from '@/@core/utils/types'
 import SiteDetails from './Details'
+import { getSitesFromDB, removeSiteFromDB } from '@/utils/idbUtils'
 
 const customColumns = () => [
   {
@@ -49,10 +53,88 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [siteToEdit, setSiteToEdit] = useState<ISite | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
+  const [isProcessing, setIDBIsProcessing] = useState(false)
+  const workerRef = useRef<Worker>()
 
   const { showAlert, showConfirm, showToast } = useSweetAlert()
   const [deleteSite, { isLoading: deleteSiteIsLoading, isError, error: deleteSiteError, isSuccess }] =
     useDeleteSiteMutation()
+  const [createSite, { isLoading: isCreating, isError: createError, error: createErr }] = useCreateSiteMutation()
+  // Initialize the RTK Query hook
+  const [triggerGetRequirements] = useLazyGetRequirementsByLabelsQuery()
+
+  const processSitesFromDB = async () => {
+    setIDBIsProcessing(true)
+    const sites = await getSitesFromDB()
+
+    if (!sites.length) {
+      setIDBIsProcessing(false)
+      return
+    }
+    // Extract unique labels first to minimize API calls
+    const uniqueLabels = [...new Set(sites.map(a => a["Contraintes d'accÃ¨s"]))]
+
+    try {
+      // Fetch all wanted requirements in one batch
+      const { data: requirements } = await triggerGetRequirements(uniqueLabels)
+      const requirementeMap = new Map(requirements?.map(req => [req.label, req.id]) || [])
+
+      for (const site of sites) {
+        try {
+          if (site['NumÃ©ro de site'] && site['LibellÃ©'] && site['Description'] && site["Contraintes d'accÃ¨s"]) {
+            const requirementsIds = site["Contraintes d'accÃ¨s"]
+              .split(',')
+              .map((req: string) => requirementeMap.get(req))
+              ?.filter(Boolean)
+
+            const siteObj: any = {
+              label: site['LibellÃ©'],
+              siteNbr: site['NumÃ©ro de site'].toString(),
+              description: site['Description'],
+              requirementsIds
+            }
+            await createSite(siteObj)
+              .unwrap()
+              .then(async () => {
+                await removeSiteFromDB(site.id)
+              })
+              .finally(async () => {
+                await new Promise(resolve => setTimeout(resolve, 500))
+              })
+          } else {
+            showToast("Le format des données n'est pas correct !", 'error')
+          }
+        } catch (error) {
+          console.error('Error inserting site:', error)
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching sites:', error)
+      showToast('Erreur lors de la récupération des sites', 'error')
+    } finally {
+      setIDBIsProcessing(false)
+    }
+  }
+  useEffect(() => {
+    workerRef.current = new Worker(new URL('@/utils/excelWorker.ts', import.meta.url))
+    workerRef.current.onmessage = async (event: any) => {
+      if (event.data.status === 'success') {
+        showToast(
+          'Les données ont été stockées avec succès. Vous êtes libre de faire autre chose maintenant',
+          'success'
+        )
+        processSitesFromDB()
+      }
+    }
+
+    return () => {
+      workerRef.current?.terminate()
+    }
+  }, [])
+
+  useEffect(() => {
+    processSitesFromDB() // Start processing absences from IndexedDB
+  }, [createSite])
 
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
@@ -146,6 +228,12 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
     setIsDetailsOpen(true)
   }
 
+  const handleImport = (file: File) => {
+    if (workerRef.current) {
+      workerRef.current.postMessage({ file, type: 'site' })
+    }
+  }
+
   const columns = GetColumns({
     toggleEditMode,
     deleteObject: handleDelete,
@@ -174,7 +262,8 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
     clearDateFilter,
     data: exportData(isFiltering ? filteredData : data, customColumns(), fieldHandlers),
     showExcel: true,
-    hideAddButton: false
+    hideAddButton: false,
+    handleImport: !isProcessing ? handleImport : undefined
   }
 
   return (

@@ -27,6 +27,7 @@ interface Props {
   data: any
   showExcel: boolean | undefined
   hideAddButton: boolean | undefined
+  handleImport?: (file: File) => void
 }
 
 interface PickerProps {
@@ -58,6 +59,13 @@ const QuickSearchToolbar = (props: Props) => {
     setStartDateRange(new Date())
     setEndDateRange(new Date())
     props.clearDateFilter()
+  }
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file && props.handleImport) {
+      props.handleImport(file)
+    }
   }
 
   const CustomInput = forwardRef((datePickerProps: PickerProps, ref) => {
@@ -156,7 +164,24 @@ const QuickSearchToolbar = (props: Props) => {
       </div>
       <div>
         {props.showExcel && (
-          <ExcelComponent fileName={`${props.title}-${formatDateFR(new Date(), true)}.xlsx`} data={props.data} />
+          <>
+            <input
+              accept='.xlsx, .xls'
+              style={{ display: 'none' }}
+              id='raised-button-file'
+              type='file'
+              onChange={handleFileChange}
+            />
+            {props.handleImport?.length && (
+              <label htmlFor='raised-button-file' className='mx-2'>
+                <Button variant='contained' component='span' color='info' sx={{ '& i, & svg': { mr: 2 } }}>
+                  <span className='tabler-file-import' />
+                  Importer
+                </Button>
+              </label>
+            )}
+            <ExcelComponent fileName={`${props.title}-${formatDateFR(new Date(), true)}.xlsx`} data={props.data} />
+          </>
         )}
         {!props.hideAddButton && (
           <Button
