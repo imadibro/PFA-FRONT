@@ -13,6 +13,7 @@ interface Props {
   toggleForm: () => void
   title: string
   data: any
+  showAddButton?: boolean
 }
 
 const QuickSearchToolbar = (props: Props) => {
@@ -58,17 +59,19 @@ const QuickSearchToolbar = (props: Props) => {
           }}
         />
       </div>
-      <div>
-        <Button
-          title={'Ajouter '.concat(props.title)}
-          onClick={props.toggleForm}
-          variant='contained'
-          sx={{ '& svg': { mr: 2 } }}
-        >
-          <Icon fontSize='1.125rem' icon='tabler:plus' />
-          Ajouter
-        </Button>
-      </div>
+      {props.showAddButton && (
+        <div>
+          <Button
+            title={'Ajouter '.concat(props.title)}
+            onClick={props.toggleForm}
+            variant='contained'
+            sx={{ '& svg': { mr: 2 } }}
+          >
+            <Icon fontSize='1.125rem' icon='tabler:plus' />
+            Ajouter
+          </Button>
+        </div>
+      )}
     </Box>
   )
 }

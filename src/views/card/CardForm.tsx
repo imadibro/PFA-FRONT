@@ -1,5 +1,4 @@
 import React from 'react'
-import { formatToShowingCardDate } from '@/@core/utils/format'
 import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
 import CustomTextField from '@core/components/mui/TextField'
 import type { ICard, ICardRequest } from '@core/utils/types'

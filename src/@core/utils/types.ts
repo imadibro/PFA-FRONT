@@ -134,3 +134,12 @@ export interface IVehiculeRequest {
   owner: string
   type: string
 }
+
+export interface IClients {
+  id: string
+  projectCode: string
+  refProject: string
+  activityLabel: string
+  clientAgencyLabel: string
+  piloteFullName: string
+}

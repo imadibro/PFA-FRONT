@@ -23,6 +23,11 @@ const horizontalMenuData = (): HorizontalMenuDataType[] => [
     icon: 'tabler-users'
   },
   {
+    label: 'Clients',
+    href: '/client',
+    icon: 'tabler-users'
+  },
+  {
     label: 'Vehicules',
     href: '/vehicules',
     icon: 'tabler-car'

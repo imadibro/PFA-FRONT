@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, Grid } from '@mui/material'
+import { Card, CardContent, Grid } from '@mui/material'
 import toast from 'react-hot-toast'
 import { cardService } from '@core/services/card.service'
 import {
@@ -134,7 +134,6 @@ export const CardCont = ({ type }: { type: string }) => {
     <Grid>
       <Grid item xs={12}>
         <Card>
-          {/* <CardHeader title={`Cartes`} /> */}
           <CardContent sx={{ p: '0' }}>
             <Card sx={{ boxShadow: 'none', padding: 2 }}>
               <CardView

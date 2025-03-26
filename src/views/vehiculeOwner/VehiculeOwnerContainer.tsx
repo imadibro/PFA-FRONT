@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, Grid } from '@mui/material'
+import { Card, CardContent, Grid } from '@mui/material'
 import toast from 'react-hot-toast'
 import {
   GENERAL_ERROR,
@@ -135,7 +135,6 @@ export const VehiculeOwnerContainer = () => {
     <Grid>
       <Grid item xs={12}>
         <Card>
-          <CardHeader title={`Propriétaire du véhicule`} />
           <CardContent sx={{ p: '0' }}>
             <Card sx={{ boxShadow: 'none', padding: 2 }}>
               <VehiculeOwnerView
