@@ -143,3 +143,70 @@ export interface IClients {
   clientAgencyLabel: string
   piloteFullName: string
 }
+
+export interface IActivity {
+  id: string
+  label: string
+}
+
+export interface IActivity {
+  id: string
+  label: string
+}
+
+export interface IZoneActivity extends IActivity {}
+
+export interface IClientAgency {
+  id: string
+  label: string
+}
+
+export interface IQuotation {
+  id: string
+  label: string
+}
+export interface IInvoice {
+  id: string
+  label: string
+}
+export interface ISupplierQuotation {
+  id: string
+  label: string
+}
+
+export interface IClient {
+  id: string
+  clientReference: string
+  clientName: string
+  clientAlias: string
+  phone: string
+  createdAt?: string
+}
+
+export interface IClientOrder {
+  id: string
+  orderReference: string
+  label: string
+  createdAt?: string
+}
+export interface IProject {
+  id: string
+  projectCode: string
+  refProject: string
+  activity: IActivity | null
+  activityId: string
+  zoneActivity: IZoneActivity | null
+  zoneActivityId: string
+  clientAgency: IClientAgency
+  clientAgencyId: string
+  pilote: any
+  piloteId: string
+  quotations?: IQuotation[] | null
+  invoices?: IInvoice[] | null
+  supplierQuotations?: ISupplierQuotation[] | null
+  orders?: IClientOrder[] | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export type IOrderStatus = 'Brouillon' | 'En attente' | 'Confirmé' | 'En cours' | 'Terminé' | 'Annulé'

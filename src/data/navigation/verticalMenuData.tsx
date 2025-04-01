@@ -41,6 +41,11 @@ const verticalMenuData = (): VerticalMenuDataType[] => [
     label: 'Carte',
     href: '/card',
     icon: 'tabler-credit-card-filled'
+  },
+  {
+    label: 'Les commandes',
+    href: '/client-order',
+    icon: 'tabler-clipboard-list'
   }
 ]
 

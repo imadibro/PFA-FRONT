@@ -25,7 +25,9 @@ export const api = createApi({
     'Employee',
     'Role',
     'AbsenceReason',
-    'Absence'
+    'Absence',
+    'Project',
+    'ClientOrder'
   ],
   endpoints: _builder => ({})
 })
