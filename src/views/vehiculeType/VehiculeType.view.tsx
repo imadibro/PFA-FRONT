@@ -48,6 +48,11 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IVehicule
       flex: 1
     },
     {
+      field: 'cost',
+      headerName: 'Coût du véhicule',
+      flex: 1
+    },
+    {
       flex: 1,
       sortable: false,
       field: 'actions',

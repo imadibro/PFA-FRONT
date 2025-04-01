@@ -114,15 +114,16 @@ export interface IAbsence {
 
 export interface IVehiculeType extends ICommonProps {
   vehicule_type: string
+  cost: number
 }
 export interface IVehiculeTypeRequest {
   id?: string
   vehicule_type: string
+  cost: number
 }
 
 export interface IVehicule extends ICommonProps {
   registrationId: string
-  cost: number
   owner: IVehiculeOwnerRequest
   type: IVehiculeTypeRequest
 }
@@ -130,7 +131,6 @@ export interface IVehicule extends ICommonProps {
 export interface IVehiculeRequest {
   id?: string
   registrationId: string
-  cost: number
   owner: string
   type: string
 }

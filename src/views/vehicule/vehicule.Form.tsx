@@ -24,7 +24,6 @@ interface Props {
 const schema = yup
   .object({
     registrationId: yup.string().required('Registration est requis'),
-    cost: yup.number().required('Le coût est requis'),
     owner: yup.string().required('Le propriétaire est requis'),
     type: yup.string().required('Le type est requis')
   })
@@ -50,7 +49,6 @@ export default function VehiculeForm(props: Props) {
 
   const defaultValues: IVehiculeRequest = {
     registrationId: isEditMode && vehiculeToEdit ? vehiculeToEdit.registrationId : '',
-    cost: isEditMode && vehiculeToEdit ? vehiculeToEdit.cost : 0,
     owner: isEditMode && vehiculeToEdit && vehiculeToEdit.owner.name ? vehiculeToEdit.owner.id || '' : '',
     type: isEditMode && vehiculeToEdit && vehiculeToEdit.type.vehicule_type ? vehiculeToEdit.type.id || '' : ''
   }
@@ -102,24 +100,6 @@ export default function VehiculeForm(props: Props) {
                   error={Boolean(errors.registrationId)}
                   aria-describedby='registrationId'
                   {...(errors.registrationId && { helperText: 'Ce champs est obligatoire' })}
-                />
-              )}
-            />
-          </Grid>
-          <Grid item xs={12} sm={12}>
-            <Controller
-              name='cost'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <CustomTextField
-                  {...field}
-                  fullWidth
-                  label='Cout de véhicule *'
-                  id='cost'
-                  error={Boolean(errors.cost)}
-                  aria-describedby='cost'
-                  {...(errors.cost && { helperText: 'Ce champs est obligatoire' })}
                 />
               )}
             />
