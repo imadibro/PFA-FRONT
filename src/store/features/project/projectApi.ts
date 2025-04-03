@@ -5,7 +5,7 @@ import { api } from '@/store/api'
 export const projectApi = api.injectEndpoints({
   endpoints: builder => ({
     getProjects: builder.query<any, FetchBaseQueryError | SerializedError | void>({
-      query: () => `project/all`,
+      query: () => `project`,
       providesTags: [{ type: 'Project', id: 'LIST' }]
     })
   })

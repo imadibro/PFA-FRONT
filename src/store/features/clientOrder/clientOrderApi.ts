@@ -24,9 +24,9 @@ export const clientOrderApi = api.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'ClientOrder', id: 'LIST' }]
     }),
-    deleteClientOrder: builder.mutation<any, FetchBaseQueryError | SerializedError | void>({
-      query: id => ({
-        url: `client-order/${id}`,
+    deleteClientOrder: builder.mutation<any, { clientOrderId: string }>({
+      query: clientOrder => ({
+        url: `client-order/${clientOrder.clientOrderId}`,
         method: 'DELETE'
       }),
       invalidatesTags: [{ type: 'ClientOrder', id: 'LIST' }]

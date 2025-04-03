@@ -3,38 +3,60 @@ import { useEffect, useRef, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
 import type { SystemMode } from '@core/types'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
+import { GetColumns, renderChipCell, renderTypographyCell } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import { Alert, Drawer, Skeleton, Typography } from '@mui/material'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
 import exportData from '@/@core/utils/exportData'
-import { IClientOrder } from '@/@core/utils/types'
-import { useGetClientOrdersQuery } from '@/store/features/clientOrder/clientOrderApi'
+import type { IClientOrder } from '@/@core/utils/types'
+import { useDeleteClientOrderMutation, useGetClientOrdersQuery } from '@/store/features/clientOrder/clientOrderApi'
 import { useGetSiteQuery } from '@/store/features/site/siteApi'
 import CreateClientOrder from './Create'
+import { useGetClientQuery } from '@/store/features/client/clientApi'
+import { useGetProjectsQuery } from '@/store/features/project/projectApi'
 
 const customColumns = () => [
   {
     flex: 1,
-    field: 'clientOrderCode',
-    headerName: 'Code du projet',
+    field: 'orderReference',
+    headerName: 'Référence de commande',
     minWidth: 180,
-    renderCell: renderTypographyCell('clientOrderCode')
+    renderCell: renderTypographyCell('orderReference')
   },
   {
     flex: 1,
-    field: 'activityLabel',
-    headerName: "Libellé d'activité",
+    field: 'status',
+    headerName: 'Statut',
     minWidth: 180,
-    renderCell: renderTypographyCell('activityLabel')
+    renderCell: renderChipCell(
+      'status',
+      [
+        { value: 'Brouillon', chipProps: { color: 'warning', size: 'small' } },
+        { value: 'En attente', chipProps: { color: 'warning', size: 'small' } },
+        { value: 'Confirmé', chipProps: { color: 'success', size: 'small' } },
+        { value: 'En cours', chipProps: { color: 'info', size: 'small' } },
+        { value: 'Terminé', chipProps: { color: 'success', size: 'small' } },
+        { value: 'Annulé', chipProps: { color: 'error', size: 'small' } }
+      ],
+      { color: 'default', size: 'small' },
+      undefined,
+      'status'
+    )
   },
   {
     flex: 1,
     minWidth: 250,
-    field: 'clientAgencyLabel',
-    headerName: "Libellé de l'agence",
-    renderCell: renderTypographyCell('clientAgencyLabel')
+    field: 'totalAmount',
+    headerName: 'Montant total',
+    renderCell: renderTypographyCell('totalAmount')
+  },
+  {
+    flex: 1,
+    minWidth: 250,
+    field: 'notes',
+    headerName: 'Notes',
+    renderCell: renderTypographyCell('notes')
   }
 ]
 
@@ -48,6 +70,7 @@ const ClientOrdersList = ({ mode }: { mode: SystemMode }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [clientOrderToEdit, setClientOrderToEdit] = useState<IClientOrder | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
+  const { showAlert, showConfirm, showToast } = useSweetAlert()
 
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
@@ -69,9 +92,10 @@ const ClientOrdersList = ({ mode }: { mode: SystemMode }) => {
   }
 
   const { data, error, isLoading } = useGetClientOrdersQuery()
+  const [deleteClientOrder, { isLoading: deleteClientOrderIsLoading }] = useDeleteClientOrderMutation()
   const { data: sites, error: siteErrors, isLoading: isSiteIsLoading } = useGetSiteQuery()
-  const { data: clients, error: clientErrors, isLoading: isClientIsLoading } = useGetSiteQuery()
-  const { data: projects, error: projectErrors, isLoading: isProjectIsLoading } = useGetSiteQuery()
+  const { data: clients, error: clientErrors, isLoading: isClientIsLoading } = useGetClientQuery()
+  const { data: projects, error: projectErrors, isLoading: isProjectIsLoading } = useGetProjectsQuery()
   const { data: operations, error: operationErrors, isLoading: isOperationIsLoading } = useGetSiteQuery()
 
   if (error) {
@@ -129,9 +153,26 @@ const ClientOrdersList = ({ mode }: { mode: SystemMode }) => {
     setFilteredData([])
   }
 
+  const handleDelete = async (id: string) => {
+    const confirmed = await showConfirm(
+      '',
+      'Etes-vous sûr de vouloir supprimer cette commande ?',
+      'Supprimer',
+      'Annuler'
+    )
+    if (confirmed) {
+      try {
+        await deleteClientOrder({ clientOrderId: id }).unwrap()
+        showToast('Supprimé avec succès!', 'success')
+      } catch (error) {
+        showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression de l'absence", 'error')
+      }
+    }
+  }
+
   const columns = GetColumns({
     toggleEditMode,
-    deleteObject: () => {},
+    deleteObject: handleDelete,
     customColumns: customColumns(),
     includeActions: true
   })

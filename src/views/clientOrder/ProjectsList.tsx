@@ -1,8 +1,7 @@
 import type { ChangeEvent } from 'react'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
 import type { SystemMode } from '@core/types'
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import { Alert, Skeleton, Typography } from '@mui/material'
@@ -10,7 +9,7 @@ import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { useGetProjectsQuery } from '@/store/features/project/projectApi'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
 import exportData from '@/@core/utils/exportData'
-import { IProject } from '@/@core/utils/types'
+import type { IProject } from '@/@core/utils/types'
 
 const customColumns = () => [
   {

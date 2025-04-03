@@ -13,10 +13,7 @@ export const metadata: Metadata = {
 }
 
 const SitePage = () => {
-  // Vars
-  const mode = getServerMode()
-
-  return <Tabs mode={mode} />
+  return <Tabs />
 }
 
 export default SitePage

@@ -149,11 +149,6 @@ export interface IActivity {
   label: string
 }
 
-export interface IActivity {
-  id: string
-  label: string
-}
-
 export interface IZoneActivity extends IActivity {}
 
 export interface IClientAgency {

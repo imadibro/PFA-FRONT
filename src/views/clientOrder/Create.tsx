@@ -17,10 +17,11 @@ import Box from '@mui/material/Box'
 import { useCreateClientOrderMutation } from '@/store/features/clientOrder/clientOrderApi'
 import type { SystemMode } from '@core/types'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import { IOrderStatus } from '@/@core/utils/types'
+import type { IOrderStatus } from '@/@core/utils/types'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
 import type { IClient, IOperation, IProject, ISite } from '@/@core/utils/types'
-import dayjs, { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
+import type { Dayjs } from 'dayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
@@ -69,10 +70,10 @@ const CreateClientOrder = ({
         totalAmount: parseFloat(totalAmount),
         notes,
         status,
-        clientId: selectedClient.id,
-        siteId: selectedSite.id,
-        projectId: selectedProject.id,
-        operationId: selectedOperation.id
+        client: selectedClient,
+        site: selectedSite,
+        project: selectedProject,
+        operation: selectedOperation
       }).unwrap()
 
       showToast('Commande client créée avec succès!', 'success')
@@ -129,7 +130,7 @@ const CreateClientOrder = ({
               >
                 {clients.map(client => (
                   <MenuItem key={client.id} value={client.id}>
-                    {client.clientName}
+                    {client.clientReference}
                   </MenuItem>
                 ))}
               </Select>
