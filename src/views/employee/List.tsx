@@ -1,7 +1,6 @@
 import type { ChangeEvent } from 'react'
 import { useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
-import Typography from '@mui/material/Typography'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { Alert, Drawer, Skeleton } from '@mui/material'
 import { useGetEmployeesQuery, useDeleteEmployeeMutation } from '@/store/features/employee/employeeApi'
@@ -12,7 +11,6 @@ import {
   GetColumns,
   renderChipCell,
   renderConcatenatedTypographyCell,
-  renderDateCell,
   renderTypographyCell
 } from '@/components/common/GridColumns'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
@@ -192,11 +190,7 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
 
   return (
     <div className='bg-backgroundPaper p-6'>
-      <div className='flex justify-between items-center'>
-        <Typography variant='h2' className='my-2'>
-          Liste des employés
-        </Typography>
-      </div>
+      <div className='flex justify-between items-center'></div>
       <DataGrid
         rowHeight={44}
         loading={isLoading || deleteEmployeeIsLoading}

@@ -9,17 +9,15 @@ import {
   renderTypographyCell
 } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
-import { useDeleteAbsenceMutation, useGetAbsencesQuery } from '@/store/features/absence/absenceApi'
+import { useDeleteAbsenceMutation, useGetAbsencesQuery , useCreateAbsenceMutation } from '@/store/features/absence/absenceApi'
 import { useGetEmployeesQuery, useLazyGetEmployeesByUsernamesQuery } from '@/store/features/employee/employeeApi'
 import type { SystemMode } from '@core/types'
 import { Alert, Drawer, Skeleton } from '@mui/material'
-import Typography from '@mui/material/Typography'
 import { DataGrid } from '@mui/x-data-grid'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import type { ChangeEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import AbsenceForm from './AbsenceForm'
-import { useCreateAbsenceMutation } from '@/store/features/absence/absenceApi'
 import { getAbsencesFromDB, removeAbsenceFromDB } from '@/utils/idbUtils'
 
 const customColumns = () => [
@@ -283,11 +281,7 @@ const AbsencesList = ({ mode }: { mode: SystemMode }) => {
 
   return (
     <div className='bg-backgroundPaper p-6'>
-      <div className='flex justify-between items-center'>
-        <Typography variant='h2' className='my-2'>
-          Liste des absences
-        </Typography>
-      </div>
+      <div className='flex justify-between items-center'></div>
       <DataGrid
         rowHeight={62}
         loading={isLoading || deleteAbsenceIsLoading}

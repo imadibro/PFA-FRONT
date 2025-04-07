@@ -181,11 +181,7 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
 
   return (
     <div className='bg-backgroundPaper p-6'>
-      <div className='flex justify-between items-center'>
-        <Typography variant='h2' className='my-2'>
-          Liste des contraintes d'accès
-        </Typography>
-      </div>
+      <div className='flex justify-between items-center'></div>
       <DataGrid
         rowHeight={44}
         loading={isLoading || deleteRequirementIsLoading}

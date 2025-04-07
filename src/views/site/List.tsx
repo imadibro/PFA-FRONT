@@ -1,7 +1,6 @@
 import type { ChangeEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
-import Typography from '@mui/material/Typography'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { Alert, Drawer, Skeleton } from '@mui/material'
 import { useCreateSiteMutation, useDeleteSiteMutation, useGetSiteQuery } from '@/store/features/site/siteApi'
@@ -268,11 +267,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
 
   return (
     <div className='bg-backgroundPaper p-6'>
-      <div className='flex justify-between items-center'>
-        <Typography variant='h2' className='my-2'>
-          Liste des sites
-        </Typography>
-      </div>
+      <div className='flex justify-between items-center'></div>
       <DataGrid
         rowHeight={35}
         loading={isLoading || deleteSiteIsLoading}

@@ -1,10 +1,10 @@
-import type { MouseEvent } from 'react'
-import { useState } from 'react'
+import { Icon } from '@iconify/react'
 import type { GridColDef } from '@mui/x-data-grid'
 import type { ChipProps, TypographyProps } from '@mui/material'
-import { Chip, IconButton, Menu, MenuItem, Typography } from '@mui/material'
+import { Chip, IconButton, Typography } from '@mui/material'
 import type { GridBaseColDef } from '@mui/x-data-grid/internals'
 import { formatDateFR, formatTimeFR } from '@/@core/utils/format'
+import type { IActionColumnsProps, IEmployee } from '@/@core/utils/types'
 
 export interface CellType {
   row: any
@@ -47,84 +47,23 @@ type RenderChipsCellProps = {
   containerProps?: React.HTMLAttributes<HTMLDivElement>
 }
 
-export const useRowOptions = ({ toggleEditMode, deleteObject }: RowOptionsHookProps) => {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const rowOptionsOpen = Boolean(anchorEl)
-
-  const handleRowOptionsClick = (event: MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
+const RowOptions = ({ row, toggleEditMode, deleteObject }: IActionColumnsProps<IEmployee>) => {
+  const handleEdit = () => {
+    toggleEditMode(row!)
   }
 
-  const handleRowOptionsClose = () => {
-    setAnchorEl(null)
+  const handleDelete = async () => {
+    row && deleteObject(row.id!)
   }
-
-  const handleEdit = (row: any) => {
-    toggleEditMode(row)
-    handleRowOptionsClose()
-  }
-
-  const handleDelete = (row: any) => {
-    if (row?.id) {
-      deleteObject(row.id)
-    }
-    handleRowOptionsClose()
-  }
-
-  return {
-    anchorEl,
-    rowOptionsOpen,
-    handleRowOptionsClick,
-    handleRowOptionsClose,
-    handleEdit,
-    handleDelete
-  }
-}
-export const RowOptions = ({ row, toggleEditMode, deleteObject, customAction, handleCustomAction }: RowOptionProps) => {
-  const { anchorEl, rowOptionsOpen, handleRowOptionsClick, handleRowOptionsClose, handleEdit, handleDelete } =
-    useRowOptions({ toggleEditMode, deleteObject })
 
   return (
     <>
-      <IconButton size='small' onClick={handleRowOptionsClick}>
-        <i className='tabler-dots-vertical' />
+      <IconButton color='primary' size='small' title='Modifier' onClick={handleEdit}>
+        <Icon icon='tabler:edit' />
       </IconButton>
-      <Menu
-        keepMounted
-        anchorEl={anchorEl}
-        open={rowOptionsOpen}
-        onClose={handleRowOptionsClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
-        }}
-        PaperProps={{ style: { minWidth: '8rem' } }}
-      >
-        {customAction && handleCustomAction && (
-          <MenuItem
-            onClick={() => {
-              handleCustomAction(row)
-              handleRowOptionsClose()
-            }}
-            sx={{ '& i, & svg': { mr: 2 } }}
-          >
-            <i className='tabler-file-invoice text-gray-500' />
-            {customAction}
-          </MenuItem>
-        )}
-        <MenuItem onClick={() => handleEdit(row)} sx={{ '& i, & svg': { mr: 2 } }}>
-          <i className='tabler-edit text-green-500' />
-          Modifier
-        </MenuItem>
-        <MenuItem onClick={() => handleDelete(row)} sx={{ '& svg': { mr: 2 } }}>
-          <i className='tabler-trash text-red-500' />
-          Supprimer
-        </MenuItem>
-      </Menu>
+      <IconButton size='small' color='error' title='Supprimer' onClick={handleDelete}>
+        <Icon icon='tabler:trash-x' />
+      </IconButton>
     </>
   )
 }
@@ -133,9 +72,7 @@ export const GetColumns = ({
   toggleEditMode,
   deleteObject,
   customColumns,
-  includeActions = false, // Default to false if not provided
-  customAction = '',
-  handleCustomAction = () => {}
+  includeActions = false // Default to false if not provided
 }: ColumnsProps): GridColDef[] => {
   const columns: GridColDef[] = [...(customColumns as GridBaseColDef[])]
 
@@ -145,15 +82,7 @@ export const GetColumns = ({
       headerName: 'Actions',
       width: 100,
       sortable: false,
-      renderCell: ({ row }) => (
-        <RowOptions
-          toggleEditMode={toggleEditMode}
-          deleteObject={deleteObject}
-          row={row}
-          customAction={customAction}
-          handleCustomAction={handleCustomAction}
-        />
-      )
+      renderCell: ({ row }) => <RowOptions toggleEditMode={toggleEditMode} deleteObject={deleteObject} row={row} />
     })
   }
 

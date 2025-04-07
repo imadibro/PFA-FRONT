@@ -85,7 +85,7 @@ const UserDropdown = () => {
         <Avatar
           ref={anchorRef}
           alt='John Doe'
-          src='/images/avatars/1.png'
+          src=''
           onClick={handleDropdownOpen}
           className='cursor-pointer bs-[38px] is-[38px]'
         />

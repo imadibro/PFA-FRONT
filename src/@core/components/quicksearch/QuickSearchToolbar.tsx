@@ -17,6 +17,7 @@ interface Props {
 }
 
 const QuickSearchToolbar = (props: Props) => {
+  const { showAddButton = true } = props
   return (
     <Box
       sx={{
@@ -59,7 +60,7 @@ const QuickSearchToolbar = (props: Props) => {
           }}
         />
       </div>
-      {props.showAddButton && (
+      {showAddButton && (
         <div>
           <Button
             title={'Ajouter '.concat(props.title)}

@@ -202,9 +202,6 @@ const ClientOrdersList = ({ mode }: { mode: SystemMode }) => {
   return (
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'>
-        <Typography variant='h2' className='my-2'>
-          Liste des commandes
-        </Typography>
         {!isSiteIsLoading &&
           !siteErrors &&
           !isClientIsLoading &&
