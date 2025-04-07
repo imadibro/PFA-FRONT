@@ -1,6 +1,7 @@
 import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 import type { SerializedError } from '@reduxjs/toolkit'
 import { api } from '@/store/api'
+import type { IClient, IOperation, IProject, ISite } from '@/@core/utils/types'
 
 export const clientOrderApi = api.injectEndpoints({
   endpoints: builder => ({
@@ -16,10 +17,24 @@ export const clientOrderApi = api.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'ClientOrder', id: 'LIST' }]
     }),
-    updateClientOrder: builder.mutation<any, FetchBaseQueryError | SerializedError | void>({
+    updateClientOrder: builder.mutation<
+      any,
+      {
+        id: string
+        orderReference: string
+        orderDate: string
+        status: string
+        notes: string
+        totalAmount: number
+        client: IClient
+        site: ISite
+        project: IProject
+        operation: IOperation
+      }
+    >({
       query: body => ({
-        url: `client-order`,
-        method: 'PUT',
+        url: `client-order/${body.id}`,
+        method: 'PATCH',
         body
       }),
       invalidatesTags: [{ type: 'ClientOrder', id: 'LIST' }]

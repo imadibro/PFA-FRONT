@@ -15,6 +15,8 @@ import { useGetSiteQuery } from '@/store/features/site/siteApi'
 import CreateClientOrder from './Create'
 import { useGetClientQuery } from '@/store/features/client/clientApi'
 import { useGetProjectsQuery } from '@/store/features/project/projectApi'
+import UpdateClientOrder from './Update'
+import { useGetOperationsQuery } from '@/store/features/operation/operationApi'
 
 const customColumns = () => [
   {
@@ -96,7 +98,7 @@ const ClientOrdersList = ({ mode }: { mode: SystemMode }) => {
   const { data: sites, error: siteErrors, isLoading: isSiteIsLoading } = useGetSiteQuery()
   const { data: clients, error: clientErrors, isLoading: isClientIsLoading } = useGetClientQuery()
   const { data: projects, error: projectErrors, isLoading: isProjectIsLoading } = useGetProjectsQuery()
-  const { data: operations, error: operationErrors, isLoading: isOperationIsLoading } = useGetSiteQuery()
+  const { data: operations, error: operationErrors, isLoading: isOperationIsLoading } = useGetOperationsQuery()
 
   if (error) {
     const errorMessage =
@@ -245,17 +247,30 @@ const ClientOrdersList = ({ mode }: { mode: SystemMode }) => {
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
       />
-      {/* Update Absence */}
-      <Drawer open={isOpen} onClose={onCloseForm} anchor={'right'}>
-        {/* {!siteIsLoading && (
-                <AbsenceForm
-                  mode={mode}
-                  absenceToEdit={absenceToEdit}
-                  onClose={onCloseForm}
-                  isEditMode={isEditMode}
-                  employees={employeeData}
-                />
-              )} */}
+      {/* Update Order */}
+      <Drawer open={openUpdateModal} onClose={() => setOpenUpdateModal(false)} anchor={'right'}>
+        {!isSiteIsLoading &&
+          !siteErrors &&
+          !isClientIsLoading &&
+          !clientErrors &&
+          !isOperationIsLoading &&
+          !operationErrors &&
+          !isProjectIsLoading &&
+          !projectErrors &&
+          clientOrderToEdit && (
+            <UpdateClientOrder
+              mode={mode}
+              sites={sites}
+              clients={clients}
+              operations={operations}
+              projects={projects}
+              clientOrderToEdit={clientOrderToEdit}
+              close={() => {
+                setClientOrderToEdit(null)
+                setOpenUpdateModal(false)
+              }}
+            />
+          )}
       </Drawer>
     </div>
   )

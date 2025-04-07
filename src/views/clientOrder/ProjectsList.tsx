@@ -106,7 +106,7 @@ const ProjectsList = ({ mode }: { mode: SystemMode }) => {
     toggleEditMode: () => {},
     deleteObject: () => {},
     customColumns: customColumns(),
-    includeActions: true
+    includeActions: false
   })
 
   const fieldHandlers = {
@@ -128,7 +128,7 @@ const ProjectsList = ({ mode }: { mode: SystemMode }) => {
     clearDateFilter,
     data: exportData(isFiltering ? filteredData : data, customColumns(), fieldHandlers),
     showExcel: true,
-    hideAddButton: false
+    hideAddButton: true
   }
 
   return (
