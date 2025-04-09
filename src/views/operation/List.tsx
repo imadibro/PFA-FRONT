@@ -1,9 +1,8 @@
 import type { ChangeEvent } from 'react'
 import { useCallback, useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
-import Typography from '@mui/material/Typography'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
-import { Alert, Drawer, Skeleton } from '@mui/material'
+import { Alert, Box, CircularProgress, Drawer } from '@mui/material'
 import { useDeleteOperationMutation, useGetOperationsQuery } from '@/store/features/operation/operationApi'
 import type { SystemMode } from '@core/types'
 import CreateOperation from './Create'
@@ -99,11 +98,9 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
 
   if (isLoading)
     return (
-      <div>
-        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
-        <Skeleton variant='rectangular' width={'100%'} height={50} />
-        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
-      </div>
+      <Box sx={{ display: 'flex', position: 'absolute', top: '25%', left: '50%' }}>
+        <CircularProgress />
+      </Box>
     )
   const toggleForm = () => {
     setOpenModal(true)

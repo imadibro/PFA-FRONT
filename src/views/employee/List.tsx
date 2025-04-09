@@ -2,7 +2,7 @@ import type { ChangeEvent } from 'react'
 import { useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
-import { Alert, Drawer, Skeleton } from '@mui/material'
+import { Alert, Drawer, Box, CircularProgress } from '@mui/material'
 import { useGetEmployeesQuery, useDeleteEmployeeMutation } from '@/store/features/employee/employeeApi'
 import type { SystemMode } from '@core/types'
 import { useGetRolesQuery } from '@/store/features/role/roleApi'
@@ -109,11 +109,9 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
 
   if (isLoading)
     return (
-      <div>
-        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
-        <Skeleton variant='rectangular' width={'100%'} height={50} />
-        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
-      </div>
+      <Box sx={{ display: 'flex', position: 'absolute', top: '25%', left: '50%' }}>
+        <CircularProgress />
+      </Box>
     )
   const toggleForm = () => setIsOpen(prevState => !prevState)
 

@@ -23,11 +23,6 @@ const horizontalMenuData = (): HorizontalMenuDataType[] => [
     icon: 'tabler-users'
   },
   {
-    label: 'Clients',
-    href: '/client',
-    icon: 'tabler-users'
-  },
-  {
     label: 'Vehicules',
     href: '/vehicules',
     icon: 'tabler-car'
@@ -36,11 +31,6 @@ const horizontalMenuData = (): HorizontalMenuDataType[] => [
     label: 'Carte',
     href: '/card',
     icon: 'tabler-credit-card-filled'
-  },
-  {
-    label: 'Les commandes',
-    href: '/client-order',
-    icon: 'tabler-clipboard-list'
   }
 ]
 

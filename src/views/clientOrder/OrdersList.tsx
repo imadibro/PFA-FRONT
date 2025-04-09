@@ -5,7 +5,7 @@ import type { SystemMode } from '@core/types'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import { GetColumns, renderChipCell, renderTypographyCell } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
-import { Alert, Drawer, Skeleton, Typography } from '@mui/material'
+import { Alert, Drawer, Box, CircularProgress } from '@mui/material'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
 import exportData from '@/@core/utils/exportData'
@@ -114,11 +114,9 @@ const ClientOrdersList = ({ mode }: { mode: SystemMode }) => {
   }
   if (isLoading)
     return (
-      <div>
-        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
-        <Skeleton variant='rectangular' width={'100%'} height={50} />
-        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
-      </div>
+      <Box sx={{ display: 'flex', position: 'absolute', top: '25%', left: '50%' }}>
+        <CircularProgress />
+      </Box>
     )
 
   const toggleForm = () => {
