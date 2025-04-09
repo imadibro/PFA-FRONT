@@ -96,12 +96,6 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
     )
   }
 
-  if (isLoading)
-    return (
-      <Box sx={{ display: 'flex', position: 'absolute', top: '25%', left: '50%' }}>
-        <CircularProgress />
-      </Box>
-    )
   const toggleForm = () => {
     setOpenModal(true)
   }

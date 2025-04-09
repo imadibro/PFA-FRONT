@@ -1,6 +1,6 @@
 import type { ChangeEvent } from 'react'
 import { useState } from 'react'
-import { Alert, Drawer, Box, CircularProgress } from '@mui/material'
+import { Alert, Drawer } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { useGetTasksQuery, useDeleteTaskMutation } from '@/store/features/task/taskApi'
@@ -57,13 +57,6 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
       </Alert>
     )
   }
-
-  if (isLoading)
-    return (
-      <Box sx={{ display: 'flex', position: 'absolute', top: '25%', left: '50%' }}>
-        <CircularProgress />
-      </Box>
-    )
 
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)

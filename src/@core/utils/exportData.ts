@@ -1,4 +1,5 @@
 const exportData = (data: any, columnsConfig: any, fieldHandlers: any = {}) => {
+  if (!data) return []
   return data.map((item: any) => {
     return columnsConfig.reduce((objToReturn: any, col: any) => {
       if (!col.headerName || col.headerName === 'Actions') return objToReturn
