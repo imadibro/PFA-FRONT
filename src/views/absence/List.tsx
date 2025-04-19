@@ -9,16 +9,20 @@ import {
   renderTypographyCell
 } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
-import { useDeleteAbsenceMutation, useGetAbsencesQuery , useCreateAbsenceMutation } from '@/store/features/absence/absenceApi'
+import {
+  useCreateAbsenceMutation,
+  useDeleteAbsenceMutation,
+  useGetAbsencesQuery
+} from '@/store/features/absence/absenceApi'
 import { useGetEmployeesQuery, useLazyGetEmployeesByUsernamesQuery } from '@/store/features/employee/employeeApi'
+import { getAbsencesFromDB, removeAbsenceFromDB } from '@/utils/idbUtils'
 import type { SystemMode } from '@core/types'
-import { Alert, Drawer, Skeleton } from '@mui/material'
+import { Alert } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import type { ChangeEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import AbsenceForm from './AbsenceForm'
-import { getAbsencesFromDB, removeAbsenceFromDB } from '@/utils/idbUtils'
 
 const customColumns = () => [
   {
@@ -167,15 +171,6 @@ const AbsencesList = ({ mode }: { mode: SystemMode }) => {
     )
   }
 
-  if (isLoading)
-    return (
-      <div>
-        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
-        <Skeleton variant='rectangular' width={'100%'} height={50} />
-        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
-      </div>
-    )
-
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
     const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
@@ -304,18 +299,16 @@ const AbsencesList = ({ mode }: { mode: SystemMode }) => {
         onPaginationModelChange={setPaginationModel}
       />
 
-      {/* Update Absence */}
-      <Drawer open={isOpen} onClose={onCloseForm} anchor={'right'}>
-        {!employeeIsLoading && (
-          <AbsenceForm
-            mode={mode}
-            absenceToEdit={absenceToEdit}
-            onClose={onCloseForm}
-            isEditMode={isEditMode}
-            employees={employeeData}
-          />
-        )}
-      </Drawer>
+      {!employeeIsLoading && (
+        <AbsenceForm
+          isOpen={isOpen}
+          mode={mode}
+          absenceToEdit={absenceToEdit}
+          onClose={onCloseForm}
+          isEditMode={isEditMode}
+          employees={employeeData}
+        />
+      )}
     </div>
   )
 }

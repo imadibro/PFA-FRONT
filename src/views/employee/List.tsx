@@ -1,23 +1,23 @@
-import type { ChangeEvent } from 'react'
-import { useState } from 'react'
-import { DataGrid } from '@mui/x-data-grid'
-import { escapeRegExp } from '@mui/x-data-grid/internals'
-import { Alert, Drawer, Box, CircularProgress } from '@mui/material'
-import { useGetEmployeesQuery, useDeleteEmployeeMutation } from '@/store/features/employee/employeeApi'
-import type { SystemMode } from '@core/types'
-import { useGetRolesQuery } from '@/store/features/role/roleApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import exportData from '@/@core/utils/exportData'
+import { formatDateFR, stringToDate } from '@/@core/utils/format'
+import type { IEmployee } from '@/@core/utils/types'
 import {
   GetColumns,
   renderChipCell,
   renderConcatenatedTypographyCell,
   renderTypographyCell
 } from '@/components/common/GridColumns'
-import { formatDateFR, stringToDate } from '@/@core/utils/format'
-import exportData from '@/@core/utils/exportData'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
+import { useDeleteEmployeeMutation, useGetEmployeesQuery } from '@/store/features/employee/employeeApi'
+import { useGetRolesQuery } from '@/store/features/role/roleApi'
+import type { SystemMode } from '@core/types'
+import { Alert } from '@mui/material'
+import { DataGrid } from '@mui/x-data-grid'
+import { escapeRegExp } from '@mui/x-data-grid/internals'
+import type { ChangeEvent } from 'react'
+import { useState } from 'react'
 import EmployeeForm from './EmployeeForm'
-import type { IEmployee } from '@/@core/utils/types'
 
 const customColumns = () => [
   {
@@ -107,12 +107,6 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
     )
   }
 
-  if (isLoading)
-    return (
-      <Box sx={{ display: 'flex', position: 'absolute', top: '25%', left: '50%' }}>
-        <CircularProgress />
-      </Box>
-    )
   const toggleForm = () => setIsOpen(prevState => !prevState)
 
   const toggleEditMode = (employee: IEmployee) => {
@@ -213,15 +207,14 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
 
       {/* Employee Form*/}
       {!isLoadingRoles && !rolesError && (
-        <Drawer open={isOpen} onClose={onCloseForm} anchor={'right'}>
-          <EmployeeForm
-            mode={mode}
-            employeeToEdit={employeeToEdit}
-            onClose={onCloseForm}
-            isEditMode={isEditMode}
-            roles={rolesData}
-          />
-        </Drawer>
+        <EmployeeForm
+          isOpen={isOpen}
+          mode={mode}
+          employeeToEdit={employeeToEdit}
+          onClose={onCloseForm}
+          isEditMode={isEditMode}
+          roles={rolesData}
+        />
       )}
     </div>
   )

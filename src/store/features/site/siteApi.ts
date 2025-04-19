@@ -1,7 +1,7 @@
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
-import type { SerializedError } from '@reduxjs/toolkit'
+import type { ISite, ISiteOwner, ISiteType } from '@/@core/utils/types'
 import { api } from '@/store/api'
-import type { ISite } from '@/@core/utils/types'
+import type { SerializedError } from '@reduxjs/toolkit'
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 
 export const siteApi = api.injectEndpoints({
   endpoints: builder => ({
@@ -13,9 +13,27 @@ export const siteApi = api.injectEndpoints({
       query: siteId => `site/${siteId}`,
       providesTags: (result, error, siteId) => [{ type: 'Site', id: siteId }]
     }),
+    getSiteOwners: builder.query<ISiteOwner[], FetchBaseQueryError | SerializedError | void>({
+      query: () => 'site/owners',
+      providesTags: [{ type: 'Site', id: 'owners' }]
+    }),
+    getSiteTypes: builder.query<ISiteType[], FetchBaseQueryError | SerializedError | void>({
+      query: () => 'site/types',
+      providesTags: [{ type: 'Site', id: 'types' }]
+    }),
+
     createSite: builder.mutation<
       any,
-      { label: string; siteNbr: string; description: string; requirementsIds: string[] }
+      {
+        label: string
+        siteNbr: string
+        description: string
+        siteOwnerId: string
+        siteTypeId: string
+        isFreeAccess: boolean
+        g2r: string
+        requirementsIds: string[]
+      }
     >({
       query: newSite => ({
         url: 'site',
@@ -39,6 +57,10 @@ export const siteApi = api.injectEndpoints({
         label: string
         siteNbr: string
         description: string
+        siteOwnerId: string
+        siteTypeId: string
+        isFreeAccess: boolean
+        g2r: string
         requirementsToAdd: string[]
         requirementsToRemove: string[]
       }
@@ -59,6 +81,8 @@ export const siteApi = api.injectEndpoints({
 export const {
   useGetSiteQuery,
   useGetSiteByIdQuery,
+  useGetSiteOwnersQuery,
+  useGetSiteTypesQuery,
   useCreateSiteMutation,
   useDeleteSiteMutation,
   useUpdateSiteMutation

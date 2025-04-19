@@ -1,6 +1,7 @@
 import CustomTabList from '@/@core/components/mui/TabList'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import type { IEmployee, IRole } from '@/@core/utils/types'
+import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
 import {
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
@@ -29,13 +30,15 @@ const EmployeeForm = ({
   roles,
   employeeToEdit,
   onClose,
-  isEditMode
+  isEditMode,
+  isOpen
 }: {
   mode: SystemMode
   roles: IRole[]
   employeeToEdit?: IEmployee | null
   onClose: () => void
   isEditMode: boolean
+  isOpen: boolean
 }) => {
   const { showAlert, showToast } = useSweetAlert()
   const [tabValue, setTabValue] = React.useState('1')
@@ -177,311 +180,301 @@ const EmployeeForm = ({
   }
 
   return (
-    <div className='bg-backgroundPaper'>
-      <Box sx={{ width: '100%', minWidth: 450 }}>
-        <IconButton onClick={onClose} sx={{ position: 'absolute', top: 8, left: 8 }}>
-          <i className='tabler-x' />
-        </IconButton>
-        <TabContext value={tabValue}>
-          {isUpdatingEmployee && (
-            <CustomTabList
-              onChange={(_, newValue) => setTabValue(newValue)}
-              color='primary'
-              sx={{ marginTop: isUpdatingEmployee ? 10 : 0 }}
-            >
-              <Tab label={"Mettre à jour l'employé"} value='1' />
-              {isUpdatingEmployee && <Tab label='Mettre à jour le mot de passe' value='2' />}
-            </CustomTabList>
-          )}
-
-          <div className='bg-backgroundPaper p-6'>
-            <Typography variant='h4' className='my-4 mt-5'>
-              {isUpdatingEmployee ? "Mettre à jour l'employé" : 'Ajouter un employé'}
-            </Typography>
-            <TabPanel value='1'>
-              <form onSubmit={handleUpdateEmployeeSubmit}>
-                {isError && (
-                  <Alert severity='error' sx={{ my: 4 }}>
-                    {(error as any)?.data?.message ||
-                      `Échec de la ${isUpdatingEmployee ? 'mise à jour' : 'création'} de l'employé`}
-                  </Alert>
-                )}
-                <div className='mb-4'>
-                  <TextField
-                    size='small'
-                    name='username'
-                    label="Nom d'utilisateur"
-                    placeholder="Nom d'utilisateur"
-                    required
-                    fullWidth
-                    defaultValue={employeeToEdit?.username}
-                  />
-                </div>
-                <div className='mb-4'>
-                  <TextField
-                    size='small'
-                    name='email'
-                    label='E-mail'
-                    type='email'
-                    placeholder='E-mail'
-                    required
-                    fullWidth
-                    defaultValue={employeeToEdit?.email}
-                  />
-                </div>
-                <div className='mb-4'>
-                  <TextField
-                    size='small'
-                    name='firstName'
-                    label='Prénom'
-                    placeholder='Prénom'
-                    required
-                    fullWidth
-                    defaultValue={employeeToEdit?.firstName}
-                  />
-                </div>
-                <div className='mb-4'>
-                  <TextField
-                    size='small'
-                    name='lastName'
-                    label='Nom de famille'
-                    placeholder='Nom de famille'
-                    required
-                    fullWidth
-                    defaultValue={employeeToEdit?.lastName}
-                  />
-                </div>
-                {!isEditMode && (
-                  <div className='mb-4'>
-                    <FormControl sx={{ width: '100%' }} variant='outlined'>
-                      <InputLabel htmlFor='outlined-adornment-password'>Mot de passe</InputLabel>
-                      <OutlinedInput
-                        id='outlined-adornment-password'
-                        size='small'
-                        name='password'
-                        error={isPasswordInValid}
-                        placeholder='Mot de passe'
-                        type={showPassword ? 'text' : 'password'}
-                        endAdornment={
-                          <InputAdornment position='end'>
-                            <IconButton
-                              aria-label={showPassword ? 'hide the password' : 'display the password'}
-                              onClick={handleClickShowPassword}
-                              edge='end'
-                            >
-                              {showPassword ? (
-                                <span className='tabler-eye w-5 h-5 mr-2' />
-                              ) : (
-                                <span className='tabler-eye-off w-5 h-5 mr-2' />
-                              )}
-                            </IconButton>
-                          </InputAdornment>
-                        }
-                        label='Mot de passe'
-                        onChange={handlePasswordChange}
-                      />
-                    </FormControl>
-                    <Typography variant='body2' color={isPasswordInValid ? 'red' : 'textSecondary'}>
-                      {isPasswordInValid
-                        ? "Mot de passe doit être d'au moins 8 caractères"
-                        : 'Donnez à votre Employé un mot de passe clair et concis.'}
-                    </Typography>
-                  </div>
-                )}
-                <div className='mb-4'>
-                  <FormControl fullWidth size='small'>
-                    <InputLabel id='role-select-label'>Rôle</InputLabel>
-                    <Select
-                      labelId='role-select-label'
-                      id='role-select'
-                      name='role'
-                      label='Rôle'
-                      defaultValue={employeeToEdit?.role?.role || ''}
-                      required
-                    >
-                      {roles.map(roleItem => (
-                        <MenuItem key={roleItem.id} value={roleItem.role}>
-                          {roleItem.role}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-                <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, justifyContent: 'space-between', gap: 2 }}>
-                  <Button
-                    disabled={isLoading}
-                    variant='outlined'
-                    size='small'
-                    onClick={onClose}
-                    className='h-10 mt-4 w-full'
-                  >
-                    Annuler
-                  </Button>
-                  <Button
-                    type='submit'
-                    sx={{ mr: 1 }}
-                    disabled={isLoading || isLoadingUpdateEmployeePassword}
-                    variant='contained'
-                    size='small'
-                    className='h-10 mt-4 w-full'
-                  >
-                    {isLoading
-                      ? isUpdatingEmployee
-                        ? 'Mise à jour...'
-                        : 'Création...'
-                      : isUpdatingEmployee
-                        ? 'Modifier'
-                        : 'Créer'}
-                  </Button>
-                </Box>
-              </form>
-            </TabPanel>
-            {isUpdatingEmployee && (
-              <TabPanel value='2'>
-                <form onSubmit={handleUpdateEmployeePasswordSubmit}>
-                  {isErrorUpdateEmployeePassword && (
-                    <Alert severity='error' sx={{ my: 4 }}>
-                      {(errorUpdateEmployeePassword as any)?.data?.message ||
-                        'Impossible de mettre à jour le mot de passe'}
-                    </Alert>
-                  )}
-                  {isSuccessUpdateEmployeePassword && (
-                    <Alert severity='success' sx={{ my: 4 }}>
-                      Mot de passe mis à jour avec succès
-                    </Alert>
-                  )}
-                  <div className='mb-4'>
-                    <FormControl sx={{ width: '100%' }} variant='outlined'>
-                      <InputLabel htmlFor='outlined-adornment-password'>Mot de passe actuel</InputLabel>
-                      <OutlinedInput
-                        id='outlined-adornment-password'
-                        size='small'
-                        name='currentPassword'
-                        error={isCurrentPasswordInValid}
-                        placeholder='Mot de passe actuel'
-                        type={showCurrentPassword ? 'text' : 'password'}
-                        endAdornment={
-                          <InputAdornment position='end'>
-                            <IconButton
-                              aria-label={showCurrentPassword ? 'hide the password' : 'display the password'}
-                              onClick={() => setShowCurrentPassword(show => !show)}
-                              edge='end'
-                            >
-                              {showCurrentPassword ? (
-                                <span className='tabler-eye w-5 h-5 mr-2' />
-                              ) : (
-                                <span className='tabler-eye-off w-5 h-5 mr-2' />
-                              )}
-                            </IconButton>
-                          </InputAdornment>
-                        }
-                        label='Mot de passe'
-                        onChange={handleCurrentPasswordChange}
-                      />
-                    </FormControl>
-                    <Typography variant='body2' color={isCurrentPasswordInValid ? 'red' : 'textSecondary'}>
-                      {isCurrentPasswordInValid
-                        ? "Mot de passe doit être d'au moins 8 caractères"
-                        : 'Donnez à votre employé un mot de passe clair et concis.'}
-                    </Typography>
-                  </div>
-                  <div className='mb-4'>
-                    <FormControl sx={{ width: '100%' }} variant='outlined'>
-                      <InputLabel htmlFor='outlined-adornment-password'>Nouveau mot de passe</InputLabel>
-                      <OutlinedInput
-                        id='outlined-adornment-password'
-                        size='small'
-                        name='newPassword'
-                        error={isNewPasswordInValid}
-                        placeholder='Nouveau mot de passe'
-                        type={showNewPassword ? 'text' : 'password'}
-                        endAdornment={
-                          <InputAdornment position='end'>
-                            <IconButton
-                              aria-label={showNewPassword ? 'hide the password' : 'display the password'}
-                              onClick={() => setShowNewPassword(show => !show)}
-                              edge='end'
-                            >
-                              {showNewPassword ? (
-                                <span className='tabler-eye w-5 h-5 mr-2' />
-                              ) : (
-                                <span className='tabler-eye-off w-5 h-5 mr-2' />
-                              )}
-                            </IconButton>
-                          </InputAdornment>
-                        }
-                        label='Mot de passe'
-                        onChange={handleNewPasswordChange}
-                      />
-                    </FormControl>
-                    <Typography variant='body2' color={isNewPasswordInValid ? 'red' : 'textSecondary'}>
-                      {isNewPasswordInValid
-                        ? "Mot de passe doit être d'au moins 8 caractères"
-                        : 'Donnez à votre employé un mot de passe clair et concis.'}
-                    </Typography>
-                  </div>
-                  <div className='mb-4'>
-                    <FormControl sx={{ width: '100%' }} variant='outlined'>
-                      <InputLabel htmlFor='outlined-adornment-password'>Confirmez le mot de passe</InputLabel>
-                      <OutlinedInput
-                        id='outlined-adornment-password'
-                        size='small'
-                        name='confirmedPassword'
-                        error={isConfirmedPasswordInValid}
-                        placeholder='Confirmez le mot de passe'
-                        type={showConfirmedPassword ? 'text' : 'password'}
-                        endAdornment={
-                          <InputAdornment position='end'>
-                            <IconButton
-                              aria-label={showConfirmedPassword ? 'hide the password' : 'display the password'}
-                              onClick={() => setShowConfirmedPassword(show => !show)}
-                              edge='end'
-                            >
-                              {showConfirmedPassword ? (
-                                <span className='tabler-eye w-5 h-5 mr-2' />
-                              ) : (
-                                <span className='tabler-eye-off w-5 h-5 mr-2' />
-                              )}
-                            </IconButton>
-                          </InputAdornment>
-                        }
-                        label='Mot de passe'
-                        onChange={handleConfirmedPasswordChange}
-                      />
-                    </FormControl>
-                    <Typography variant='body2' color={isConfirmedPasswordInValid ? 'red' : 'textSecondary'}>
-                      {isConfirmedPasswordInValid
-                        ? "Mot de passe doit être d'au moins 8 caractères"
-                        : 'Donnez à votre employé un mot de passe clair et concis.'}
-                    </Typography>
-                  </div>
-                  <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, justifyContent: 'space-between', gap: 2 }}>
-                    <Button
-                      disabled={isLoading}
-                      variant='outlined'
-                      size='small'
-                      onClick={onClose}
-                      className='h-10 mt-4 w-full'
-                    >
-                      Annuler
-                    </Button>
-                    <Button
-                      type='submit'
-                      sx={{ mr: 1 }}
-                      variant='contained'
-                      disabled={isLoading || isLoadingUpdateEmployeePassword}
-                      className='h-10 mt-4 w-full'
-                    >
-                      {isLoading || isLoadingUpdateEmployeePassword ? 'Mise à jour...' : 'Modifier'}
-                    </Button>
-                  </Box>
-                </form>
-              </TabPanel>
+    <SidebarDrawerForm headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} employé`} open={isOpen} toggle={onClose}>
+      <TabContext value={tabValue}>
+        {isUpdatingEmployee && (
+          <CustomTabList
+            onChange={(_, newValue) => setTabValue(newValue)}
+            color='primary'
+            sx={{ marginTop: isUpdatingEmployee ? 10 : 0 }}
+          >
+            <Tab label={"Mettre à jour l'employé"} value='1' />
+            {isUpdatingEmployee && <Tab label='Mettre à jour le mot de passe' value='2' />}
+          </CustomTabList>
+        )}
+        <TabPanel value='1'>
+          <form onSubmit={handleUpdateEmployeeSubmit}>
+            {isError && (
+              <Alert severity='error' sx={{ my: 4 }}>
+                {(error as any)?.data?.message ||
+                  `Échec de la ${isUpdatingEmployee ? 'mise à jour' : 'création'} de l'employé`}
+              </Alert>
             )}
-          </div>
-        </TabContext>
-      </Box>
-    </div>
+            <div className='mb-4'>
+              <TextField
+                size='small'
+                name='username'
+                label="Nom d'utilisateur"
+                placeholder="Nom d'utilisateur"
+                required
+                fullWidth
+                defaultValue={employeeToEdit?.username}
+              />
+            </div>
+            <div className='mb-4'>
+              <TextField
+                size='small'
+                name='email'
+                label='E-mail'
+                type='email'
+                placeholder='E-mail'
+                required
+                fullWidth
+                defaultValue={employeeToEdit?.email}
+              />
+            </div>
+            <div className='mb-4'>
+              <TextField
+                size='small'
+                name='firstName'
+                label='Prénom'
+                placeholder='Prénom'
+                required
+                fullWidth
+                defaultValue={employeeToEdit?.firstName}
+              />
+            </div>
+            <div className='mb-4'>
+              <TextField
+                size='small'
+                name='lastName'
+                label='Nom de famille'
+                placeholder='Nom de famille'
+                required
+                fullWidth
+                defaultValue={employeeToEdit?.lastName}
+              />
+            </div>
+            {!isEditMode && (
+              <div className='mb-4'>
+                <FormControl sx={{ width: '100%' }} variant='outlined'>
+                  <InputLabel htmlFor='outlined-adornment-password'>Mot de passe</InputLabel>
+                  <OutlinedInput
+                    id='outlined-adornment-password'
+                    size='small'
+                    name='password'
+                    error={isPasswordInValid}
+                    placeholder='Mot de passe'
+                    type={showPassword ? 'text' : 'password'}
+                    endAdornment={
+                      <InputAdornment position='end'>
+                        <IconButton
+                          aria-label={showPassword ? 'hide the password' : 'display the password'}
+                          onClick={handleClickShowPassword}
+                          edge='end'
+                        >
+                          {showPassword ? (
+                            <span className='tabler-eye w-5 h-5 mr-2' />
+                          ) : (
+                            <span className='tabler-eye-off w-5 h-5 mr-2' />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                    label='Mot de passe'
+                    onChange={handlePasswordChange}
+                  />
+                </FormControl>
+                <Typography variant='body2' color={isPasswordInValid ? 'red' : 'textSecondary'}>
+                  {isPasswordInValid
+                    ? "Mot de passe doit être d'au moins 8 caractères"
+                    : 'Donnez à votre Employé un mot de passe clair et concis.'}
+                </Typography>
+              </div>
+            )}
+            <div className='mb-4'>
+              <FormControl fullWidth size='small'>
+                <InputLabel id='role-select-label'>Rôle</InputLabel>
+                <Select
+                  labelId='role-select-label'
+                  id='role-select'
+                  name='role'
+                  label='Rôle'
+                  defaultValue={employeeToEdit?.role?.role || ''}
+                  required
+                >
+                  {roles.map(roleItem => (
+                    <MenuItem key={roleItem.id} value={roleItem.role}>
+                      {roleItem.role}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </div>
+            <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, justifyContent: 'space-between', gap: 2 }}>
+              <Button
+                type='submit'
+                sx={{ mr: 1 }}
+                disabled={isLoading || isLoadingUpdateEmployeePassword}
+                variant='contained'
+                size='small'
+                className='h-10 mt-4 w-full'
+              >
+                {isLoading
+                  ? isUpdatingEmployee
+                    ? 'Mise à jour...'
+                    : 'Création...'
+                  : isUpdatingEmployee
+                    ? 'Modifier'
+                    : 'Ajouter'}
+              </Button>
+              <Button
+                disabled={isLoading}
+                variant='outlined'
+                size='small'
+                onClick={onClose}
+                color='error'
+                className='h-10 mt-4 w-full'
+              >
+                Annuler
+              </Button>
+            </Box>
+          </form>
+        </TabPanel>
+        {isUpdatingEmployee && (
+          <TabPanel value='2'>
+            <form onSubmit={handleUpdateEmployeePasswordSubmit}>
+              {isErrorUpdateEmployeePassword && (
+                <Alert severity='error' sx={{ my: 4 }}>
+                  {(errorUpdateEmployeePassword as any)?.data?.message || 'Impossible de mettre à jour le mot de passe'}
+                </Alert>
+              )}
+              {isSuccessUpdateEmployeePassword && (
+                <Alert severity='success' sx={{ my: 4 }}>
+                  Mot de passe mis à jour avec succès
+                </Alert>
+              )}
+              <div className='mb-4'>
+                <FormControl sx={{ width: '100%' }} variant='outlined'>
+                  <InputLabel htmlFor='outlined-adornment-password'>Mot de passe actuel</InputLabel>
+                  <OutlinedInput
+                    id='outlined-adornment-password'
+                    size='small'
+                    name='currentPassword'
+                    error={isCurrentPasswordInValid}
+                    placeholder='Mot de passe actuel'
+                    type={showCurrentPassword ? 'text' : 'password'}
+                    endAdornment={
+                      <InputAdornment position='end'>
+                        <IconButton
+                          aria-label={showCurrentPassword ? 'hide the password' : 'display the password'}
+                          onClick={() => setShowCurrentPassword(show => !show)}
+                          edge='end'
+                        >
+                          {showCurrentPassword ? (
+                            <span className='tabler-eye w-5 h-5 mr-2' />
+                          ) : (
+                            <span className='tabler-eye-off w-5 h-5 mr-2' />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                    label='Mot de passe'
+                    onChange={handleCurrentPasswordChange}
+                  />
+                </FormControl>
+                <Typography variant='body2' color={isCurrentPasswordInValid ? 'red' : 'textSecondary'}>
+                  {isCurrentPasswordInValid
+                    ? "Mot de passe doit être d'au moins 8 caractères"
+                    : 'Donnez à votre employé un mot de passe clair et concis.'}
+                </Typography>
+              </div>
+              <div className='mb-4'>
+                <FormControl sx={{ width: '100%' }} variant='outlined'>
+                  <InputLabel htmlFor='outlined-adornment-password'>Nouveau mot de passe</InputLabel>
+                  <OutlinedInput
+                    id='outlined-adornment-password'
+                    size='small'
+                    name='newPassword'
+                    error={isNewPasswordInValid}
+                    placeholder='Nouveau mot de passe'
+                    type={showNewPassword ? 'text' : 'password'}
+                    endAdornment={
+                      <InputAdornment position='end'>
+                        <IconButton
+                          aria-label={showNewPassword ? 'hide the password' : 'display the password'}
+                          onClick={() => setShowNewPassword(show => !show)}
+                          edge='end'
+                        >
+                          {showNewPassword ? (
+                            <span className='tabler-eye w-5 h-5 mr-2' />
+                          ) : (
+                            <span className='tabler-eye-off w-5 h-5 mr-2' />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                    label='Mot de passe'
+                    onChange={handleNewPasswordChange}
+                  />
+                </FormControl>
+                <Typography variant='body2' color={isNewPasswordInValid ? 'red' : 'textSecondary'}>
+                  {isNewPasswordInValid
+                    ? "Mot de passe doit être d'au moins 8 caractères"
+                    : 'Donnez à votre employé un mot de passe clair et concis.'}
+                </Typography>
+              </div>
+              <div className='mb-4'>
+                <FormControl sx={{ width: '100%' }} variant='outlined'>
+                  <InputLabel htmlFor='outlined-adornment-password'>Confirmez le mot de passe</InputLabel>
+                  <OutlinedInput
+                    id='outlined-adornment-password'
+                    size='small'
+                    name='confirmedPassword'
+                    error={isConfirmedPasswordInValid}
+                    placeholder='Confirmez le mot de passe'
+                    type={showConfirmedPassword ? 'text' : 'password'}
+                    endAdornment={
+                      <InputAdornment position='end'>
+                        <IconButton
+                          aria-label={showConfirmedPassword ? 'hide the password' : 'display the password'}
+                          onClick={() => setShowConfirmedPassword(show => !show)}
+                          edge='end'
+                        >
+                          {showConfirmedPassword ? (
+                            <span className='tabler-eye w-5 h-5 mr-2' />
+                          ) : (
+                            <span className='tabler-eye-off w-5 h-5 mr-2' />
+                          )}
+                        </IconButton>
+                      </InputAdornment>
+                    }
+                    label='Mot de passe'
+                    onChange={handleConfirmedPasswordChange}
+                  />
+                </FormControl>
+                <Typography variant='body2' color={isConfirmedPasswordInValid ? 'red' : 'textSecondary'}>
+                  {isConfirmedPasswordInValid
+                    ? "Mot de passe doit être d'au moins 8 caractères"
+                    : 'Donnez à votre employé un mot de passe clair et concis.'}
+                </Typography>
+              </div>
+              <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, justifyContent: 'space-between', gap: 2 }}>
+                <Button
+                  type='submit'
+                  sx={{ mr: 1 }}
+                  variant='contained'
+                  disabled={isLoading || isLoadingUpdateEmployeePassword}
+                  className='h-10 mt-4 w-full'
+                >
+                  {isLoading || isLoadingUpdateEmployeePassword ? 'Mise à jour...' : 'Modifier'}
+                </Button>
+                <Button
+                  disabled={isLoading}
+                  variant='outlined'
+                  color='error'
+                  size='small'
+                  onClick={onClose}
+                  className='h-10 mt-4 w-full'
+                >
+                  Annuler
+                </Button>
+              </Box>
+            </form>
+          </TabPanel>
+        )}
+      </TabContext>
+    </SidebarDrawerForm>
   )
 }
 

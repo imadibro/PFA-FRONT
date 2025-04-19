@@ -1,15 +1,14 @@
-import CustomIconButton from '@/@core/components/mui/IconButton'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import type { IAbsence, IAbsenceReasons, IEmployee } from '@/@core/utils/types'
+import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
 import { useCreateAbsenceMutation, useUpdateAbsenceMutation } from '@/store/features/absence/absenceApi'
 import type { SystemMode } from '@core/types'
-import { Alert, Box, Button, IconButton, TextField } from '@mui/material'
+import { Alert, Box, Button, TextField } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
 import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
 import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
-import Typography from '@mui/material/Typography'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -36,13 +35,15 @@ const AbsenceForm = ({
   absenceToEdit,
   employees,
   onClose,
-  isEditMode
+  isEditMode,
+  isOpen
 }: {
   mode: SystemMode
   absenceToEdit?: IAbsence | null
   employees: IEmployee[]
   onClose: () => void
   isEditMode: boolean
+  isOpen: boolean
 }) => {
   const [updateAbsence, { isLoading: isUpdating, isError: updateError, error: updateErr }] = useUpdateAbsenceMutation()
   const [createAbsence, { isLoading: isCreating, isError: createError, error: createErr }] = useCreateAbsenceMutation()
@@ -152,13 +153,7 @@ const AbsenceForm = ({
   }
 
   return (
-    <div className='bg-backgroundPaper p-4' style={{ minWidth: 450 }}>
-      <IconButton onClick={onClose} sx={{ position: 'absolute', top: 8, left: 8 }}>
-        <i className='tabler-x' />
-      </IconButton>
-      <Typography variant='h4' className='my-4 mt-10'>
-        {isUpdatingAbsence ? "Mettre à jour l'absence" : 'Ajouter une absence'}
-      </Typography>
+    <SidebarDrawerForm headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} site`} open={isOpen} toggle={onClose}>
       <form onSubmit={handleSubmit}>
         {isError && (
           <Alert severity='error'>
@@ -298,10 +293,7 @@ const AbsenceForm = ({
           />
         </div>
         <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, justifyContent: 'space-between', gap: 2 }}>
-          <Button disabled={isLoading} variant='outlined' size='small' onClick={onClose} className='h-10 mt-4 w-full'>
-            Annuler
-          </Button>
-          <CustomIconButton
+          <Button
             type='submit'
             color='primary'
             variant='contained'
@@ -316,10 +308,20 @@ const AbsenceForm = ({
               : isUpdatingAbsence
                 ? 'Modifier'
                 : 'Ajouter'}
-          </CustomIconButton>
+          </Button>
+          <Button
+            disabled={isLoading}
+            variant='outlined'
+            color='error'
+            size='small'
+            onClick={onClose}
+            className='h-10 mt-4 w-full'
+          >
+            Annuler
+          </Button>
         </Box>
       </form>
-    </div>
+    </SidebarDrawerForm>
   )
 }
 

@@ -8,14 +8,13 @@ import type { ChildrenType } from '@core/types'
 import '@/app/globals.css'
 
 // Generated Icon CSS Imports
-import '@assets/iconify-icons/generated-icons.css'
 import ReduxProvider from '@/providers/redux-provider'
 import SessionsProvider from '@/providers/session-provider'
+import '@assets/iconify-icons/generated-icons.css'
 
 export const metadata = {
-  title: 'UPTEL - Company',
-  description:
-    'UPTEL - MUI Next.js Admin Dashboard Template - is the most developer friendly & highly customizable Admin Dashboard Template based on MUI v5.',
+  title: 'UPTEL - Planning',
+  description: 'UPTEL - Planning project.',
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',

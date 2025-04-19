@@ -1,29 +1,29 @@
-import type { ChangeEvent } from 'react'
-import { useEffect, useRef, useState } from 'react'
-import { DataGrid } from '@mui/x-data-grid'
-import { escapeRegExp } from '@mui/x-data-grid/internals'
-import { Alert, Drawer, Skeleton } from '@mui/material'
-import { useCreateSiteMutation, useDeleteSiteMutation, useGetSiteQuery } from '@/store/features/site/siteApi'
-import type { SystemMode } from '@core/types'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import exportData from '@/@core/utils/exportData'
+import { formatDateFR, stringToDate } from '@/@core/utils/format'
+import type { ISite } from '@/@core/utils/types'
+import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
+import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import {
   useGetRequirementQuery,
   useLazyGetRequirementsByLabelsQuery
 } from '@/store/features/requirement/requirementApi'
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
-import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
-import { formatDateFR, stringToDate } from '@/@core/utils/format'
-import exportData from '@/@core/utils/exportData'
-import SiteForm from './SiteForm'
-import type { ISite } from '@/@core/utils/types'
-import SiteDetails from './Details'
+import { useCreateSiteMutation, useDeleteSiteMutation, useGetSiteQuery } from '@/store/features/site/siteApi'
 import { getSitesFromDB, removeSiteFromDB } from '@/utils/idbUtils'
+import type { SystemMode } from '@core/types'
+import { Alert, Drawer } from '@mui/material'
+import { DataGrid } from '@mui/x-data-grid'
+import { escapeRegExp } from '@mui/x-data-grid/internals'
+import type { ChangeEvent } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import SiteDetails from './Details'
+import SiteForm from './SiteForm'
 
 const customColumns = () => [
   {
     flex: 1,
     field: 'siteNbr',
-    headerName: 'Numéro de site',
+    headerName: 'Num de site',
     minWidth: 180,
     renderCell: renderTypographyCell('siteNbr')
   },
@@ -36,10 +36,24 @@ const customColumns = () => [
   },
   {
     flex: 1,
-    minWidth: 250,
-    field: 'description',
-    headerName: 'Description',
-    renderCell: renderTypographyCell('description')
+    field: 'g2r',
+    headerName: 'G2R',
+    minWidth: 180,
+    renderCell: renderTypographyCell('g2r')
+  },
+  {
+    flex: 1,
+    field: 'siteOwner',
+    headerName: 'Propriétaire',
+    minWidth: 180,
+    renderCell: renderTypographyCell('siteOwner')
+  },
+  {
+    flex: 1,
+    field: 'siteType',
+    headerName: 'Type de site',
+    minWidth: 180,
+    renderCell: renderTypographyCell('siteType')
   }
 ]
 
@@ -169,14 +183,6 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
       </Alert>
     )
   }
-  if (isLoading)
-    return (
-      <div>
-        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
-        <Skeleton variant='rectangular' width={'100%'} height={50} />
-        <Skeleton variant='rounded' width={'100%'} height={50} className='my-2' />
-      </div>
-    )
 
   const toggleForm = () => setIsOpen(prevState => !prevState)
 
@@ -292,15 +298,14 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
 
       {/*  Site Form */}
       {!isLoadingRequirements && !requirementError && (
-        <Drawer open={isOpen} onClose={onCloseForm} anchor={'right'}>
-          <SiteForm
-            mode={mode}
-            siteToEdit={siteToEdit}
-            onClose={onCloseForm}
-            isEditMode={isEditMode}
-            requirements={requirementData}
-          />
-        </Drawer>
+        <SiteForm
+          mode={mode}
+          isOpen={isOpen}
+          siteToEdit={siteToEdit}
+          onClose={onCloseForm}
+          isEditMode={isEditMode}
+          requirements={requirementData}
+        />
       )}
       {/* details drawer */}
       <Drawer open={isDetailsOpen} onClose={() => setIsDetailsOpen(false)} anchor='right'>

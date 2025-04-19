@@ -73,7 +73,27 @@ export interface ISite {
   label: string
   siteNbr: string
   description: string
+  g2r: string
+  siteOwner: string
+  siteType: string
+  siteOwnerId: string
+  siteTypeId: string
+  isFreeAccess: boolean
   requirements?: IRequirement[]
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface ISiteOwner {
+  id: string
+  name: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface ISiteType {
+  id: string
+  name: string
   createdAt?: string
   updatedAt?: string
 }
