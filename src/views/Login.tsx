@@ -4,22 +4,22 @@
 import { useState } from 'react'
 
 // Next Imports
-import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 
 // MUI Imports
-import Typography from '@mui/material/Typography'
+import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
-import Checkbox from '@mui/material/Checkbox'
-import Button from '@mui/material/Button'
-import FormControlLabel from '@mui/material/FormControlLabel'
+import Typography from '@mui/material/Typography'
 import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
 
 // Type Imports
-import { Alert, Box, Card, CardContent, useTheme } from '@mui/material'
 import type { SystemMode } from '@core/types'
+import { Alert, Box, Card, CardContent } from '@mui/material'
 
 // Component Imports
 import CustomTextField from '@core/components/mui/TextField'
@@ -64,7 +64,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
         username: username,
         password: password,
         redirect: false,
-        callbackUrl: '/planification'
+        callbackUrl: '/planning'
       })
       if (result?.error) {
         setError('root', {

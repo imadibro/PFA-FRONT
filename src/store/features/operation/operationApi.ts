@@ -1,11 +1,11 @@
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
-import type { SerializedError } from '@reduxjs/toolkit'
-import { api } from '@/store/api'
 import type { IOperation } from '@/@core/utils/types'
+import { api } from '@/store/api'
+import type { SerializedError } from '@reduxjs/toolkit'
+import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 
 export const operationApi = api.injectEndpoints({
   endpoints: builder => ({
-    getOperations: builder.query<any, FetchBaseQueryError | SerializedError | void>({
+    getOperations: builder.query<IOperation[], FetchBaseQueryError | SerializedError | void>({
       query: () => 'operation',
       providesTags: [{ type: 'Operation', id: 'LIST' }]
     }),

@@ -8,19 +8,19 @@ const verticalMenuData = (): VerticalMenuDataType[] => [
     icon: 'tabler-calendar-month'
   },
   {
-    label: 'Planification',
-    href: '/planification',
-    icon: 'tabler-calendar-month'
+    label: 'Opérations',
+    href: '/operation',
+    icon: 'tabler-checklist'
+  },
+  {
+    label: 'Opération Type',
+    href: '/operationType',
+    icon: 'tabler-list-check'
   },
   {
     label: 'Sites',
     href: '/site',
     icon: 'tabler-building'
-  },
-  {
-    label: 'Opérations',
-    href: '/operation',
-    icon: 'tabler-list-check'
   },
   {
     label: 'Employés',

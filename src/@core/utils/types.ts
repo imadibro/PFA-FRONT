@@ -57,15 +57,35 @@ export interface IRequirement {
   updatedAt?: string
 }
 
-export interface IOperation {
-  id: string
+// export interface IOperation {
+//   id: string
+//   label: string
+//   duration: number
+//   durationMode: string
+//   description: string
+//   tasks?: ITask[]
+//   createdAt?: string
+//   updatedAt?: string
+// }
+
+export interface IOperationType extends ICommonProps {
   label: string
-  duration: number
-  durationMode: string
-  description: string
-  tasks?: ITask[]
-  createdAt?: string
-  updatedAt?: string
+}
+
+export interface IOperationZone extends ICommonProps {
+  label: string
+}
+
+export interface IOperationTrans extends ICommonProps {
+  label: string
+}
+
+export interface IOperationTask extends ICommonProps {
+  operationType: IOperationType
+  operationZone: IOperationZone
+  operationTrans: IOperationTrans
+  tasks: ITask[]
+  operationTasksIds: string[]
 }
 
 export interface ISite {
@@ -225,3 +245,19 @@ export interface IProject {
 }
 
 export type IOrderStatus = 'Brouillon' | 'En attente' | 'Confirmé' | 'En cours' | 'Terminé' | 'Annulé'
+
+export interface ITeamMember {
+  id: string
+  name: string
+  role: string
+}
+
+export interface IOperation extends ICommonProps {
+  team: ITeamMember[]
+  site: ISite
+  operationTasks: IOperationTask
+  project: IProject
+  vehicle: IVehicule
+  fuelCard: ICard
+  highwayCard: ICard
+}

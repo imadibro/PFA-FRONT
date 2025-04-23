@@ -1,18 +1,18 @@
 'use client'
 
-import React from 'react'
-import Typography from '@mui/material/Typography'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import type { IOperation, ITask } from '@/@core/utils/types'
+import { useCreateOperationMutation } from '@/store/features/operation/operationApi'
+import { useGetTasksQuery } from '@/store/features/task/taskApi'
 import { Button, FormControlLabel, IconButton, Switch, TextField } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
+import Box from '@mui/material/Box'
+import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
 import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
-import Checkbox from '@mui/material/Checkbox'
-import Box from '@mui/material/Box'
-import { useCreateOperationMutation } from '@/store/features/operation/operationApi'
-import type { SystemMode } from '@core/types'
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import type { IOperation, ITask } from '@/@core/utils/types'
+import Typography from '@mui/material/Typography'
+import React from 'react'
 
 const StyledChip = styled(Chip)({
   '&.MuiChip-root': {
@@ -27,12 +27,13 @@ const StyledChip = styled(Chip)({
 const icon = <i className='tabler:circle-check' />
 const checkedIcon = <i className='tabler:checkbox' />
 
-const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITask[]; close: () => void }) => {
+const CreateOperation = ({ close }: { close: () => void }) => {
   const [selectedTasks, setSelectedTasks] = React.useState<ITask[]>([])
   const [durationMode, setDurationMode] = React.useState(false)
 
   const { showAlert, showToast } = useSweetAlert()
 
+  const { data: tasks, error: taskError, isLoading: isLoadingTasks } = useGetTasksQuery()
   const [createOperation, { isLoading, isError, error, isSuccess }] = useCreateOperationMutation()
 
   const handleCreateOperationSubmit = async (event: React.FormEvent) => {
@@ -84,7 +85,7 @@ const CreateOperation = ({ mode, tasks, close }: { mode: SystemMode; tasks: ITas
             <Autocomplete
               multiple
               id='checkboxes-tasks'
-              options={tasks}
+              options={tasks || []}
               disableCloseOnSelect
               getOptionLabel={option => option.label}
               value={selectedTasks}

@@ -1,10 +1,10 @@
-import { Icon } from '@iconify/react'
-import type { GridColDef } from '@mui/x-data-grid'
-import type { ChipProps, TypographyProps } from '@mui/material'
-import { Chip, IconButton, Typography } from '@mui/material'
-import type { GridBaseColDef } from '@mui/x-data-grid/internals'
 import { formatDateFR, formatTimeFR } from '@/@core/utils/format'
 import type { IActionColumnsProps, IEmployee } from '@/@core/utils/types'
+import { Icon } from '@iconify/react'
+import type { ChipProps, TypographyProps } from '@mui/material'
+import { Chip, IconButton, Typography } from '@mui/material'
+import type { GridColDef } from '@mui/x-data-grid'
+import type { GridBaseColDef } from '@mui/x-data-grid/internals'
 
 export interface CellType {
   row: any
@@ -92,22 +92,28 @@ export const GetColumns = ({
 // Helper functions to render cells
 export const renderTypographyCell =
   (field: string) =>
-  ({ row }: CellType) => (
-    <Typography
-      noWrap
-      sx={{
-        fontWeight: 500,
-        color: 'text.secondary',
-        display: 'flex',
-        alignItems: 'center',
-        height: '100%',
-        width: '100%'
-      }}
-      title={row[field]}
-    >
-      {row[field]}
-    </Typography>
-  )
+  ({ row }: CellType) => {
+    // Support nested fields like "operationType.label"
+    const value = field.split('.').reduce((acc, key) => acc && acc[key], row)
+
+    return (
+      <Typography
+        noWrap
+        sx={{
+          fontWeight: 500,
+          color: 'text.secondary',
+          display: 'flex',
+          alignItems: 'center',
+          height: '100%',
+          width: '100%'
+        }}
+        title={value}
+      >
+        {value}
+      </Typography>
+    )
+  }
+
 export const renderConcatenatedTypographyCell =
   (fields: string[]) =>
   ({ row }: CellType) => {

@@ -36,6 +36,7 @@
     "classnames": "2.5.1",
     "dayjs": "^1.11.13",
     "idb": "^8.0.2",
+    "lucide-react": "^0.503.0",
     "next": "14.2.5",
     "next-auth": "^4.24.11",
     "next-redux-wrapper": "^8.1.0",

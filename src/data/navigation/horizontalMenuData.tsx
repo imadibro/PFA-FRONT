@@ -3,8 +3,8 @@ import type { HorizontalMenuDataType } from '@/types/menuTypes'
 
 const horizontalMenuData = (): HorizontalMenuDataType[] => [
   {
-    label: 'Planification',
-    href: '/planification',
+    label: 'Planning',
+    href: '/planning',
     icon: 'tabler-calendar-month'
   },
   {

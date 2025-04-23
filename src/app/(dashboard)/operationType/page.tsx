@@ -2,13 +2,13 @@
 import type { Metadata } from 'next'
 
 // Component Imports
-import OperationList from '@/views/operation/List'
+import Tabs from '@views/operationTasks/Tabs'
 
 // Server Action Imports
 import { getServerMode } from '@core/utils/serverHelpers'
 
 export const metadata: Metadata = {
-  title: 'Liste des opérations',
+  title: "Liste des types d'opérations",
   description: 'Operation Page'
 }
 
@@ -16,7 +16,7 @@ const OperationPage = () => {
   // Vars
   const mode = getServerMode()
 
-  return <OperationList mode={mode} />
+  return <Tabs mode={mode} />
 }
 
 export default OperationPage

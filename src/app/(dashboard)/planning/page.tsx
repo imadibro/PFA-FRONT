@@ -1,5 +1,8 @@
 'use client'
 
+import { CalendarCard } from '@/components/operationCard/CalendarCard'
+import { CompactCard } from '@/components/operationCard/CompactCard'
+import { useGetOperationsQuery } from '@/store/features/operation/operationApi'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
 import FullCalendar from '@fullcalendar/react'
@@ -17,56 +20,10 @@ interface ExternalEvent {
 }
 
 function Page() {
-  const [events, setEvents] = useState<ExternalEvent[]>([
-    {
-      id: '1',
-      text: 'Existing Event',
-      color: '#4F46E5',
-      test: 'aaaaa',
-      icon: 'tabler-users',
-      date: new Date().toISOString().replace(/T.*$/, '')
-    }
-  ])
+  const [events, setEvents] = useState<ExternalEvent[]>([])
   const externalEventsRef = useRef<HTMLDivElement>(null)
 
-  const externalEvents: ExternalEvent[] = [
-    {
-      id: '1',
-      text: 'Team Meeting',
-      color: '#4F46E5',
-      test: 'aaaaa',
-      icon: 'tabler-users',
-      date: '',
-      create: false
-    },
-    {
-      id: '2',
-      text: 'Project Review',
-      color: '#059669',
-      test: 'bbbb',
-      icon: 'tabler-calendar-month',
-      date: '',
-      create: false
-    },
-    {
-      id: '3',
-      text: 'Client Call',
-      color: '#DC2626',
-      test: 'cccc',
-      icon: 'tabler-phone',
-      date: '',
-      create: false
-    },
-    {
-      id: '4',
-      text: 'Office Visit',
-      color: '#D97706',
-      test: 'dddd',
-      icon: 'tabler-map-pin',
-      date: '',
-      create: false
-    }
-  ]
+  const { data: operations, error: operationsError, isLoading: operationsLoading } = useGetOperationsQuery()
 
   useEffect(() => {
     if (externalEventsRef.current) {
@@ -128,35 +85,20 @@ function Page() {
 
   return (
     <div className='flex h-full'>
-      <div ref={externalEventsRef} className='w-64 bg-[#1e2130] border-r border-gray-700 p-4 h-full overflow-y-auto'>
-        <h2 className='text-lg font-semibold mb-4 text-white'>Event Types</h2>
+      <div ref={externalEventsRef} className='w-64 p-4 h-full overflow-y-auto border-r border-slate-200'>
+        <h2 className='text-lg font-semibold mb-4 text-gray-700'>Operations</h2>
         <div className='space-y-3'>
-          {externalEvents.map(event => (
-            <div
-              key={event.id}
-              className='fc-event external-event cursor-pointer select-none'
-              data-id={event.id}
-              data-text={event.text}
-              data-color={event.color}
-              data-test={event.test}
-              data-icon={event.icon}
-              data-date={event.date}
-              style={{
-                backgroundColor: `${event.color}20`,
-                borderLeft: `4px solid ${event.color}`
-              }}
+          {operations?.map(operations => (
+            <CompactCard
+              key={operations.id}
+              operation={operations}
+              classNameProps='fc-event external-event cursor-pointer select-none'
+              data-id={operations.id}
               draggable={true}
-            >
-              <div className='flex items-center gap-2 p-3'>
-                <div style={{ color: event.color }}>
-                  <i className={event.icon} />
-                </div>
-                <span className='text-sm font-medium text-gray-200'>{event.text}</span>
-              </div>
-            </div>
+              data-operation={JSON.stringify(operations)}
+            />
           ))}
         </div>
-        <p className='text-xs mt-4 text-gray-400'>Drag and drop events to add them to the calendar</p>
       </div>
 
       <div className='flex-1 p-6 overflow-auto'>
@@ -176,7 +118,7 @@ function Page() {
             droppable={true}
             selectable={true}
             // selectMirror={true}
-            // weekends={false}
+            weekends={false}
             drop={handleEventReceive}
             eventContent={renderEventContent}
             dayMaxEventRows={true}
@@ -199,15 +141,7 @@ function Page() {
 }
 
 function renderEventContent(e: any) {
-  console.log('event sssssssssss ===>', e.event.id)
-  return (
-    <div className='flex items-center gap-2 p-3'>
-      <div style={{ color: e.event.extendedProps.color }}>
-        <i className={e.event.extendedProps.icon} />
-      </div>
-      <span className='text-sm font-medium text-gray-700'>{e.event.extendedProps.text}</span>
-    </div>
-  )
+  return <CalendarCard operation={JSON.parse(e.event.extendedProps.operation)} />
 }
 
 export default Page

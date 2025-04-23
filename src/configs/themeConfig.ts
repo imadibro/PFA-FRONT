@@ -17,7 +17,7 @@
  */
 
 // Type Imports
-import type { Mode, Skin, Layout, LayoutComponentPosition, LayoutComponentWidth } from '@core/types'
+import type { Layout, LayoutComponentPosition, LayoutComponentWidth, Mode, Skin } from '@core/types'
 
 type Navbar = {
   type: LayoutComponentPosition
@@ -53,7 +53,7 @@ export type Config = {
 const themeConfig: Config = {
   templateName: 'UPTEL PLANNING',
   templateSlogan: 'Le progrès vous appartient',
-  homePageUrl: '/planification',
+  homePageUrl: '/planning',
   settingsCookieName: 'vuexy-mui-next-demo-1',
   mode: 'system', // 'system', 'light', 'dark'
   skin: 'default', // 'default', 'bordered'
