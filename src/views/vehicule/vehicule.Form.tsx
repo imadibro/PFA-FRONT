@@ -2,6 +2,7 @@
 
 import { vehiculeOwnerService, vehiculeTypeService } from '@/@core/services'
 import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
+import { useGetVehiculeModelQuery } from '@/store/features/vehicule/vehiculeApi'
 import CustomTextField from '@core/components/mui/TextField'
 import type { IVehicule, IVehiculeOwner, IVehiculeRequest, IVehiculeType } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -24,8 +25,9 @@ interface Props {
 const schema = yup
   .object({
     registrationId: yup.string().required('Registration est requis'),
-    owner: yup.string().required('Le propriétaire est requis'),
-    type: yup.string().required('Le type est requis')
+    vehiculeOwner: yup.string().required('Le propriétaire est requis'),
+    vehiculeType: yup.string().required('Le type est requis'),
+    vehiculeModel: yup.string().required('Le model est requis')
   })
   .required()
 
@@ -34,6 +36,10 @@ export default function VehiculeForm(props: Props) {
 
   const [owners, setOwners] = useState<IVehiculeOwner[]>([])
   const [types, setTypes] = useState<IVehiculeType[]>([])
+
+  const { data } = useGetVehiculeModelQuery()
+
+  const vehiculeModels = data ?? []
 
   useEffect(() => {
     vehiculeOwnerService.getAllOwners().then(data => {
@@ -49,8 +55,14 @@ export default function VehiculeForm(props: Props) {
 
   const defaultValues: IVehiculeRequest = {
     registrationId: isEditMode && vehiculeToEdit ? vehiculeToEdit.registrationId : '',
-    owner: isEditMode && vehiculeToEdit && vehiculeToEdit.owner.name ? vehiculeToEdit.owner.id || '' : '',
-    type: isEditMode && vehiculeToEdit && vehiculeToEdit.type.vehicule_type ? vehiculeToEdit.type.id || '' : ''
+    vehiculeOwner:
+      isEditMode && vehiculeToEdit && vehiculeToEdit.vehiculeOwner.name ? vehiculeToEdit.vehiculeOwner.id || '' : '',
+    vehiculeType:
+      isEditMode && vehiculeToEdit && vehiculeToEdit.vehiculeType.vehicule_type
+        ? vehiculeToEdit.vehiculeType.id || ''
+        : '',
+    vehiculeModel:
+      isEditMode && vehiculeToEdit && vehiculeToEdit.vehiculeModel.name ? vehiculeToEdit.vehiculeModel.id || '' : ''
   }
 
   const {
@@ -106,7 +118,7 @@ export default function VehiculeForm(props: Props) {
           </Grid>
           <Grid item xs={12} sm={12}>
             <Controller
-              name='owner'
+              name='vehiculeOwner'
               control={control}
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
@@ -118,10 +130,10 @@ export default function VehiculeForm(props: Props) {
                   }}
                   fullWidth
                   label='Proprieter associé *'
-                  id='owner'
-                  error={Boolean(errors.owner)}
+                  id='vehiculeOwner'
+                  error={Boolean(errors.vehiculeOwner)}
                   aria-describedby='owner'
-                  {...(errors.owner && { helperText: 'Ce champs est obligatoire' })}
+                  {...(errors.vehiculeOwner && { helperText: 'Ce champs est obligatoire' })}
                 >
                   {owners &&
                     owners.map(owner => (
@@ -135,7 +147,7 @@ export default function VehiculeForm(props: Props) {
           </Grid>
           <Grid item xs={12} sm={12}>
             <Controller
-              name='type'
+              name='vehiculeType'
               control={control}
               rules={{ required: true }}
               render={({ field: { value, onChange } }) => (
@@ -147,15 +159,45 @@ export default function VehiculeForm(props: Props) {
                   }}
                   fullWidth
                   label='Type associé *'
-                  id='type'
-                  error={Boolean(errors.type)}
+                  id='vehiculeType'
+                  error={Boolean(errors.vehiculeType)}
                   aria-describedby='type'
-                  {...(errors.type && { helperText: 'Ce champs est obligatoire' })}
+                  {...(errors.vehiculeType && { helperText: 'Ce champs est obligatoire' })}
                 >
                   {types &&
                     types.map(type => (
                       <MenuItem key={type.id} value={type.id}>
                         {type.vehicule_type}
+                      </MenuItem>
+                    ))}
+                </CustomTextField>
+              )}
+            />
+          </Grid>
+
+          <Grid item xs={12} sm={12}>
+            <Controller
+              name='vehiculeModel'
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { value, onChange } }) => (
+                <CustomTextField
+                  select
+                  SelectProps={{
+                    value,
+                    onChange: e => onChange(e.target.value)
+                  }}
+                  fullWidth
+                  label='Le model *'
+                  id='vehiculeModel'
+                  error={Boolean(errors.vehiculeModel)}
+                  aria-describedby='vehiculeModel'
+                  {...(errors.vehiculeModel && { helperText: 'Ce champs est obligatoire' })}
+                >
+                  {vehiculeModels &&
+                    vehiculeModels.map(model => (
+                      <MenuItem key={model.id} value={model.id}>
+                        {model.name}
                       </MenuItem>
                     ))}
                 </CustomTextField>

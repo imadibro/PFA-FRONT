@@ -38,13 +38,6 @@ const customColumns = () => [
     field: 'operationTrans',
     headerName: 'Operation Trans',
     renderCell: renderTypographyCell('operationTrans.label')
-  },
-  {
-    flex: 1,
-    minWidth: 180,
-    field: 'operationTrans',
-    headerName: 'Operation Trans',
-    renderCell: renderTypographyCell('operationTrans.label')
   }
 ]
 

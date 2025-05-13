@@ -28,10 +28,8 @@ export const siteApi = api.injectEndpoints({
         label: string
         siteNbr: string
         description: string
-        siteOwnerId: string
-        siteTypeId: string
-        isFreeAccess: boolean
-        g2r: string
+        siteOwnerId: string | undefined
+        siteTypeId: string | undefined
         requirementsIds: string[]
       }
     >({
@@ -57,10 +55,8 @@ export const siteApi = api.injectEndpoints({
         label: string
         siteNbr: string
         description: string
-        siteOwnerId: string
-        siteTypeId: string
-        isFreeAccess: boolean
-        g2r: string
+        siteOwnerId: string | undefined
+        siteTypeId: string | undefined
         requirementsToAdd: string[]
         requirementsToRemove: string[]
       }

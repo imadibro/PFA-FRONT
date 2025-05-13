@@ -59,7 +59,9 @@ const SiteForm = ({
   const [createSite, { isLoading: isCreating, isError: createError, error: createErr }] = useCreateSiteMutation()
 
   const { data: siteOwners } = useGetSiteOwnersQuery()
+  const defaultSiteOwner = siteOwners?.find(owner => owner.name.toLowerCase() === 'autre')
   const { data: siteTypes } = useGetSiteTypesQuery()
+  const defaultSiteType = siteTypes?.find(type => type.name.toLowerCase() === 'autre')
 
   const isUpdatingSite = isEditMode && siteToEdit?.id
   const isLoading = isUpdatingSite ? isUpdating : isCreating
@@ -68,23 +70,26 @@ const SiteForm = ({
 
   const handleUpdateSiteSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
+
     const formData = new FormData(event.currentTarget as HTMLFormElement)
     const label = formData.get('label') as string
     const siteNbr = formData.get('siteNbr') as string
     const description = formData.get('description') as string
-    const siteOwnerId = formData.get('siteOwnerId') as string
-    const siteTypeId = formData.get('siteTypeId') as string
-    const isFreeAccess = formData.get('isFreeAccess') === 'on'
-    const g2r = formData.get('g2r') as string
+    const rawSiteOwnerId = formData.get('siteOwnerId')?.toString().trim()
+    const rawSiteTypeId = formData.get('siteTypeId')?.toString().trim()
+
+    const siteOwnerId = rawSiteOwnerId || defaultSiteOwner?.id
+    const siteTypeId = rawSiteTypeId || defaultSiteType?.id
     try {
       if (isUpdatingSite) {
         const initialRequirements = siteToEdit?.requirements || []
         const requirementsToAdd = selectedRequirements
-          .filter(requirement => !initialRequirements.some(t => t.id === requirement.id))
-          ?.map((item: IRequirement) => item.id)
+          .filter(req => !initialRequirements.some(t => t.id === req.id))
+          .map(req => req.id)
+
         const requirementsToRemove = initialRequirements
-          .filter(requirement => !selectedRequirements.some(t => t.id === requirement.id))
-          ?.map((item: IRequirement) => item.id)
+          .filter(req => !selectedRequirements.some(t => t.id === req.id))
+          .map(req => req.id)
 
         await updateSite({
           id: siteToEdit.id,
@@ -93,11 +98,10 @@ const SiteForm = ({
           description,
           siteOwnerId,
           siteTypeId,
-          isFreeAccess,
-          g2r,
           requirementsToAdd,
           requirementsToRemove
         }).unwrap()
+
         showToast('Site mis à jour avec succès!', 'success')
       } else {
         await createSite({
@@ -106,19 +110,19 @@ const SiteForm = ({
           description,
           siteOwnerId,
           siteTypeId,
-          isFreeAccess,
-          g2r,
-          requirementsIds: selectedRequirements?.map(item => item.id)
+          requirementsIds: selectedRequirements.map(item => item.id)
         }).unwrap()
         showToast('Site créé avec succès!', 'success')
       }
-      onClose()
     } catch (err) {
+      console.error('Erreur site submit:', err)
       showAlert(
         'Erreur',
         `Une erreur est survenue lors de la ${isUpdatingSite ? 'mise à jour' : 'création'} du site`,
         'error'
       )
+    } finally {
+      onClose()
     }
   }
 
@@ -152,17 +156,7 @@ const SiteForm = ({
             fullWidth
           />
         </div>
-        <div className='mb-4'>
-          <TextField
-            size='small'
-            name='g2r'
-            label='G2R'
-            placeholder='G2R'
-            defaultValue={siteToEdit?.g2r}
-            required
-            fullWidth
-          />
-        </div>
+
         <div className='my-8'>
           <FormControl fullWidth>
             <InputLabel id='demo-simple-select-label'>Propriétaire du site</InputLabel>
@@ -170,7 +164,8 @@ const SiteForm = ({
               labelId='demo-simple-select-label'
               id='siteOwnerId'
               name='siteOwnerId'
-              value={siteToEdit?.siteOwnerId}
+              defaultValue={siteToEdit?.siteOwnerId || ''}
+              // value={siteToEdit?.siteOwnerId}
               label='Propriétaire'
             >
               {siteOwners &&
@@ -189,7 +184,8 @@ const SiteForm = ({
               labelId='demo-simple-select-label'
               id='siteType'
               name='siteTypeId'
-              value={siteToEdit?.siteTypeId}
+              defaultValue={siteToEdit?.siteTypeId || ''}
+              // value={siteToEdit?.siteTypeId}
               label='Type'
             >
               {siteTypes &&
@@ -233,7 +229,7 @@ const SiteForm = ({
           <TextField
             size='small'
             name='description'
-            label='Description'
+            label='Commentaire'
             placeholder='Description'
             defaultValue={siteToEdit?.description}
             rows={4}
@@ -241,12 +237,7 @@ const SiteForm = ({
             multiline
           />
         </div>
-        <div className='mb-4'>
-          <FormControlLabel
-            control={<Checkbox name='isFreeAccess' id='isFreeAccess' defaultChecked={siteToEdit?.isFreeAccess} />}
-            label='Accès libre'
-          />
-        </div>
+
         <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, justifyContent: 'space-between', gap: 2 }}>
           <Button
             type='submit'

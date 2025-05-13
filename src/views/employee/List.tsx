@@ -18,6 +18,7 @@ import { escapeRegExp } from '@mui/x-data-grid/internals'
 import type { ChangeEvent } from 'react'
 import { useState } from 'react'
 import EmployeeForm from './EmployeeForm'
+import type { GridRenderCellParams } from '@mui/x-data-grid'
 
 const customColumns = () => [
   {
@@ -55,6 +56,15 @@ const customColumns = () => [
       { color: 'default', size: 'small' },
       undefined,
       'role'
+    )
+  },
+  {
+    flex: 1,
+    minWidth: 250,
+    field: 'status',
+    headerName: 'Status',
+    renderCell: ({ row }: GridRenderCellParams<any, any>) => (
+      <span style={{ color: row.status ? 'green' : 'gray' }}>{row.status ? 'Actif' : 'Non actif'}</span>
     )
   }
 ]
@@ -208,6 +218,7 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
       {/* Employee Form*/}
       {!isLoadingRoles && !rolesError && (
         <EmployeeForm
+          key={isEditMode ? employeeToEdit?.id : 'new'}
           isOpen={isOpen}
           mode={mode}
           employeeToEdit={employeeToEdit}

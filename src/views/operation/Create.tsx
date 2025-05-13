@@ -118,8 +118,8 @@ const CreateOperation = ({ close }: { close: () => void }) => {
               type='number'
               size='small'
               name='duration'
-              label={`durée ${durationMode ? 'en heures' : 'en jours'}`}
-              placeholder='Durée'
+              label={`Gabarit ${durationMode ? 'en heures' : 'en jours'}`}
+              placeholder='Gabarit'
               required
               fullWidth
               inputProps={{

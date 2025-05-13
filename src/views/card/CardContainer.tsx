@@ -1,9 +1,8 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent, Grid } from '@mui/material'
 import toast from 'react-hot-toast'
-import { cardService } from '@core/services/card.service'
 import {
   GENERAL_ERROR,
   CAR_CONSTRAINT_ERROR,
@@ -15,12 +14,15 @@ import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@core/utils/constants'
 import type { ICard, ICardRequest } from '@core/utils/types'
 import CardForm from './CardForm'
 import CardView from './Card.view'
+import {
+  useGetCardQuery,
+  useCreateCardMutation,
+  useDeletCardMutation,
+  useUpdateCardMutation
+} from '@/store/features/card/cardApi'
 
 export const CardCont = ({ type }: { type: string }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [cards, setCards] = useState<ICard[]>([])
-  const [totalItems, setTotalItems] = useState<number>(0)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [cardToEdit, setCardToEdit] = useState<ICard | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
   const [activeTab] = useState(type)
@@ -32,14 +34,20 @@ export const CardCont = ({ type }: { type: string }) => {
 
   const [searchValue, setSearchValue] = useState<string>('')
 
-  useEffect(() => {
-    setIsLoading(true)
-    cardService.getCard(paginationModel.page + 1, paginationModel.pageSize, searchValue, type).then(data => {
-      setCards(data.items)
-      setTotalItems(data.totalItems)
-      setIsLoading(false)
-    })
-  }, [paginationModel, searchValue, type])
+  const { data, isLoading, refetch } = useGetCardQuery({
+    page: paginationModel.page + 1,
+    limit: paginationModel.pageSize,
+    filterByMatricule: searchValue,
+    filterByType: type
+  })
+
+  const [createCard, { isLoading: isCreating }] = useCreateCardMutation()
+  const [updateCard, { isLoading: isUpdating }] = useUpdateCardMutation()
+  const [deleteCard, { isLoading: isDeleting }] = useDeletCardMutation()
+  const isAnyLoading = isLoading || isCreating || isDeleting || isUpdating
+
+  const cards = data?.data || []
+  const totalItems = data?.total || 0
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value)
@@ -69,64 +77,83 @@ export const CardCont = ({ type }: { type: string }) => {
   }
 
   const handleAdd = async (newCard: ICardRequest) => {
-    if (!newCard) return
-
     try {
-      setIsLoading(true)
-      const card = await cardService.postCard(newCard)
-
-      setCards(prevCards => [card, ...prevCards])
+      await createCard(newCard).unwrap()
+      if (!newCard) {
+        toast.error(GENERAL_ERROR)
+        return
+      }
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.ADD))
 
       toggleForm()
+      refetch()
     } catch (error) {
       console.error('Error adding card:', error)
       toast.error('Failed to add card')
-    } finally {
-      setIsLoading(false)
     }
   }
 
-  const handleEdit = (editedCard: ICardRequest) => {
-    if (editedCard) {
-      setIsLoading(true)
-      cardService.patchCard(editedCard.id!, editedCard).then(result => {
-        const newCard = cards.map(card => {
-          if (result.id === card.id) return result
-
-          return card
-        })
-
-        setCards(newCard)
-        toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.EDIT))
-        setIsLoading(false)
-        handleCancelEditMode()
-      })
+  const handleEdit = async (editedCard: ICardRequest) => {
+    try {
+      await updateCard({ id: editedCard.id!, card: editedCard }).unwrap()
+      toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.EDIT))
+      refetch()
+      handleCancelEditMode()
+    } catch (error) {
+      console.error('Error updating card:', error)
+      toast.error('Failed to update card')
     }
+    // if (editedCard) {
+    //   isLoading(true)
+    //   cardService.patchCard(editedCard.id!, editedCard).then(result => {
+    //     const newCard = cards.map(card => {
+    //       if (result.id === card.id) return result
+
+    //       return card
+    //     })
+
+    //     setCards(newCard)
+    //     toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.EDIT))
+    //     isLoading(false)
+    //     handleCancelEditMode()
+    //   })
+    // }
   }
 
-  const handleDelete = (id: string) => {
-    if (id) {
-      setIsLoading(true)
-      cardService
-        .deleteCard(id)
-        .then(result => {
-          if (result === 1) {
-            const newCards = cards.filter(card => card.id !== id)
+  // const handleDelete = (id: string) => {
+  //   if (id) {
+  //     isLoading(true)
+  //     cardService
+  //       .deleteCard(id)
+  //       .then(result => {
+  //         if (result === 1) {
+  //           const newCards = cards.filter(card => card.id !== id)
 
-            setCards(newCards)
-            toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.DELETE))
-          } else {
-            toast.error(result === -1 ? CAR_CONSTRAINT_ERROR : GENERAL_ERROR)
-          }
+  //           setCards(newCards)
+  //           toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.DELETE))
+  //         } else {
+  //           toast.error(result === -1 ? CAR_CONSTRAINT_ERROR : GENERAL_ERROR)
+  //         }
 
-          setIsLoading(false)
-        })
-        .catch(err => {
-          console.log(err)
-          toast.error(CAR_CONSTRAINT_ERROR)
-          setIsLoading(false)
-        })
+  //         isLoading(false)
+  //       })
+  //       .catch(err => {
+  //         console.log(err)
+  //         toast.error(CAR_CONSTRAINT_ERROR)
+  //         isLoading(false)
+  //       })
+  //   }
+  // }
+  const handleDelete = async (id: string) => {
+    if (!id) return
+
+    try {
+      await deleteCard({ id }).unwrap()
+      toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.DELETE))
+      refetch() // Recharge seulement la page courante
+    } catch (error) {
+      console.error(error)
+      toast.error(CAR_CONSTRAINT_ERROR)
     }
   }
 
@@ -139,7 +166,7 @@ export const CardCont = ({ type }: { type: string }) => {
               <CardView
                 totalItems={totalItems}
                 cards={cards}
-                isLoading={isLoading}
+                isLoading={isAnyLoading}
                 toggleEditMode={toggleEditMode}
                 handleDelete={handleDelete}
                 toggleForm={toggleForm}

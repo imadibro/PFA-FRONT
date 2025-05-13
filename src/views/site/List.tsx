@@ -36,13 +36,6 @@ const customColumns = () => [
   },
   {
     flex: 1,
-    field: 'g2r',
-    headerName: 'G2R',
-    minWidth: 180,
-    renderCell: renderTypographyCell('g2r')
-  },
-  {
-    flex: 1,
     field: 'siteOwner',
     headerName: 'Propriétaire',
     minWidth: 180,
@@ -184,7 +177,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
     )
   }
 
-  const toggleForm = () => setIsOpen(prevState => !prevState)
+  const toggleForm = () => setIsOpen(!isOpen)
 
   const toggleEditMode = (site: ISite) => {
     setIsEditMode(true)
@@ -193,7 +186,10 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
   }
 
   const onCloseForm = () => {
-    setSiteToEdit(null)
+    if (isEditMode) {
+      setIsEditMode(false)
+      setSiteToEdit(null)
+    }
     toggleForm()
   }
 
@@ -299,6 +295,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
       {/*  Site Form */}
       {!isLoadingRequirements && !requirementError && (
         <SiteForm
+          key={isEditMode ? siteToEdit?.id : 'new'}
           mode={mode}
           isOpen={isOpen}
           siteToEdit={siteToEdit}

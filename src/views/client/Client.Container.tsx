@@ -52,16 +52,6 @@ export const ClientContainer = () => {
         flex: 1
       },
       {
-        field: 'activityLabel',
-        headerName: 'Activites',
-        flex: 1
-      },
-      {
-        field: 'clientAgencyLabel',
-        headerName: 'Client',
-        flex: 1
-      },
-      {
         field: 'piloteFullName',
         headerName: 'Responsable projet',
         flex: 1

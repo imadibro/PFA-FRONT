@@ -32,7 +32,10 @@ export const api = createApi({
     'Absence',
     'Project',
     'ClientOrder',
-    'Client'
+    'Client',
+    'Card',
+    'Vehicule',
+    'vehicule-model'
   ],
   endpoints: _builder => ({})
 })

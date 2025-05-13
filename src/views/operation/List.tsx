@@ -31,28 +31,6 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
 
   const { data, error, isLoading } = useGetOperationsQuery()
 
-  // const handleSearch = useCallback(
-  //   (searchValue: string) => {
-  //     setSearchText(searchValue)
-  //     const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
-  //     const filteredRows = data.filter((row: IRequirement) => {
-  //       return Object.keys(row).some(field => {
-  //         if (row[field as keyof IRequirement] !== null && row[field as keyof IRequirement] !== undefined) {
-  //           return searchRegex.test(row[field as keyof IRequirement]!.toString())
-  //         }
-  //       })
-  //     })
-  //     if (searchValue.length) {
-  //       setIsFiltering(true)
-  //       setFilteredData(filteredRows )
-  //     } else {
-  //       setIsFiltering(false)
-  //       setFilteredData([])
-  //     }
-  //   },
-  //   [data]
-  // )
-
   if (error) {
     const errorMessage =
       'status' in error
@@ -93,20 +71,6 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
     }
   }
 
-  // const handleDateFilter = (start: Date, end: Date) => {
-  //   const filteredRows = data.filter((row: IOperation) => {
-  //     const formattedCreatedAt = stringToDate(row?.createdAt.toDateString() || '')
-
-  //     if (!formattedCreatedAt || isNaN(formattedCreatedAt.getTime())) {
-  //       return false
-  //     }
-
-  //     return formattedCreatedAt >= start && formattedCreatedAt <= end
-  //   })
-  //   setIsFiltering(true)
-  //   setFilteredData(filteredRows)
-  // }
-
   const clearDateFilter = () => {
     setIsFiltering(false)
     setFilteredData([])
@@ -116,25 +80,6 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
     createdAt: (value: string) => formatDateFR(new Date(value)),
     updatedAt: (value: string) => formatDateFR(new Date(value))
   }
-
-  // const toolbarProps = {
-  //   value: searchText,
-  //   clearSearch: () => handleSearch(''),
-  //   onChange: (event: ChangeEvent<HTMLInputElement>) => {
-  //     handleSearch(event.target.value)
-  //   },
-  //   handleChecked: () => {},
-  //   toggleForm,
-  //   title: 'Taches',
-  //   checkBoxLabel: '',
-  //   showCheckBox: false,
-  //   showDateFilter: false,
-  //   handleDateFilter,
-  //   clearDateFilter,
-  //   data: exportData(isFiltering ? filteredData : data, customColumns(), fieldHandlers),
-  //   showExcel: true,
-  //   hideAddButton: isLoadingTasks || taskError ? true : false
-  // }
 
   return (
     <div className='bg-backgroundPaper container mx-auto py-8 px-4'>

@@ -1,26 +1,22 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent, Grid } from '@mui/material'
 import toast from 'react-hot-toast'
-import {
-  GENERAL_ERROR,
-  CAR_CONSTRAINT_ERROR,
-  TOAST_ACTIONS,
-  TOAST_COMPONENTS,
-  toastMessageSuccess
-} from '@core/utils/toast-message'
+import { GENERAL_ERROR, TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@core/utils/toast-message'
 import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@core/utils/constants'
 import type { IVehicule, IVehiculeRequest } from '@core/utils/types'
-import { vehiculeService } from '@/@core/services/vehicule.service'
 import VehiculeView from './vehicule.view'
 import VehiculeForm from './vehicule.Form'
+import {
+  useCreateVehiculeMutation,
+  useDeleteVehiculeMutation,
+  useGetVehiculeQuery,
+  useUpdateVehiculeMutation
+} from '@/store/features/vehicule/vehiculeApi'
 
 export const VehiculeContainer = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [vehicules, setVehicules] = useState<IVehicule[]>([])
-  const [totalItems, setTotalItems] = useState<number>(0)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [vehiculeToEdit, setVehiculeToEdit] = useState<IVehicule | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
@@ -31,14 +27,19 @@ export const VehiculeContainer = () => {
 
   const [searchValue, setSearchValue] = useState<string>('')
 
-  useEffect(() => {
-    setIsLoading(true)
-    vehiculeService.getVehicule(paginationModel.page + 1, paginationModel.pageSize, searchValue).then(data => {
-      setVehicules(data.items)
-      setTotalItems(data.totalItems)
-      setIsLoading(false)
-    })
-  }, [paginationModel, searchValue])
+  const { data, isLoading } = useGetVehiculeQuery({
+    page: paginationModel.page + 1,
+    limit: paginationModel.pageSize,
+    search: searchValue
+  })
+
+  const [createVehicule, { isLoading: isCreating }] = useCreateVehiculeMutation()
+  const [updateVehicule, { isLoading: isUpdating }] = useUpdateVehiculeMutation()
+  const [deleteVehicule, { isLoading: isDeleting }] = useDeleteVehiculeMutation()
+  const isAnyLoading = isLoading || isCreating || isDeleting || isUpdating
+
+  const vehicules = data?.data || []
+  const totalItems = data?.total || 0
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value)
@@ -68,64 +69,44 @@ export const VehiculeContainer = () => {
   }
 
   const handleAdd = async (newVehicule: IVehiculeRequest) => {
-    if (!newVehicule) return
+    if (!newVehicule) {
+      toast.error(GENERAL_ERROR)
+      return
+    }
 
     try {
-      setIsLoading(true)
-      const vehicule = await vehiculeService.postVehicule(newVehicule)
-
-      setVehicules(prevVehicule => [vehicule, ...prevVehicule])
+      await createVehicule(newVehicule).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL, TOAST_ACTIONS.ADD))
-
       toggleForm()
     } catch (error) {
       console.error('Error adding vehicule:', error)
       toast.error('Failed to add vehicule')
-    } finally {
-      setIsLoading(false)
     }
   }
 
-  const handleEdit = (editedVehicule: IVehiculeRequest) => {
-    if (editedVehicule) {
-      setIsLoading(true)
-      vehiculeService.patchVehicule(editedVehicule.id!, editedVehicule).then(result => {
-        const newVehicule = vehicules.map(vehicule => {
-          if (result.id === vehicule.id) return result
-
-          return vehicule
-        })
-
-        setVehicules(newVehicule)
-        toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL, TOAST_ACTIONS.EDIT))
-        setIsLoading(false)
-        handleCancelEditMode()
-      })
+  const handleEdit = async (editedVehicule: IVehiculeRequest) => {
+    if (!editedVehicule) {
+      toast.error(GENERAL_ERROR)
+      return
+    }
+    try {
+      await updateVehicule({ id: editedVehicule.id!, vehicule: editedVehicule }).unwrap()
+      toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL, TOAST_ACTIONS.EDIT))
+      handleCancelEditMode()
+    } catch (error) {
+      console.error('Error updating vehicule:', error)
+      toast.error('Failed to update vehicule')
     }
   }
 
-  const handleDelete = (id: string) => {
-    if (id) {
-      setIsLoading(true)
-      vehiculeService
-        .deleteVehicule(id)
-        .then(result => {
-          if (result === 1) {
-            const newOwners = vehicules.filter(owner => owner.id !== id)
-
-            setVehicules(newOwners)
-            toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL, TOAST_ACTIONS.DELETE))
-          } else {
-            toast.error(result === -1 ? CAR_CONSTRAINT_ERROR : GENERAL_ERROR)
-          }
-
-          setIsLoading(false)
-        })
-        .catch(err => {
-          console.log(err)
-          toast.error(CAR_CONSTRAINT_ERROR)
-          setIsLoading(false)
-        })
+  const handleDelete = async (id: string) => {
+    if (!id) return
+    try {
+      await deleteVehicule({ id }).unwrap()
+      toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL, TOAST_ACTIONS.DELETE))
+    } catch (error) {
+      console.error(error)
+      toast.error('Failed to delete vehicule')
     }
   }
 
@@ -138,7 +119,7 @@ export const VehiculeContainer = () => {
               <VehiculeView
                 totalItems={totalItems}
                 vehicules={vehicules}
-                isLoading={isLoading}
+                isLoading={isAnyLoading}
                 toggleEditMode={toggleEditMode}
                 handleDelete={handleDelete}
                 toggleForm={toggleForm}

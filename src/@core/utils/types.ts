@@ -93,12 +93,10 @@ export interface ISite {
   label: string
   siteNbr: string
   description: string
-  g2r: string
   siteOwner: string
   siteType: string
   siteOwnerId: string
   siteTypeId: string
-  isFreeAccess: boolean
   requirements?: IRequirement[]
   createdAt?: string
   updatedAt?: string
@@ -164,15 +162,17 @@ export interface IVehiculeTypeRequest {
 
 export interface IVehicule extends ICommonProps {
   registrationId: string
-  owner: IVehiculeOwnerRequest
-  type: IVehiculeTypeRequest
+  vehiculeOwner: IVehiculeOwnerRequest
+  vehiculeType: IVehiculeTypeRequest
+  vehiculeModel: IVehiculeModel
 }
 
 export interface IVehiculeRequest {
   id?: string
   registrationId: string
-  owner: string
-  type: string
+  vehiculeOwner: string
+  vehiculeType: string
+  vehiculeModel: string
 }
 
 export interface IClients {
@@ -242,6 +242,16 @@ export interface IProject {
   orders?: IClientOrder[] | null
   createdAt?: string
   updatedAt?: string
+}
+
+export interface IVehiculeBrand {
+  id: string
+  name: string
+}
+
+export interface IVehiculeModel {
+  id: string
+  name: string
 }
 
 export type IOrderStatus = 'Brouillon' | 'En attente' | 'Confirmé' | 'En cours' | 'Terminé' | 'Annulé'

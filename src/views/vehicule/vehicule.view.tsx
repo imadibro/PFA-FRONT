@@ -48,22 +48,22 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IVehicule
       flex: 1
     },
     {
-      field: 'owner',
+      field: 'vehiculeOwner',
       headerName: 'Propriétaire',
       flex: 1,
       renderCell: ({ row }: ICellType<IVehicule>) => (
         <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
-          {row.owner ? row.owner.name : 'N/A'}
+          {row.vehiculeOwner ? row.vehiculeOwner.name : 'N/A'}
         </Typography>
       )
     },
     {
-      field: 'type',
+      field: 'vehiculeType',
       headerName: 'Type du véhicule',
       flex: 1,
       renderCell: ({ row }: ICellType<IVehicule>) => (
         <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
-          {row.type ? row.type.vehicule_type : 'N/A'}
+          {row.vehiculeType ? row.vehiculeType.vehicule_type : 'N/A'}
         </Typography>
       )
     },
