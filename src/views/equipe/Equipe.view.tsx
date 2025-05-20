@@ -49,7 +49,7 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IEquipe>)
     },
     {
       field: 'members',
-      headerName: 'Employés',
+      headerName: 'Employé',
       flex: 1,
       renderCell: ({ row }: ICellType<IEquipe>) => (
         <Box>
@@ -65,7 +65,7 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IEquipe>)
     },
     {
       field: 'roles',
-      headerName: 'Rôles',
+      headerName: 'Rôle',
       flex: 1,
       renderCell: ({ row }: ICellType<IEquipeRequest>) => (
         <Box>
@@ -102,7 +102,7 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IEquipe>)
     },
     {
       field: 'vehicule',
-      headerName: 'Vehicule porter',
+      headerName: 'Vehicule',
       flex: 1,
       renderCell: ({ row }: ICellType<IEquipe>) => (
         <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>

@@ -264,13 +264,14 @@ export interface ITeamMember {
 }
 
 export interface IOperation extends ICommonProps {
-  team: ITeamMember[]
+  // team: ITeamMember[]
   site: ISite
   operationTasks: IOperationTask
   project: IProject
-  vehicle: IVehicule
-  fuelCard: ICard
-  highwayCard: ICard
+  equipe: IEquipe
+  // vehicle: IVehicule
+  // fuelCard: ICard
+  // highwayCard: ICard
 }
 export interface IEquipe extends ICommonProps {
   id: string

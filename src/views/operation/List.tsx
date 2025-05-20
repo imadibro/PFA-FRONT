@@ -9,7 +9,6 @@ import type { SystemMode } from '@core/types'
 import { Alert, Drawer } from '@mui/material'
 import { useState } from 'react'
 import CreateOperation from './Create'
-import OperationDetails from './Details'
 
 const OperationList = ({ mode }: { mode: SystemMode }) => {
   const [openModal, setOpenModal] = useState(false)
@@ -116,9 +115,9 @@ const OperationList = ({ mode }: { mode: SystemMode }) => {
       </Drawer> */}
 
       {/* details drawer */}
-      <Drawer open={isDetailsOpen} onClose={() => setIsDetailsOpen(false)} anchor='right'>
+      {/* <Drawer open={isDetailsOpen} onClose={() => setIsDetailsOpen(false)} anchor='right'>
         <OperationDetails mode={mode} close={() => setIsDetailsOpen(false)} operation={operationToEdit} />
-      </Drawer>
+      </Drawer> */}
     </div>
   )
 }

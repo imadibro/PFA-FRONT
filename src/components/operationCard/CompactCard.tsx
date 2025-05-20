@@ -35,24 +35,24 @@ export function CompactCard({
 
           <div className='flex items-center gap-1 text-slate-600'>
             <Users size={12} />
-            {operation.team.length} members
+            {operation.equipe?.members.length} members
           </div>
 
           <div className='flex items-center justify-between'>
             <span className='flex items-center gap-1 text-slate-600'>
               <Car size={12} />
-              {operation.vehicle.registrationId}
+              {operation.equipe?.vehicule?.registrationId}
             </span>
           </div>
 
           <div className='flex items-center justify-between'>
             <span className='flex items-center gap-1 text-slate-600'>
               <Fuel size={12} />
-              {operation.fuelCard.matricule}
+              {operation.equipe?.fuelCard?.matricule}
             </span>
             <span className='flex items-center gap-1 text-slate-600'>
               <Road size={12} />
-              {operation.highwayCard.matricule}
+              {operation.equipe?.highwayCard?.matricule}
             </span>
           </div>
         </div>

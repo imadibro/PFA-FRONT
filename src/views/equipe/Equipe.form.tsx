@@ -273,11 +273,13 @@ export default function EquipeForm(props: Props) {
                   {...(errors.fuelCard && { helperText: 'Ce champs est obligatoire' })}
                 >
                   {cards &&
-                    cards.map(card => (
-                      <MenuItem key={card.id} value={card.id}>
-                        {card.matricule}
-                      </MenuItem>
-                    ))}
+                    cards
+                      .filter(card => card.type === 'gasoil')
+                      .map(card => (
+                        <MenuItem key={card.id} value={card.id}>
+                          {card.matricule}
+                        </MenuItem>
+                      ))}
                 </CustomTextField>
               )}
             />
@@ -303,11 +305,13 @@ export default function EquipeForm(props: Props) {
                   {...(errors.highwayCard && { helperText: 'Ce champs est obligatoire' })}
                 >
                   {cards &&
-                    cards.map(card => (
-                      <MenuItem key={card.id} value={card.id}>
-                        {card.matricule}
-                      </MenuItem>
-                    ))}
+                    cards
+                      .filter(card => card.type === 'autoroute')
+                      .map(card => (
+                        <MenuItem key={card.id} value={card.id}>
+                          {card.matricule}
+                        </MenuItem>
+                      ))}
                 </CustomTextField>
               )}
             />
