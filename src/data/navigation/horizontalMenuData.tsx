@@ -18,6 +18,11 @@ const horizontalMenuData = (): HorizontalMenuDataType[] => [
     icon: 'tabler-list-check'
   },
   {
+    label: 'Equipe',
+    href: '/equipe',
+    icon: 'tabler-users-group'
+  },
+  {
     label: 'Employés',
     href: '/employee',
     icon: 'tabler-users'

@@ -1,10 +1,9 @@
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
-import type { SerializedError } from '@reduxjs/toolkit'
+import type { IRole } from '@/@core/utils/types'
 import { api } from '@/store/api'
 
 export const roleApi = api.injectEndpoints({
   endpoints: builder => ({
-    getRoles: builder.query<any, FetchBaseQueryError | SerializedError | void>({
+    getRoles: builder.query<IRole[], void>({
       query: () => `employee-role`,
       providesTags: [{ type: 'Role', id: 'LIST' }]
     }),

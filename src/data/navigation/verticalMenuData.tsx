@@ -23,6 +23,11 @@ const verticalMenuData = (): VerticalMenuDataType[] => [
     icon: 'tabler-building'
   },
   {
+    label: 'Equipe',
+    href: '/equipe',
+    icon: 'tabler-users-group'
+  },
+  {
     label: 'Employés',
     href: '/employee',
     icon: 'tabler-users'

@@ -31,6 +31,13 @@ export const cardApi = api.injectEndpoints({
       ]
     }),
 
+    getAllCards: builder.query<ICard[], void>({
+      query: () => ({
+        url: `carte/all`
+      }),
+      providesTags: (_result, _error) => [{ type: 'Card', id: `LIST` }]
+    }),
+
     updateCard: builder.mutation<ICard, { id: string; card: ICardRequest }>({
       query: ({ id, card }) => ({
         url: `carte/${id}`,
@@ -50,4 +57,10 @@ export const cardApi = api.injectEndpoints({
   })
 })
 
-export const { useGetCardQuery, useCreateCardMutation, useUpdateCardMutation, useDeletCardMutation } = cardApi
+export const {
+  useGetCardQuery,
+  useCreateCardMutation,
+  useUpdateCardMutation,
+  useDeletCardMutation,
+  useGetAllCardsQuery
+} = cardApi

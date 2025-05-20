@@ -30,6 +30,13 @@ export const vehiculeApi = api.injectEndpoints({
       ]
     }),
 
+    getAllVehicule: builder.query<IVehicule[], void>({
+      query: () => ({
+        url: `vehicule/all`
+      }),
+      providesTags: (_result, _error) => [{ type: 'Vehicule', id: 'LIST' }]
+    }),
+
     getVehiculeModel: builder.query<IVehiculeModel[], void>({
       query: () => ({
         url: `vehicule-model`
@@ -61,5 +68,6 @@ export const {
   useDeleteVehiculeMutation,
   useUpdateVehiculeMutation,
   useCreateVehiculeMutation,
-  useGetVehiculeModelQuery
+  useGetVehiculeModelQuery,
+  useGetAllVehiculeQuery
 } = vehiculeApi

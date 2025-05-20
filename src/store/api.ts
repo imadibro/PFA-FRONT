@@ -35,7 +35,8 @@ export const api = createApi({
     'Client',
     'Card',
     'Vehicule',
-    'vehicule-model'
+    'vehicule-model',
+    'Equipe'
   ],
   endpoints: _builder => ({})
 })
