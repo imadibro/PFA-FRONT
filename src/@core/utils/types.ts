@@ -292,3 +292,22 @@ export interface IEquipeRequest {
   selectedEmployee?: string
   selectedRole?: string
 }
+export interface IEquipe extends ICommonProps {
+  id: string
+  name: string
+  members: { id: string; name: string; role: string }[]
+  fuelCard: ICardRequest | null
+  highwayCard: ICardRequest | null
+  vehicule: IVehiculeRequest | null
+}
+
+export interface IEquipeRequest {
+  id?: string
+  name: string
+  members: { id: string; name: string; role: string }[]
+  fuelCard: string | null
+  highwayCard: string | null
+  vehicule: string | null
+  selectedEmployee?: string
+  selectedRole?: string
+}
