@@ -5,7 +5,10 @@ import type { IOperation, IOperationTask } from '@/@core/utils/types'
 import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import { useDeleteOperationMutation } from '@/store/features/operation/operationApi'
-import { useGetOperationsTasksQuery } from '@/store/features/operation/operationTasksApi'
+import {
+  useDeleteOperationTasksMutation,
+  useGetOperationsTasksQuery
+} from '@/store/features/operation/operationTasksApi'
 import { useGetTasksQuery } from '@/store/features/task/taskApi'
 import type { SystemMode } from '@core/types'
 import { Alert, Drawer } from '@mui/material'
@@ -14,7 +17,6 @@ import { escapeRegExp } from '@mui/x-data-grid/internals'
 import type { ChangeEvent } from 'react'
 import { useCallback, useState } from 'react'
 import CreateOperation from './Create'
-import OperationDetails from './Details'
 import UpdateOperation from './Update'
 
 const customColumns = () => [
@@ -57,7 +59,7 @@ const OperationTasksList = ({ mode }: { mode: SystemMode }) => {
 
   const { showAlert, showConfirm, showToast } = useSweetAlert()
   const [deleteOperation, { isLoading: deleteOperationIsLoading, isError, error: deleteOperationError, isSuccess }] =
-    useDeleteOperationMutation()
+    useDeleteOperationTasksMutation()
 
   const { data, error, isLoading } = useGetOperationsTasksQuery()
   const { data: taskData, error: taskError, isLoading: isLoadingTasks } = useGetTasksQuery()
@@ -107,7 +109,30 @@ const OperationTasksList = ({ mode }: { mode: SystemMode }) => {
     setOpenUpdateModal(true)
   }
 
+  // const handleDelete = async (id: string) => {
+  //   const confirmed = await showConfirm(
+  //     '',
+  //     'Etes-vous sûr de vouloir supprimer cette opération ?',
+  //     'Supprimer',
+  //     'Annuler'
+  //   )
+  //   if (confirmed) {
+  //     try {
+  //       await deleteOperation({ operationId: id })
+  //       showToast('Supprimé avec succès !', 'success')
+  //     } catch (error) {
+  //       showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression de l'opération", 'error')
+  //     }
+  //   }
+  // }
+
   const handleDelete = async (id: string) => {
+    if (!id) {
+      console.error('Operation ID manquant pour la suppression.')
+      showAlert('Erreur', 'Impossible de supprimer : ID introuvable.', 'error')
+      return
+    }
+
     const confirmed = await showConfirm(
       '',
       'Etes-vous sûr de vouloir supprimer cette opération ?',
@@ -116,10 +141,10 @@ const OperationTasksList = ({ mode }: { mode: SystemMode }) => {
     )
     if (confirmed) {
       try {
-        await deleteOperation({ operationId: id })
+        await deleteOperation({ operationId: id }).unwrap()
         showToast('Supprimé avec succès !', 'success')
       } catch (error) {
-        showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression de l'opération", 'error')
+        showAlert('Erreur', "Une erreur s'est produite lors de la tentative de suppression de l'opération", 'error')
       }
     }
   }
@@ -224,11 +249,6 @@ const OperationTasksList = ({ mode }: { mode: SystemMode }) => {
           tasks={taskData}
           onClose={() => setOpenUpdateModal(false)}
         />
-      </Drawer>
-
-      {/* details drawer */}
-      <Drawer open={isDetailsOpen} onClose={() => setIsDetailsOpen(false)} anchor='right'>
-        <OperationDetails mode={mode} close={() => setIsDetailsOpen(false)} operation={operationToEdit} />
       </Drawer>
     </div>
   )

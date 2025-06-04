@@ -8,10 +8,12 @@ export const enum TOAST_ACTIONS {
 }
 
 export const enum TOAST_COMPONENTS {
- CARD = 'Carte',
- VEHICUL  = 'Vehicule',
- VEHICUL_OWNER = 'Propriétaire du véhicule',
- VEHICUL_TYPE = 'Type du véhicule',
+  CARD = 'Carte',
+  VEHICUL = 'Vehicule',
+  VEHICUL_OWNER = 'Propriétaire du véhicule',
+  VEHICUL_TYPE = 'Type du véhicule',
+  EQUIPE = 'Equipe',
+  OPERATION = 'Opérations'
 }
 
 export const toastMessageSuccess = (component: string, action: TOAST_ACTIONS) => {
@@ -44,6 +46,5 @@ export const DEPOT_CONSTRAINT_ERROR = 'Suppression échec : Depot ne peut pas ê
 export const DRIVER_CONSTRAINT_ERROR = 'Suppression échec : Driver  ne peut pas être supprimé'
 export const BADGE_CONSTRAINT_ERROR = 'Suppression échec : Badge  ne peut pas être supprimé'
 export const CAR_CONSTRAINT_ERROR = 'Suppression échec : Vehicul ne peut pas être supprimé'
-
 
 export const GENERAL_ERROR = 'Une erreur est survenue veuillez réessayer ultérieurement'

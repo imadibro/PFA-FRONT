@@ -115,7 +115,8 @@ const CreateOperation = ({ close }: { close: () => void }) => {
             <Autocomplete
               id='checkboxes-types'
               options={operationTypes || []}
-              disableCloseOnSelect
+              disableCloseOnSelect={false}
+              blurOnSelect
               getOptionLabel={option => option.label}
               value={selectedType}
               onChange={(event, newValue) => setSelectedType(newValue)}
@@ -147,7 +148,8 @@ const CreateOperation = ({ close }: { close: () => void }) => {
             <Autocomplete
               id='checkboxes-zones'
               options={operationZones || []}
-              disableCloseOnSelect
+              disableCloseOnSelect={false}
+              blurOnSelect
               getOptionLabel={option => option.label}
               value={selectedZone}
               onChange={(event, newValue) => setSelectedZone(newValue)}
@@ -179,7 +181,8 @@ const CreateOperation = ({ close }: { close: () => void }) => {
             <Autocomplete
               id='checkboxes-trans'
               options={operationTrans || []}
-              disableCloseOnSelect
+              disableCloseOnSelect={false}
+              blurOnSelect
               getOptionLabel={option => option.label}
               value={selectedTrans}
               onChange={(event, newValue) => setSelectedTrans(newValue)}
@@ -212,7 +215,8 @@ const CreateOperation = ({ close }: { close: () => void }) => {
               multiple
               id='checkboxes-tasks'
               options={tasks}
-              disableCloseOnSelect
+              disableCloseOnSelect={false}
+              blurOnSelect
               getOptionLabel={option => option.label}
               value={selectedTasks}
               onChange={(event, newValue) => setSelectedTasks(newValue)}

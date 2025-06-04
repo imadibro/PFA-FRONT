@@ -26,6 +26,12 @@ export const equipeApi = api.injectEndpoints({
       ]
     }),
 
+    getEquipes: builder.query<IEquipe[], void>({
+      query: () => ({
+        url: `equipe/all`
+      })
+    }),
+
     updateEquipe: builder.mutation<IEquipe, { id: string; equipe: IEquipeRequest }>({
       query: ({ id, equipe }) => ({
         url: `equipe/${id}`,
@@ -45,5 +51,10 @@ export const equipeApi = api.injectEndpoints({
   })
 })
 
-export const { useCreateEquipeMutation, useDeleteEquipeMutation, useGetEquipeQuery, useUpdateEquipeMutation } =
-  equipeApi
+export const {
+  useCreateEquipeMutation,
+  useDeleteEquipeMutation,
+  useGetEquipeQuery,
+  useUpdateEquipeMutation,
+  useGetEquipesQuery
+} = equipeApi

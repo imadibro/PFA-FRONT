@@ -1,59 +1,55 @@
-import type { IOperation } from '@/@core/utils/types'
+import type { IOperation, IOperationRequest } from '@/@core/utils/types'
 import { api } from '@/store/api'
-import type { SerializedError } from '@reduxjs/toolkit'
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 
 export const operationApi = api.injectEndpoints({
   endpoints: builder => ({
-    getOperations: builder.query<IOperation[], FetchBaseQueryError | SerializedError | void>({
-      query: () => 'operation',
-      providesTags: [{ type: 'Operation', id: 'LIST' }]
-    }),
-    getOperationById: builder.query<IOperation, string>({
-      query: operationId => `operation/${operationId}`,
-      providesTags: (result, error, operationId) => [{ type: 'Operation', id: operationId }]
-    }),
-    createOperation: builder.mutation<
-      any,
-      { label: string; duration: number; durationMode: string; description: string; tasksIds: string[] }
-    >({
+    createOperation: builder.mutation<IOperation, IOperationRequest>({
       query: newOperation => ({
         url: 'operation',
         method: 'POST',
         body: newOperation
       }),
-      invalidatesTags: [{ type: 'Operation', id: 'LIST' }]
+      invalidatesTags: (_result, _error) => [{ type: 'Operation', id: 'LIST' }]
     }),
-    deleteOperation: builder.mutation<any, { operationId: string }>({
-      query: operation => ({
-        url: `operation/${operation.operationId}`,
+
+    getOperations: builder.query<
+      { data: IOperation[]; total: number; page: number; pages: number },
+      { page: number; limit: number; search: string }
+    >({
+      query: ({ page, limit, search }) => ({
+        url: `operation`,
+        params: { page, limit, search }
+      }),
+      providesTags: (_result, _error, { page }) => [
+        { type: 'Operation', id: 'LIST' },
+        { type: 'Operation', id: `PAGE-${page}` }
+      ]
+    }),
+
+    getOperationById: builder.query<IOperation, string>({
+      query: operationId => `operation/${operationId}`,
+      providesTags: (result, error, operationId) => [{ type: 'Operation', id: operationId }]
+    }),
+
+    deleteOperation: builder.mutation<any, { id: string }>({
+      query: ({ id }) => ({
+        url: `operation/${id}`,
         method: 'DELETE'
       }),
       invalidatesTags: [
-        { type: 'TasksWithNoOperation', id: 'LIST' },
+        // { type: 'TasksWithNoOperation', id: 'LIST' },
         { type: 'Operation', id: 'LIST' }
       ]
     }),
-    updateOperation: builder.mutation<
-      any,
-      {
-        id: string
-        label: string
-        duration: number
-        durationMode: string
-        description: string
-        tasksToAdd: string[]
-        tasksToRemove: string[]
-      }
-    >({
-      query: operation => ({
-        url: `operation/${operation.id}`,
+    updateOperation: builder.mutation<IOperation, { id: string; operation: IOperationRequest }>({
+      query: ({ id, operation }) => ({
+        url: `operation/${id}`,
         method: 'PATCH',
         body: operation
       }),
-      invalidatesTags: (result, error, operation) => [
-        { type: 'Operation', id: 'LIST' },
-        { type: 'Operation', id: operation.id }
+      invalidatesTags: (_result, _error) => [
+        { type: 'Operation', id: 'LIST' }
+        // { type: 'Operation', id: operation.id }
       ]
     })
   })

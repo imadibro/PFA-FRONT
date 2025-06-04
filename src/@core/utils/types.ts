@@ -88,6 +88,13 @@ export interface IOperationTask extends ICommonProps {
   operationTasksIds: string[]
 }
 
+export interface IOperationTaskRequest {
+  operationType: string
+  operationZone: string
+  operationTrans: string
+  operationTasksIds: string[]
+}
+
 export interface ISite {
   id: string
   label: string
@@ -269,28 +276,14 @@ export interface IOperation extends ICommonProps {
   operationTasks: IOperationTask
   project: IProject
   equipe: IEquipe
-  // vehicle: IVehicule
-  // fuelCard: ICard
-  // highwayCard: ICard
-}
-export interface IEquipe extends ICommonProps {
-  id: string
-  name: string
-  members: { id: string; name: string; role: string }[]
-  fuelCard: ICardRequest | null
-  highwayCard: ICardRequest | null
-  vehicule: IVehiculeRequest | null
 }
 
-export interface IEquipeRequest {
+export interface IOperationRequest {
   id?: string
-  name: string
-  members: { id: string; name: string; role: string }[]
-  fuelCard: string | null
-  highwayCard: string | null
-  vehicule: string | null
-  selectedEmployee?: string
-  selectedRole?: string
+  site: string
+  operationTasks: string
+  project: string
+  equipe?: string | null
 }
 export interface IEquipe extends ICommonProps {
   id: string

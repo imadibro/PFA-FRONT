@@ -4,20 +4,20 @@ import React, { useState } from 'react'
 import { Card, CardContent, Grid } from '@mui/material'
 import toast from 'react-hot-toast'
 import { GENERAL_ERROR, TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@core/utils/toast-message'
-import type { IEquipe, IEquipeRequest } from '@core/utils/types'
-import EquipeView from './Equipe.view'
-import EquipeForm from './Equipe.form'
-import {
-  useCreateEquipeMutation,
-  useDeleteEquipeMutation,
-  useGetEquipeQuery,
-  useUpdateEquipeMutation
-} from '@/store/features/equipe/equipeApi'
+import type { IOperation, IOperationRequest } from '@core/utils/types'
 import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@/@core/utils/constants'
+import OperationForm from './Operation.form'
+import OperationView from './Operation.view'
+import {
+  useCreateOperationMutation,
+  useDeleteOperationMutation,
+  useGetOperationsQuery,
+  useUpdateOperationMutation
+} from '@/store/features/operation/operationApi'
 
-const EquipeContainer = () => {
+const OperationContainer = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [equipeToEdit, setEquipeToEdit] = useState<IEquipe | null>(null)
+  const [operationToEdit, setoperationToEdit] = useState<IOperation | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
   const [paginationModel, setPaginationModel] = React.useState({
     pageSize: DEFAULT_SIZE_PER_PAGE,
@@ -26,18 +26,18 @@ const EquipeContainer = () => {
 
   const [searchValue, setSearchValue] = useState<string>('')
 
-  const { data, isLoading } = useGetEquipeQuery({
+  const { data, isLoading } = useGetOperationsQuery({
     page: paginationModel.page + 1,
     limit: paginationModel.pageSize,
     search: searchValue
   })
 
-  const [createEquipe, { isLoading: isCreating }] = useCreateEquipeMutation()
-  const [updateEquipe, { isLoading: isUpdating }] = useUpdateEquipeMutation()
-  const [deleteEquipe, { isLoading: isDeleting }] = useDeleteEquipeMutation()
+  const [createOperation, { isLoading: isCreating }] = useCreateOperationMutation()
+  const [updateOperation, { isLoading: isUpdating }] = useUpdateOperationMutation()
+  const [deleteOperation, { isLoading: isDeleting }] = useDeleteOperationMutation()
   const isAnyLoading = isLoading || isCreating || isDeleting || isUpdating
 
-  const equipes = data?.data || []
+  const operation = data?.data || []
   const totalItems = data?.total || 0
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,62 +50,62 @@ const EquipeContainer = () => {
 
   const toggleForm = () => setIsOpen(!isOpen)
 
-  const toggleEditMode = (equipeToEdit: IEquipe) => {
+  const toggleEditMode = (operationToEdit: IOperation) => {
     setIsEditMode(!isEditMode)
-    setEquipeToEdit(equipeToEdit)
+    setoperationToEdit(operationToEdit)
     toggleForm()
   }
 
   const handleCancelEditMode = () => {
     setIsEditMode(false)
-    setEquipeToEdit(null)
+    setoperationToEdit(null)
     toggleForm()
   }
 
   const cancleEditMode = () => {
     setIsEditMode(false)
-    setEquipeToEdit(null)
+    setoperationToEdit(null)
   }
 
-  const handleAdd = async (newEquipe: IEquipeRequest) => {
-    if (!newEquipe) {
+  const handleAdd = async (newOperation: IOperationRequest) => {
+    if (!newOperation) {
       toast.error(GENERAL_ERROR)
       return
     }
 
     try {
-      await createEquipe(newEquipe).unwrap()
-      toast.success(toastMessageSuccess(TOAST_COMPONENTS.EQUIPE, TOAST_ACTIONS.ADD))
+      await createOperation(newOperation).unwrap()
+      toast.success(toastMessageSuccess(TOAST_COMPONENTS.OPERATION, TOAST_ACTIONS.ADD))
       toggleForm()
     } catch (error) {
-      console.error('Error adding vehicule:', error)
-      toast.error('Failed to add vehicule')
+      console.error('Error adding operation:', error)
+      toast.error('Failed to add operation')
     }
   }
 
-  const handleEdit = async (editedEquipe: IEquipeRequest) => {
-    if (!editedEquipe) {
+  const handleEdit = async (editedOperation: IOperationRequest) => {
+    if (!editedOperation) {
       toast.error(GENERAL_ERROR)
       return
     }
     try {
-      await updateEquipe({ id: editedEquipe.id!, equipe: editedEquipe }).unwrap()
-      toast.success(toastMessageSuccess(TOAST_COMPONENTS.EQUIPE, TOAST_ACTIONS.EDIT))
+      await updateOperation({ id: editedOperation.id!, operation: editedOperation }).unwrap()
+      toast.success(toastMessageSuccess(TOAST_COMPONENTS.OPERATION, TOAST_ACTIONS.EDIT))
       handleCancelEditMode()
     } catch (error) {
-      console.error('Error updating vehicule:', error)
-      toast.error('Failed to update vehicule')
+      console.error('Error updating operation:', error)
+      toast.error('Failed to update operation')
     }
   }
 
   const handleDelete = async (id: string) => {
     if (!id) return
     try {
-      await deleteEquipe({ id }).unwrap()
-      toast.success(toastMessageSuccess(TOAST_COMPONENTS.EQUIPE, TOAST_ACTIONS.DELETE))
+      await deleteOperation({ id }).unwrap()
+      toast.success(toastMessageSuccess(TOAST_COMPONENTS.OPERATION, TOAST_ACTIONS.DELETE))
     } catch (error) {
       console.error(error)
-      toast.error('Failed to delete vehicule')
+      toast.error('Failed to delete operation')
     }
   }
 
@@ -115,9 +115,9 @@ const EquipeContainer = () => {
         <Card>
           <CardContent sx={{ p: '0' }}>
             <Card sx={{ boxShadow: 'none', padding: 2 }}>
-              <EquipeView
+              <OperationView
                 totalItems={totalItems}
-                equipes={equipes}
+                operation={operation}
                 isLoading={isAnyLoading}
                 toggleEditMode={toggleEditMode}
                 handleDelete={handleDelete}
@@ -133,12 +133,12 @@ const EquipeContainer = () => {
         </Card>
       </Grid>
       {isOpen && (
-        <EquipeForm
+        <OperationForm
           isOpen={isOpen}
           toggleForm={toggleForm}
           handleAdd={handleAdd}
           handleEdit={handleEdit}
-          equipeToEdit={equipeToEdit}
+          operationToEdit={operationToEdit}
           isEditMode={isEditMode}
           cancleEditMode={cancleEditMode}
         />
@@ -147,4 +147,4 @@ const EquipeContainer = () => {
   )
 }
 
-export default EquipeContainer
+export default OperationContainer
