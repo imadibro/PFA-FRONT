@@ -30,9 +30,10 @@ export const equipeApi = api.injectEndpoints({
       query: () => ({
         url: `equipe/all`
       }),
-      transformResponse: (response: any) => {
-        return response.data
-      },
+      // transformResponse: (response: any) => {
+      //   console.log('response ===>', response)
+      //   return response.data
+      // },
       providesTags: [{ type: 'Equipe', id: 'ALL-LIST' }]
     }),
 

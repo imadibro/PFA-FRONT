@@ -26,7 +26,15 @@ function Page() {
   const [events, setEvents] = useState<ExternalEvent[]>([])
   const externalEventsRef = useRef<HTMLDivElement>(null)
 
-  const { data: operations, error: operationsError, isLoading: operationsLoading } = useGetOperationsQuery()
+  const {
+    data: operations,
+    error: operationsError,
+    isLoading: operationsLoading
+  } = useGetOperationsQuery({
+    limit: 20,
+    page: 1,
+    search: ''
+  })
 
   const { data: equipes, error: equipesError, isLoading: equipesLoading } = useGetEquipesQuery()
 
@@ -96,7 +104,7 @@ function Page() {
         <div ref={externalEventsRef} className='w-64 p-4 h-full overflow-y-auto border-r border-slate-200'>
           <h2 className='text-lg font-semibold mb-4 text-gray-700'>Operations</h2>
           <div className='space-y-3 mb-8'>
-            {operations?.map(operation => (
+            {operations?.data?.map(operation => (
               <CompactCard
                 key={operation.id}
                 operation={operation}
