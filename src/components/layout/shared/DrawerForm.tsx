@@ -36,7 +36,7 @@ const SidebarDrawerForm = (props: SidebarDrawerFormType) => {
       variant='persistent'
       onClose={handleClose}
       ModalProps={{ keepMounted: true }}
-      sx={{ '& .MuiDrawer-paper': { width: customWidth ? customWidth : { xs: 300, sm: 400 } } }}
+      sx={{ '& .MuiDrawer-paper': { width: customWidth ? customWidth : { xs: 300, sm: 400 }, position: 'absolute' } }}
     >
       <Header>
         <Typography variant='h5'>{headerTitle}</Typography>

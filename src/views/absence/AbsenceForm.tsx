@@ -152,6 +152,19 @@ const AbsenceForm = ({
     }
   }
 
+  // when this component added to the DOM, then select body and get overflow-x property and set it to hidden if not hidden
+  React.useEffect(() => {
+    const body = document.querySelector('body')
+    if (body && body.style.overflowX !== 'hidden') {
+      body.style.overflowX = 'hidden'
+    }
+    return () => {
+      if (body) {
+        body.style.overflowX = ''
+      }
+    }
+  })
+
   return (
     <SidebarDrawerForm headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} site`} open={isOpen} toggle={onClose}>
       <form onSubmit={handleSubmit}>
