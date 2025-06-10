@@ -29,7 +29,12 @@ export const equipeApi = api.injectEndpoints({
     getEquipes: builder.query<IEquipe[], void>({
       query: () => ({
         url: `equipe/all`
-      })
+      }),
+      // transformResponse: (response: any) => {
+      //   console.log('response ===>', response)
+      //   return response.data
+      // },
+      providesTags: [{ type: 'Equipe', id: 'ALL-LIST' }]
     }),
 
     updateEquipe: builder.mutation<IEquipe, { id: string; equipe: IEquipeRequest }>({

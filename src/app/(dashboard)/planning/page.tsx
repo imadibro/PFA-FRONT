@@ -2,11 +2,14 @@
 
 import { CalendarCard } from '@/components/operationCard/CalendarCard'
 import { CompactCard } from '@/components/operationCard/CompactCard'
+import { useGetEquipesQuery } from '@/store/features/equipe/equipeApi'
 import { useGetOperationsQuery } from '@/store/features/operation/operationApi'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
 import FullCalendar from '@fullcalendar/react'
 import { useEffect, useRef, useState } from 'react'
+import { DndProvider, useDrag } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 
 interface ExternalEvent {
   id: string
@@ -23,7 +26,17 @@ function Page() {
   const [events, setEvents] = useState<ExternalEvent[]>([])
   const externalEventsRef = useRef<HTMLDivElement>(null)
 
-  const { data: operations, error: operationsError, isLoading: operationsLoading } = useGetOperationsQuery()
+  const {
+    data: operations,
+    error: operationsError,
+    isLoading: operationsLoading
+  } = useGetOperationsQuery({
+    limit: 20,
+    page: 1,
+    search: ''
+  })
+
+  const { data: equipes, error: equipesError, isLoading: equipesLoading } = useGetEquipesQuery()
 
   useEffect(() => {
     if (externalEventsRef.current) {
@@ -38,33 +51,35 @@ function Page() {
     }
   }, [])
 
+  // Handle dropping an operation card into the calendar
   const handleEventReceive = (info: any) => {
-    // console.log('info.draggedEl ===>', info)
-    setEvents(prev => {
-      // console.log('prev ===>', prev)
-      // Generate a unique ID for each event instance
-      const uniqueId = `${info.draggedEl.dataset.id}-${info.dateStr}-${Math.floor(Math.random() * 1000)}`
-      // console.log('uniqueId ===>', uniqueId)
-
-      // Check if there's already an event with the same ID and date
-      const eventIndex = prev.findIndex(event => event.id === uniqueId && event.date === info.dateStr)
-      // console.log('eventIndex ===>', eventIndex)
-      if (eventIndex !== -1) {
-        return [...prev]
+    // console.log('info ===>', info)
+    // console.log('info.draggedEl.dataset.type ===>', info.draggedEl.dataset.type)
+    // Prevent equipe cards from being dropped into the calendar grid
+    if (info.draggedEl.dataset.type !== 'operation') {
+      // Remove the ghost element if present
+      if (info.revert) info.revert()
+      if (info.draggedEl.parentNode) {
+        info.draggedEl.parentNode.removeChild(info.draggedEl)
       }
-
+      // return
+    }
+    setEvents(prev => {
+      // Prevent operation duplication: don't add if operation (by originalId) is already scheduled for this date
+      const alreadyExists = prev.some(
+        event => event.originalId === info.draggedEl.dataset.id && event.date === info.dateStr
+      )
+      if (alreadyExists) return prev
+      // Generate a unique ID for each event instance
+      const uniqueId = `${info.draggedEl.dataset.id}-${info.dateStr}`
       const newEvent = {
         ...info.draggedEl.dataset,
         id: uniqueId, // Use the unique ID for this instance
         originalId: info.draggedEl.dataset.id, // Keep track of the original ID
         date: info.dateStr
       }
-      // console.log('newEvent ===>', newEvent)
-
-      // Add the new event with the unique ID
       return [...prev, newEvent]
     })
-
     if (info.draggedEl.parentNode) {
       info.draggedEl.parentNode.removeChild(info.draggedEl)
     }
@@ -85,63 +100,130 @@ function Page() {
 
   return (
     <div className='flex h-full'>
-      <div ref={externalEventsRef} className='w-64 p-4 h-full overflow-y-auto border-r border-slate-200'>
-        <h2 className='text-lg font-semibold mb-4 text-gray-700'>Operations</h2>
-        <div className='space-y-3'>
-          {operations?.map(operations => (
-            <CompactCard
-              key={operations.id}
-              operation={operations}
-              classNameProps='fc-event external-event cursor-pointer select-none'
-              data-id={operations.id}
-              draggable={true}
-              data-operation={JSON.stringify(operations)}
-            />
-          ))}
-        </div>
-      </div>
+      <DndProvider backend={HTML5Backend}>
+        <div ref={externalEventsRef} className='w-64 p-4 h-full overflow-y-auto border-r border-slate-200'>
+          <h2 className='text-lg font-semibold mb-4 text-gray-700'>Operations</h2>
+          <div className='space-y-3 mb-8'>
+            {operations?.data?.map(operation => (
+              <CompactCard
+                key={operation.id}
+                operation={operation}
+                classNameProps='fc-event external-event operation-draggable cursor-pointer select-none'
+                data-id={operation.id}
+                data-type='operation'
+                draggable={true}
+                data-operation={JSON.stringify(operation)}
+                onDragStart={(e: DragEvent) => {
+                  e.dataTransfer?.setData('type', 'operation')
+                  e.dataTransfer?.setData('operation', JSON.stringify(operation))
+                }}
+              />
+            ))}
+          </div>
 
-      <div className='flex-1 p-6 overflow-auto'>
-        <div className='mx-auto'>
-          <FullCalendar
-            initialView='dayGridWeek'
-            plugins={[dayGridPlugin, interactionPlugin]}
-            headerToolbar={{
-              left: 'prev today',
-              center: 'title',
-              right: 'next'
-            }}
-            events={events}
-            // eventsSet={handleEvents}
-            eventClick={handleEventClick}
-            editable={true}
-            droppable={true}
-            selectable={true}
-            // selectMirror={true}
-            weekends={false}
-            drop={handleEventReceive}
-            eventContent={renderEventContent}
-            dayMaxEventRows={true}
-            eventChange={function (e: any) {
-              // console.log('event change ===>', e)
-              // setEvents(prev => prev.map(event => event.id === e.id ? e : event))
-            }}
-            eventRemove={function (e: any) {
-              // console.log('event remove ===>', e)
-              setEvents(prev => prev.filter(event => event.id !== e.event.id))
-            }}
-            // eventDragStart={function (e: any) {
-            //   console.log('e ------------------------', e)
-            // }}
-          />
+          <h2 className='text-lg font-semibold mb-4 text-gray-700'>Equipes</h2>
+          <div className='space-y-3'>
+            {equipes?.map(equipe => <DraggableEquipeCard key={equipe.id} equipe={equipe} />)}
+          </div>
         </div>
-      </div>
+
+        <div className='flex-1 p-6 overflow-auto'>
+          <div className='mx-auto'>
+            <FullCalendar
+              initialView='dayGridWeek'
+              plugins={[dayGridPlugin, interactionPlugin]}
+              headerToolbar={{
+                left: 'prev today',
+                center: 'title',
+                right: 'next'
+              }}
+              events={events.map(ev => ({
+                ...ev,
+                // Set a unique data-event-id for drop targeting
+                extendedProps: {
+                  ...ev,
+                  eventId: ev.id
+                },
+                // Set id for DOM
+                id: ev.id
+              }))}
+              // eventsSet={handleEvents}
+              eventClick={handleEventClick}
+              editable={true}
+              droppable={true}
+              selectable={true}
+              // selectMirror={true}
+              weekends={false}
+              drop={handleEventReceive}
+              eventContent={renderEventContentWithDrop(setEvents)}
+              dayMaxEventRows={true}
+              eventChange={function (e: any) {
+                // console.log('event change ===>', e)
+                // setEvents(prev => prev.map(event => event.id === e.id ? e : event))
+              }}
+              eventRemove={function (e: any) {
+                // console.log('event remove ===>', e)
+                setEvents(prev => prev.filter(event => event.id !== e.event.id))
+              }}
+              // eventDragStart={function (e: any) {
+              //   console.log('e ------------------------', e)
+              // }}
+            />
+          </div>
+        </div>
+      </DndProvider>
     </div>
   )
 }
 
-function renderEventContent(e: any) {
-  return <CalendarCard operation={JSON.parse(e.event.extendedProps.operation)} />
+// Draggable Equipe card using react-dnd
+function DraggableEquipeCard({ equipe }: { equipe: any }) {
+  const [{ isDragging }, drag] = useDrag(
+    () => ({
+      type: 'EQUIPE',
+      item: { equipe },
+      collect: monitor => ({
+        isDragging: monitor.isDragging()
+      })
+    }),
+    [equipe]
+  )
+  const ref = useRef<HTMLDivElement>(null)
+  drag(ref)
+
+  return (
+    <div ref={ref} style={{ opacity: isDragging ? 0.5 : 1 }}>
+      <CompactCard equipe={equipe} classNameProps='equipe-draggable cursor-pointer select-none' />
+    </div>
+  )
+}
+
+// Render event content with drop target for equipe assignment
+function renderEventContentWithDrop(setEvents: any) {
+  return (eventInfo: { event: any }) => {
+    const operation = eventInfo.event.extendedProps.operation
+      ? JSON.parse(eventInfo.event.extendedProps.operation)
+      : undefined
+    const equipe = eventInfo.event.extendedProps.assignedEquipe
+      ? JSON.parse(eventInfo.event.extendedProps.assignedEquipe)
+      : undefined
+    if (operation) operation.equipe = equipe
+    return (
+      <CalendarCard
+        operation={operation}
+        equipe={equipe}
+        onEquipeDrop={(droppedEquipe: any) => {
+          setEvents((prev: any[]) =>
+            prev.map(ev =>
+              ev.id === eventInfo.event.extendedProps.eventId
+                ? { ...ev, assignedEquipe: JSON.stringify(droppedEquipe) }
+                : ev
+            )
+          )
+        }}
+      />
+    )
+  }
 }
 
 export default Page

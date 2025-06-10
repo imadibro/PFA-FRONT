@@ -1,19 +1,19 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Card, CardContent, Grid } from '@mui/material'
-import toast from 'react-hot-toast'
-import { GENERAL_ERROR, TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@core/utils/toast-message'
-import type { IEquipe, IEquipeRequest } from '@core/utils/types'
-import EquipeView from './Equipe.view'
-import EquipeForm from './Equipe.form'
+import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@/@core/utils/constants'
 import {
   useCreateEquipeMutation,
   useDeleteEquipeMutation,
   useGetEquipeQuery,
   useUpdateEquipeMutation
 } from '@/store/features/equipe/equipeApi'
-import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@/@core/utils/constants'
+import { GENERAL_ERROR, TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@core/utils/toast-message'
+import type { IEquipe, IEquipeRequest } from '@core/utils/types'
+import { Card, CardContent, Grid } from '@mui/material'
+import React, { useState } from 'react'
+import toast from 'react-hot-toast'
+import EquipeForm from './Equipe.form'
+import EquipeView from './Equipe.view'
 
 const EquipeContainer = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
