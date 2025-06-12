@@ -108,7 +108,6 @@ const QuickSearchToolbar = (props: Props) => {
     >
       <div style={{ display: 'flex' }}>
         <CustomTextField
-          autoFocus
           value={props.value}
           placeholder='Recherche…'
           onChange={(event: ChangeEvent<HTMLInputElement>) => {
