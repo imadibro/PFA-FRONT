@@ -6,7 +6,7 @@ import { Tab } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import CustomTabList from '@/@core/components/mui/TabList'
 import EmployeesList from './List'
-import AbsencesList from '@/views/absence/List'
+import AbsencesContainer from '@/views/absence/AbsenceContainer'
 import type { SystemMode } from '@core/types'
 
 const Tabs = ({ mode }: { mode: SystemMode }) => {
@@ -28,7 +28,7 @@ const Tabs = ({ mode }: { mode: SystemMode }) => {
         <EmployeesList mode={mode} />{' '}
       </TabPanel>
       <TabPanel value='2' style={{ paddingBlockStart: 0 }}>
-        <AbsencesList mode={mode} />
+        <AbsencesContainer mode={mode} />
       </TabPanel>
     </TabContext>
   )

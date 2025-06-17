@@ -40,7 +40,7 @@ const AbsenceForm = ({
 }: {
   mode: SystemMode
   absenceToEdit?: IAbsence | null
-  employees: IEmployee[]
+  employees: IEmployee[] | any
   onClose: () => void
   isEditMode: boolean
   isOpen: boolean

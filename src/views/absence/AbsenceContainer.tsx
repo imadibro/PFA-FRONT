@@ -1,15 +1,6 @@
-// split code into view and container components , and fix bug in this file, and find error 1 that show in window
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import exportData from '@/@core/utils/exportData'
-import { formatDateFR, stringToDate } from '@/@core/utils/format'
+import { stringToDate } from '@/@core/utils/format'
 import type { IAbsence } from '@/@core/utils/types'
-import {
-  GetColumns,
-  renderConcatenatedTypographyCell,
-  renderDateCell,
-  renderTypographyCell
-} from '@/components/common/GridColumns'
-import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import {
   useCreateAbsenceMutation,
   useDeleteAbsenceMutation,
@@ -19,52 +10,11 @@ import { useGetEmployeesQuery, useLazyGetEmployeesByUsernamesQuery } from '@/sto
 import { getAbsencesFromDB, removeAbsenceFromDB } from '@/utils/idbUtils'
 import type { SystemMode } from '@core/types'
 import { Alert } from '@mui/material'
-import { DataGrid } from '@mui/x-data-grid'
-import { escapeRegExp } from '@mui/x-data-grid/internals'
-import type { ChangeEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import AbsenceForm from './AbsenceForm'
+import AbsenceView from './Absence.view'
 
-const customColumns = () => [
-  {
-    flex: 1,
-    field: 'employee.firstName',
-    headerName: 'Employé',
-    minWidth: 180,
-    renderCell: renderConcatenatedTypographyCell(['employee.firstName', 'employee.lastName'])
-  },
-
-  {
-    flex: 1,
-    field: 'absence.label',
-    headerName: "Type d'absence/Motif",
-    minWidth: 180,
-    renderCell: renderConcatenatedTypographyCell(['absence', 'autre'])
-  },
-  {
-    flex: 1,
-    field: 'startDate',
-    headerName: 'Date de début',
-    minWidth: 180,
-    renderCell: renderDateCell('startDate', true)
-  },
-  {
-    flex: 1,
-    minWidth: 180,
-    field: 'endDate',
-    headerName: 'Date de fin',
-    renderCell: renderDateCell('endDate', true)
-  },
-  {
-    flex: 1,
-    minWidth: 250,
-    field: 'notes',
-    headerName: 'Notes supplémentaires',
-    renderCell: renderTypographyCell('notes')
-  }
-]
-
-const AbsencesList = ({ mode }: { mode: SystemMode }) => {
+const AbsencesContainer = ({ mode }: { mode: SystemMode }) => {
   const [searchText, setSearchText] = useState<string>('')
   const [filteredData, setFilteredData] = useState<IAbsence[]>([])
   const [isFiltering, setIsFiltering] = useState(false)
@@ -76,7 +26,18 @@ const AbsencesList = ({ mode }: { mode: SystemMode }) => {
   const workerRef = useRef<Worker>()
   const { showAlert, showConfirm, showToast } = useSweetAlert()
 
-  const { data, error, isLoading } = useGetAbsencesQuery()
+  const { data, error, isLoading } = useGetAbsencesQuery(
+    {
+      page: paginationModel.page + 1,
+      limit: paginationModel.pageSize,
+      search: searchText
+    },
+    {
+      refetchOnMountOrArgChange: true,
+      refetchOnReconnect: true,
+      refetchOnFocus: true
+    }
+  )
   const { data: employeeData, isLoading: employeeIsLoading } = useGetEmployeesQuery()
   // Initialize the RTK Query hook
   const [triggerGetEmployees] = useLazyGetEmployeesByUsernamesQuery()
@@ -88,6 +49,7 @@ const AbsencesList = ({ mode }: { mode: SystemMode }) => {
     setIDBIsProcessing(true)
 
     const absences = await getAbsencesFromDB()
+    console.log('Processing absences from IndexedDB:', absences)
     if (!absences.length) {
       setIDBIsProcessing(false)
       return
@@ -174,21 +136,6 @@ const AbsencesList = ({ mode }: { mode: SystemMode }) => {
 
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
-    const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
-    const filteredRows = data.filter((row: IAbsence) => {
-      return Object.keys(row).some(field => {
-        if (row[field as keyof IAbsence] !== null && row[field as keyof IAbsence] !== undefined) {
-          return searchRegex.test(row[field as keyof IAbsence]!.toString())
-        }
-      })
-    })
-    if (searchValue.length) {
-      setIsFiltering(true)
-      setFilteredData(filteredRows)
-    } else {
-      setIsFiltering(false)
-      setFilteredData([])
-    }
   }
   const toggleForm = () => setIsOpen(prevState => !prevState)
 
@@ -245,59 +192,26 @@ const AbsencesList = ({ mode }: { mode: SystemMode }) => {
     setFilteredData([])
   }
 
-  const columns = GetColumns({
-    toggleEditMode,
-    deleteObject: handleDelete,
-    customColumns: customColumns(),
-    includeActions: true
-  })
-
-  const fieldHandlers = {
-    createdAt: (value: string) => formatDateFR(new Date(value)),
-    updatedAt: (value: string) => formatDateFR(new Date(value))
-  }
-
-  const toolbarProps = {
-    value: searchText,
-    clearSearch: () => handleSearch(''),
-    onChange: (event: ChangeEvent<HTMLInputElement>) => handleSearch(event.target.value),
-    handleChecked: () => {},
-    toggleForm,
-    title: 'Taches',
-    checkBoxLabel: '',
-    showCheckBox: false,
-    showDateFilter: false,
-    handleDateFilter,
-    clearDateFilter,
-    data: exportData(isFiltering ? filteredData : data, customColumns(), fieldHandlers),
-    showExcel: true,
-    hideAddButton: false,
-    handleImport: !isProcessing ? handleImport : undefined
-  }
-
   return (
     <div className='bg-backgroundPaper p-6'>
       <div className='flex justify-between items-center'></div>
-      <DataGrid
-        rowHeight={35}
-        loading={isLoading || deleteAbsenceIsLoading}
-        rows={isFiltering ? filteredData : data}
-        localeText={{ noRowsLabel: 'Aucune données a afficher' }}
-        columns={columns}
-        slots={{ toolbar: () => <QuickSearchToolbar {...toolbarProps} /> }}
-        slotProps={{
-          baseButton: {
-            size: 'medium',
-            variant: 'outlined'
-          },
-          pagination: {
-            labelRowsPerPage: 'Lignes par page'
-          }
-        }}
-        disableRowSelectionOnClick
-        pageSizeOptions={[10, 25, 50]}
+      <AbsenceView
+        isFiltering={isFiltering}
+        filteredData={filteredData}
+        data={data?.data || []}
+        isLoading={isLoading}
+        deleteAbsenceIsLoading={deleteAbsenceIsLoading}
         paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
+        setPaginationModel={setPaginationModel}
+        handleDelete={handleDelete}
+        toggleEditMode={toggleEditMode}
+        searchText={searchText}
+        handleSearch={handleSearch}
+        toggleForm={toggleForm}
+        handleDateFilter={handleDateFilter}
+        clearDateFilter={clearDateFilter}
+        hndleImport={handleImport}
+        isProcessing={isProcessing}
       />
 
       {!employeeIsLoading && (
@@ -314,4 +228,4 @@ const AbsencesList = ({ mode }: { mode: SystemMode }) => {
   )
 }
 
-export default AbsencesList
+export default AbsencesContainer
