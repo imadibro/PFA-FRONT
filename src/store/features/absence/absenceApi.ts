@@ -5,9 +5,19 @@ import type { IAbsenceReasons, IEmployee } from '@/@core/utils/types'
 
 export const absenceApi = api.injectEndpoints({
   endpoints: builder => ({
-    getAbsences: builder.query<any, FetchBaseQueryError | SerializedError | void>({
-      query: () => `absence`,
-      providesTags: [{ type: 'Absence', id: 'LIST' }]
+    getAbsences: builder.query<any, { page: number; limit: number; search?: string }>({
+      query: ({ page, limit, search }) => ({
+        url: 'absence',
+        params: {
+          page,
+          limit,
+          search
+        }
+      }),
+      providesTags: (_result, _error, { page }) => [
+        { type: 'Absence', id: 'LIST' },
+        { type: 'Absence', id: `PAGE-${page}` }
+      ]
     }),
     createAbsence: builder.mutation<
       any,
