@@ -166,7 +166,12 @@ const AbsenceForm = ({
   })
 
   return (
-    <SidebarDrawerForm headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} site`} open={isOpen} toggle={onClose}>
+    <SidebarDrawerForm
+      isAbsence={true}
+      headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} site`}
+      open={isOpen}
+      toggle={onClose}
+    >
       <form onSubmit={handleSubmit}>
         {isError && (
           <Alert severity='error'>

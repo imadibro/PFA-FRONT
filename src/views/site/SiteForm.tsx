@@ -20,6 +20,13 @@ import Select from '@mui/material/Select'
 import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
+import { EditorState, convertToRaw } from 'draft-js'
+import draftToHtml from 'draftjs-to-html'
+
+const RichTextEditor = dynamic(() => import('@/views/site/RichTextEditor'), {
+  ssr: false
+})
 
 const StyledChip = styled(Chip)({
   '&.MuiChip-root': {
@@ -58,6 +65,8 @@ const SiteForm = ({
   const [updateSite, { isLoading: isUpdating, isError: updateError, error: updateErr }] = useUpdateSiteMutation()
   const [createSite, { isLoading: isCreating, isError: createError, error: createErr }] = useCreateSiteMutation()
 
+  const [editorState, setEditorState] = useState<any>(EditorState.createEmpty())
+
   const { data: siteOwners } = useGetSiteOwnersQuery()
   const defaultSiteOwner = siteOwners?.find(owner => owner.name.toLowerCase() === 'autre')
   const { data: siteTypes } = useGetSiteTypesQuery()
@@ -68,15 +77,22 @@ const SiteForm = ({
   const isError = isUpdatingSite ? updateError : createError
   const error = isUpdatingSite ? updateErr : createErr
 
+  const getHtml = () => {
+    const rawContentState = convertToRaw(editorState.getCurrentContent())
+    return draftToHtml(rawContentState)
+  }
+
   const handleUpdateSiteSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
     const formData = new FormData(event.currentTarget as HTMLFormElement)
     const label = formData.get('label') as string
     const siteNbr = formData.get('siteNbr') as string
-    const description = formData.get('description') as string
+    // const description = formData.get('description') as string
     const rawSiteOwnerId = formData.get('siteOwnerId')?.toString().trim()
     const rawSiteTypeId = formData.get('siteTypeId')?.toString().trim()
+
+    const description = getHtml() // Convert editor state to HTML string
 
     const siteOwnerId = rawSiteOwnerId || defaultSiteOwner?.id
     const siteTypeId = rawSiteTypeId || defaultSiteType?.id
@@ -226,7 +242,8 @@ const SiteForm = ({
           />
         </div>
         <div className='mb-4'>
-          <TextField
+          <RichTextEditor mode={mode} editorState={editorState} setEditorState={setEditorState} />
+          {/* <TextField
             size='small'
             name='description'
             label='Commentaire'
@@ -235,7 +252,7 @@ const SiteForm = ({
             rows={4}
             fullWidth
             multiline
-          />
+          /> */}
         </div>
 
         <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, justifyContent: 'space-between', gap: 2 }}>

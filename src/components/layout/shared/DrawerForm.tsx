@@ -13,6 +13,7 @@ interface SidebarDrawerFormType {
   children: ReactNode
   toggle: () => void
   customWidth?: string
+  isAbsence?: boolean
 }
 
 const Header = styled(Box)<BoxProps>(({ theme }) => ({
@@ -23,7 +24,7 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
 }))
 
 const SidebarDrawerForm = (props: SidebarDrawerFormType) => {
-  const { open, toggle, headerTitle, children, customWidth } = props
+  const { open, toggle, headerTitle, children, customWidth, isAbsence } = props
 
   const handleClose = () => {
     toggle()
@@ -36,7 +37,12 @@ const SidebarDrawerForm = (props: SidebarDrawerFormType) => {
       variant='persistent'
       onClose={handleClose}
       ModalProps={{ keepMounted: true }}
-      sx={{ '& .MuiDrawer-paper': { width: customWidth ? customWidth : { xs: 300, sm: 400 }, position: 'absolute' } }}
+      sx={{
+        '& .MuiDrawer-paper': {
+          width: customWidth ? customWidth : { xs: 300, sm: 400 },
+          position: isAbsence ? 'absolute' : 'fixed'
+        }
+      }}
     >
       <Header>
         <Typography variant='h5'>{headerTitle}</Typography>

@@ -70,7 +70,7 @@ export function CompactCard({
             </span>
             <span className='flex items-center gap-1 text-slate-600'>
               <CheckSquare size={12} />
-              {operation?.operationTasks?.operationTasksIds.length}
+              {operation?.operationTasks?.operationTasksIds?.length}
             </span>
           </div>
 
