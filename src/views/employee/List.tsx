@@ -9,7 +9,7 @@ import {
   renderTypographyCell
 } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
-import { useDeleteEmployeeMutation, useGetEmployeesQuery } from '@/store/features/employee/employeeApi'
+import { useDeleteEmployeeMutation, useGetAllEmployeesQuery } from '@/store/features/employee/employeeApi'
 import { useGetRolesQuery } from '@/store/features/role/roleApi'
 import type { SystemMode } from '@core/types'
 import { Alert } from '@mui/material'
@@ -101,7 +101,7 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
     }
   }
 
-  const { data, error, isLoading } = useGetEmployeesQuery()
+  const { data, error, isLoading } = useGetAllEmployeesQuery()
   const { data: rolesData, error: rolesError, isLoading: isLoadingRoles } = useGetRolesQuery()
 
   if (error) {

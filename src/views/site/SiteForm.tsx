@@ -21,8 +21,9 @@ import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
-import { EditorState, convertToRaw } from 'draft-js'
 import draftToHtml from 'draftjs-to-html'
+import { convertFromHTML } from 'draft-convert'
+import { EditorState, convertToRaw } from 'draft-js'
 
 const RichTextEditor = dynamic(() => import('@/views/site/RichTextEditor'), {
   ssr: false
@@ -66,6 +67,17 @@ const SiteForm = ({
   const [createSite, { isLoading: isCreating, isError: createError, error: createErr }] = useCreateSiteMutation()
 
   const [editorState, setEditorState] = useState<any>(EditorState.createEmpty())
+
+  if (isEditMode && siteToEdit?.description) {
+    const contentState = convertToRaw(editorState.getCurrentContent())
+    const htmlContent = siteToEdit.description || ''
+
+    if (contentState.blocks.length === 1 && contentState.blocks[0].text === '') {
+      const newContentState = convertFromHTML(htmlContent)
+      const newEditorState = EditorState.createWithContent(newContentState)
+      setEditorState(newEditorState)
+    }
+  }
 
   const { data: siteOwners } = useGetSiteOwnersQuery()
   const defaultSiteOwner = siteOwners?.find(owner => owner.name.toLowerCase() === 'autre')

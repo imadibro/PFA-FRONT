@@ -15,7 +15,7 @@ import {
   useDeleteAbsenceMutation,
   useGetAbsencesQuery
 } from '@/store/features/absence/absenceApi'
-import { useGetEmployeesQuery, useLazyGetEmployeesByUsernamesQuery } from '@/store/features/employee/employeeApi'
+import { useGetAllEmployeesQuery, useLazyGetEmployeesByUsernamesQuery } from '@/store/features/employee/employeeApi'
 import { getAbsencesFromDB, removeAbsenceFromDB } from '@/utils/idbUtils'
 import type { SystemMode } from '@core/types'
 import { Alert } from '@mui/material'
@@ -77,7 +77,7 @@ const AbsencesList = ({ mode }: { mode: SystemMode }) => {
   const { showAlert, showConfirm, showToast } = useSweetAlert()
 
   const { data, error, isLoading } = useGetAbsencesQuery()
-  const { data: employeeData, isLoading: employeeIsLoading } = useGetEmployeesQuery()
+  const { data: employeeData, isLoading: employeeIsLoading } = useGetAllEmployeesQuery()
   // Initialize the RTK Query hook
   const [triggerGetEmployees] = useLazyGetEmployeesByUsernamesQuery()
 

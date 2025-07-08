@@ -3,7 +3,7 @@ import { api } from '@/store/api'
 
 export const employeeApi = api.injectEndpoints({
   endpoints: builder => ({
-    getEmployees: builder.query<IEmployee[], void>({
+    getAllEmployees: builder.query<IEmployee[], void>({
       query: () => `employee`,
       providesTags: [{ type: 'Employee', id: 'LIST' }]
     }),
@@ -71,7 +71,7 @@ export const employeeApi = api.injectEndpoints({
 })
 
 export const {
-  useGetEmployeesQuery,
+  useGetAllEmployeesQuery,
   useCreateEmployeeMutation,
   useDeleteEmployeeMutation,
   useUpdateEmployeeMutation,

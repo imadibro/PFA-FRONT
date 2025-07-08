@@ -96,7 +96,7 @@ const AbsenceView = (props: any) => {
     showDateFilter: false,
     handleDateFilter,
     clearDateFilter,
-    data: exportData(isFiltering ? filteredData : data, customColumns(), fieldHandlers),
+    data: exportData(isFiltering ? filteredData : data?.data, customColumns(), fieldHandlers),
     showExcel: true,
     hideAddButton: false,
     handleImport: !isProcessing ? handleImport : undefined
@@ -106,7 +106,9 @@ const AbsenceView = (props: any) => {
     <DataGrid
       rowHeight={35}
       loading={isLoading || deleteAbsenceIsLoading}
-      rows={isFiltering ? filteredData : data}
+      rows={isFiltering ? filteredData : data?.data || []}
+      rowCount={data?.total || 0}
+      paginationMode='server'
       localeText={{ noRowsLabel: 'Aucune données a afficher' }}
       columns={columns}
       slots={{ toolbar: () => <QuickSearchToolbar {...toolbarProps} /> }}

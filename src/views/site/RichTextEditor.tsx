@@ -161,6 +161,8 @@ const RichTextEditor = (props: { mode: SystemMode; editorState: any; setEditorSt
       editorState={editorState}
       onEditorStateChange={onEditorStateChange}
       toolbar={toolbarOptions}
+      defaultEditorState={editorState}
+      placeholder='Écrivez votre texte ici...'
       {...draftStyle}
     />
   )

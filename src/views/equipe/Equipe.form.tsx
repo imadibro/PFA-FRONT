@@ -1,7 +1,7 @@
 'use client'
 import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
 import { useGetAllCardsQuery } from '@/store/features/card/cardApi'
-import { useGetEmployeesQuery } from '@/store/features/employee/employeeApi'
+import { useGetAllEmployeesQuery } from '@/store/features/employee/employeeApi'
 import { useGetRolesQuery } from '@/store/features/role/roleApi'
 import { useGetAllVehiculeQuery } from '@/store/features/vehicule/vehiculeApi'
 import CustomTextField from '@core/components/mui/TextField'
@@ -50,7 +50,7 @@ export default function EquipeForm(props: Props) {
 
   const { data: cardsData } = useGetAllCardsQuery()
   const { data: vehiculesData } = useGetAllVehiculeQuery()
-  const { data: employeesData } = useGetEmployeesQuery()
+  const { data: employeesData } = useGetAllEmployeesQuery()
   const { data: roleEmployees } = useGetRolesQuery()
 
   const cards = cardsData ?? []

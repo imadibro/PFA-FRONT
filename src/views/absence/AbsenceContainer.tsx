@@ -6,7 +6,7 @@ import {
   useDeleteAbsenceMutation,
   useGetAbsencesQuery
 } from '@/store/features/absence/absenceApi'
-import { useGetEmployeesQuery, useLazyGetEmployeesByUsernamesQuery } from '@/store/features/employee/employeeApi'
+import { useGetAllEmployeesQuery, useLazyGetEmployeesByUsernamesQuery } from '@/store/features/employee/employeeApi'
 import { getAbsencesFromDB, removeAbsenceFromDB } from '@/utils/idbUtils'
 import type { SystemMode } from '@core/types'
 import { Alert } from '@mui/material'
@@ -38,7 +38,7 @@ const AbsencesContainer = ({ mode }: { mode: SystemMode }) => {
       refetchOnFocus: true
     }
   )
-  const { data: employeeData, isLoading: employeeIsLoading } = useGetEmployeesQuery()
+  const { data: employeeData, isLoading: employeeIsLoading } = useGetAllEmployeesQuery()
   // Initialize the RTK Query hook
   const [triggerGetEmployees] = useLazyGetEmployeesByUsernamesQuery()
 
@@ -198,7 +198,7 @@ const AbsencesContainer = ({ mode }: { mode: SystemMode }) => {
       <AbsenceView
         isFiltering={isFiltering}
         filteredData={filteredData}
-        data={data?.data || []}
+        data={data}
         isLoading={isLoading}
         deleteAbsenceIsLoading={deleteAbsenceIsLoading}
         paginationModel={paginationModel}
