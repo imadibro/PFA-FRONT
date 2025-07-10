@@ -1,5 +1,6 @@
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import type { ITask } from '@/@core/utils/types'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 import { useCreateTaskMutation, useUpdateTaskMutation } from '@/store/features/task/taskApi'
 import type { SystemMode } from '@core/types'
 import { Alert, Box, Button, IconButton, TextField } from '@mui/material'
@@ -19,6 +20,7 @@ const TaskForm = ({
   const [updateTask, { isLoading: isUpdating, isError: updateError, error: updateErr }] = useUpdateTaskMutation()
   const [createTask, { isLoading: isCreating, isError: createError, error: createErr }] = useCreateTaskMutation()
   const { showAlert, showToast } = useSweetAlert()
+  const { confirmUpdate } = useToastComponante()
 
   const isUpdatingTask = isEditMode && taskToEdit?.id
   const isLoading = isEditMode ? isUpdating : isCreating
@@ -34,7 +36,7 @@ const TaskForm = ({
     try {
       if (isUpdatingTask) {
         await updateTask({ id: taskToEdit.id, label, description }).unwrap()
-        showToast('Tâche mise à jour avec succès!', 'success')
+        await confirmUpdate('Tâche')
       } else {
         await createTask({ label, description }).unwrap()
         showToast('Tâche créée avec succès!', 'success')

@@ -1,10 +1,21 @@
 import Typography from '@mui/material/Typography'
-import { Alert, Box, Button, FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material'
+import {
+  Alert,
+  Box,
+  Button,
+  FormControl,
+  Grid,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField
+} from '@mui/material'
 import type { SystemMode } from '@core/types'
-import CustomIconButton from '@/@core/components/mui/IconButton'
 import { useUpdateRequirementMutation, useCreateRequirementMutation } from '@/store/features/requirement/requirementApi'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import type { IRequirement } from '@/@core/utils/types'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const RequirementForm = ({
   mode,
@@ -21,7 +32,8 @@ const RequirementForm = ({
     useUpdateRequirementMutation()
   const [createRequirement, { isLoading: isCreating, isError: createError, error: createErr }] =
     useCreateRequirementMutation()
-  const { showAlert, showToast } = useSweetAlert()
+  const { showAlert } = useSweetAlert()
+  const { confirmAdd, confirmUpdate } = useToastComponante()
 
   const isUpdatingRequirement = isEditMode && requirementToEdit?.id
   const isLoading = isUpdatingRequirement ? isUpdating : isCreating
@@ -38,10 +50,10 @@ const RequirementForm = ({
     try {
       if (isUpdatingRequirement) {
         await updateRequirement({ id: requirementToEdit.id, label, description, priority }).unwrap()
-        showToast('Exigence mise à jour avec succès!', 'success')
+        confirmUpdate('Exigence')
       } else {
         await createRequirement({ label, description, priority }).unwrap()
-        showToast('Exigence créée avec succès!', 'success')
+        confirmAdd('Exigence')
       }
       onClose()
     } catch (err) {
@@ -55,12 +67,14 @@ const RequirementForm = ({
 
   return (
     <div className='bg-backgroundPaper p-4' style={{ minWidth: 450 }}>
-      <IconButton onClick={onClose} sx={{ position: 'absolute', top: 8, left: 8 }}>
-        <i className='tabler-x' />
-      </IconButton>
-      <Typography variant='h4' className='my-4 mt-10'>
-        {isUpdatingRequirement ? 'Mettre à jour Prérequi' : 'Créer une Prérequi'}
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+        <Typography variant='h6' sx={{ fontWeight: 600 }}>
+          {isEditMode ? 'Modifier Contrainte' : 'Ajouter Contrainte'}
+        </Typography>
+        <IconButton onClick={onClose} sx={{ color: 'grey.600' }}>
+          <i className='tabler-x' />
+        </IconButton>
+      </Box>
       <form onSubmit={handleSubmit}>
         {isError && (
           <Alert severity='error'>
@@ -109,16 +123,12 @@ const RequirementForm = ({
             </Select>
           </FormControl>
         </div>
-        <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, justifyContent: 'space-between', gap: 2 }}>
-          <Button disabled={isLoading} variant='outlined' size='small' onClick={onClose} className='h-10 mt-4 w-full'>
-            Annuler
-          </Button>
-          <CustomIconButton
+        <Grid item xs={12} sx={{ display: 'flex', gap: 2, mt: 2 }}>
+          <Button
             type='submit'
-            color='primary'
             variant='contained'
-            size='small'
-            className='h-10 mt-4 w-full'
+            fullWidth
+            sx={{ fontWeight: 600, bgcolor: '#7C5CFA', '&:hover': { bgcolor: '#6c4edb' } }}
             disabled={isLoading}
           >
             {isLoading
@@ -127,9 +137,13 @@ const RequirementForm = ({
                 : 'Création...'
               : isUpdatingRequirement
                 ? 'Modifier'
-                : 'Créer'}
-          </CustomIconButton>
-        </Box>
+                : 'Ajouter'}
+          </Button>
+
+          <Button fullWidth onClick={onClose} style={{ marginLeft: 3 }} variant='outlined' color='error'>
+            Annuler
+          </Button>
+        </Grid>
       </form>
     </div>
   )

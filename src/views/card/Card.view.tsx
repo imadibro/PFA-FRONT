@@ -5,17 +5,17 @@ import { Icon } from '@iconify/react'
 import { formatToShowingCardDate } from '@core/utils/format'
 import type { IActionColumnsProps, ICellType, ICard } from '@core/utils/types'
 import QuickSearchToolbar from '@core/components/quicksearch/QuickSearchToolbar'
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const RowOptions = ({ row, toggleEditMode, deleteObject }: IActionColumnsProps<ICard>) => {
-  const { showConfirm } = useSweetAlert()
+  const { confirmDelete } = useToastComponante()
 
   const handleEdit = () => {
     toggleEditMode(row!)
   }
 
   const handleDelete = async () => {
-    const result = await showConfirm('Êtes-vous sûr de vouloir supprimer cette carte ?', '', 'confirme')
+    const result = await confirmDelete('cette carte')
 
     if (result) row && deleteObject(row.id!)
   }

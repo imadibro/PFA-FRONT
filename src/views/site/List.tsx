@@ -15,9 +15,11 @@ import { Alert, Drawer } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import type { ChangeEvent } from 'react'
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import SiteDetails from './Details'
 import SiteForm from './SiteForm'
+import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@/@core/utils/constants'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const customColumns = () => [
   {
@@ -55,14 +57,19 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
   const [searchText, setSearchText] = useState<string>('')
   const [filteredData, setFilteredData] = useState<ISite[]>([])
   const [isFiltering, setIsFiltering] = useState(false)
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = React.useState({
+    pageSize: DEFAULT_SIZE_PER_PAGE,
+    page: DEFAULT_PAGE
+  })
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [siteToEdit, setSiteToEdit] = useState<ISite | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
   const [isProcessing, setIDBIsProcessing] = useState(false)
   const workerRef = useRef<Worker>()
 
-  const { showAlert, showConfirm, showToast } = useSweetAlert()
+  const { showAlert, showToast } = useSweetAlert()
+  const { confirmDelete, showDeletToast } = useToastComponante()
+
   const [deleteSite, { isLoading: deleteSiteIsLoading, isError, error: deleteSiteError, isSuccess }] =
     useDeleteSiteMutation()
   const [createSite, { isLoading: isCreating, isError: createError, error: createErr }] = useCreateSiteMutation()
@@ -145,7 +152,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
     const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
-    const filteredRows = data.filter((row: ISite) => {
+    const filteredRows = data?.data.filter((row: ISite) => {
       return Object.keys(row).some(field => {
         if (row[field as keyof ISite] !== null && row[field as keyof ISite] !== undefined) {
           return searchRegex.test(row[field as keyof ISite]!.toString())
@@ -154,14 +161,21 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
     })
     if (searchValue.length) {
       setIsFiltering(true)
-      setFilteredData(filteredRows)
+      setFilteredData(filteredRows ?? [])
     } else {
       setIsFiltering(false)
       setFilteredData([])
     }
   }
 
-  const { data, error, isLoading } = useGetSiteQuery()
+  const { data, error, isLoading } = useGetSiteQuery({
+    page: paginationModel.page + 1,
+    limit: paginationModel.pageSize
+  })
+
+  const sites = data?.data || []
+  const totalItems = data?.total || 0
+
   const { data: requirementData, error: requirementError, isLoading: isLoadingRequirements } = useGetRequirementQuery()
 
   if (error) {
@@ -194,11 +208,12 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
   }
 
   const handleDelete = async (id: string) => {
-    const confirmed = await showConfirm('', 'Etes-vous sûr de vouloir supprimer ce site ?', 'Supprimer', 'Annuler')
+    const confirmed = await confirmDelete('ce site')
+
     if (confirmed) {
       try {
         await deleteSite({ siteId: id })
-        showToast('Supprimé avec succès!', 'success')
+        showDeletToast('Site')
       } catch (error) {
         showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression du site", 'error')
       }
@@ -206,7 +221,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
   }
 
   const handleDateFilter = (start: Date, end: Date) => {
-    const filteredRows = data.filter((row: ISite) => {
+    const filteredRows = data?.data.filter((row: ISite) => {
       const formattedCreatedAt = stringToDate(row?.createdAt || '')
 
       if (!formattedCreatedAt || isNaN(formattedCreatedAt.getTime())) {
@@ -216,7 +231,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
       return formattedCreatedAt >= start && formattedCreatedAt <= end
     })
     setIsFiltering(true)
-    setFilteredData(filteredRows)
+    setFilteredData(filteredRows ?? [])
   }
 
   const clearDateFilter = () => {
@@ -261,7 +276,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
     showDateFilter: false,
     handleDateFilter,
     clearDateFilter,
-    data: exportData(isFiltering ? filteredData : data, customColumns(), fieldHandlers),
+    data: exportData(isFiltering ? filteredData : sites, customColumns(), fieldHandlers),
     showExcel: true,
     hideAddButton: false,
     handleImport: !isProcessing ? handleImport : undefined
@@ -273,7 +288,9 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
       <DataGrid
         rowHeight={35}
         loading={isLoading || deleteSiteIsLoading}
-        rows={isFiltering ? filteredData : data}
+        rows={isFiltering ? filteredData : sites}
+        paginationMode='server'
+        rowCount={totalItems}
         localeText={{ noRowsLabel: 'Aucune donnes a afficher' }}
         columns={columns}
         slots={{ toolbar: () => <QuickSearchToolbar {...toolbarProps} /> }}

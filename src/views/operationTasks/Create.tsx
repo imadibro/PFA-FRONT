@@ -9,7 +9,7 @@ import {
   useGetOperationsZonesQuery
 } from '@/store/features/operation/operationTasksApi'
 import { useGetTasksQuery } from '@/store/features/task/taskApi'
-import { Button, IconButton, TextField } from '@mui/material'
+import { Button, Grid, IconButton, TextField } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
@@ -102,12 +102,14 @@ const CreateOperation = ({ close }: { close: () => void }) => {
 
   return (
     <Box sx={{ width: '100%', position: 'relative', p: 4, minWidth: 450 }}>
-      <IconButton onClick={close} sx={{ position: 'absolute', top: 8, left: 8 }}>
-        <i className='tabler-x' />
-      </IconButton>
-      <Typography variant='h4' className='my-4  mt-10'>
-        Créer une opération
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+        <Typography variant='h6' sx={{ fontWeight: 600 }}>
+          Créer une type opération
+        </Typography>
+        <IconButton onClick={close} sx={{ color: 'grey.600' }}>
+          <i className='tabler-x' />
+        </IconButton>
+      </Box>
 
       <div className='bg-backgroundPaper'>
         <form onSubmit={handleCreateOperationSubmit}>
@@ -244,15 +246,28 @@ const CreateOperation = ({ close }: { close: () => void }) => {
             />
           </div>
 
-          <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, justifyContent: 'space-between', gap: 2 }}>
-            <Box sx={{ flex: '1 1 auto' }} />
-            <Button disabled={isLoading} variant='outlined' size='small' onClick={close} className='h-10 mt-4 w-full'>
+          <Grid item xs={12} sx={{ display: 'flex', gap: 2, mt: 2 }}>
+            <Button
+              type='submit'
+              variant='contained'
+              fullWidth
+              sx={{ fontWeight: 600, bgcolor: '#7C5CFA', '&:hover': { bgcolor: '#6c4edb' } }}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Ajouter...' : 'Ajouter'}
+            </Button>
+
+            <Button
+              fullWidth
+              disabled={isLoading}
+              onClick={close}
+              style={{ marginLeft: 3 }}
+              variant='outlined'
+              color='error'
+            >
               Annuler
             </Button>
-            <Button disabled={isLoading} variant='contained' size='small' className='h-10 mt-4 w-full' type='submit'>
-              {isLoading ? 'Soumettre ...' : 'Soumettre'}
-            </Button>
-          </Box>
+          </Grid>
         </form>
       </div>
     </Box>

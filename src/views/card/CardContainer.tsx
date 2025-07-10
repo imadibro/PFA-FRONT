@@ -20,6 +20,7 @@ import {
   useDeletCardMutation,
   useUpdateCardMutation
 } from '@/store/features/card/cardApi'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 export const CardCont = ({ type }: { type: string }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -31,6 +32,8 @@ export const CardCont = ({ type }: { type: string }) => {
     pageSize: DEFAULT_SIZE_PER_PAGE,
     page: DEFAULT_PAGE
   })
+
+  const { confirmUpdate, confirmAdd, showDeletToast } = useToastComponante()
 
   const [searchValue, setSearchValue] = useState<string>('')
 
@@ -86,6 +89,7 @@ export const CardCont = ({ type }: { type: string }) => {
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.ADD))
 
       toggleForm()
+      await confirmAdd('Carte')
       refetch()
     } catch (error) {
       console.error('Error adding card:', error)
@@ -99,57 +103,20 @@ export const CardCont = ({ type }: { type: string }) => {
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.EDIT))
       refetch()
       handleCancelEditMode()
+      await confirmUpdate('Carte')
     } catch (error) {
       console.error('Error updating card:', error)
       toast.error('Failed to update card')
     }
-    // if (editedCard) {
-    //   isLoading(true)
-    //   cardService.patchCard(editedCard.id!, editedCard).then(result => {
-    //     const newCard = cards.map(card => {
-    //       if (result.id === card.id) return result
-
-    //       return card
-    //     })
-
-    //     setCards(newCard)
-    //     toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.EDIT))
-    //     isLoading(false)
-    //     handleCancelEditMode()
-    //   })
-    // }
   }
 
-  // const handleDelete = (id: string) => {
-  //   if (id) {
-  //     isLoading(true)
-  //     cardService
-  //       .deleteCard(id)
-  //       .then(result => {
-  //         if (result === 1) {
-  //           const newCards = cards.filter(card => card.id !== id)
-
-  //           setCards(newCards)
-  //           toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.DELETE))
-  //         } else {
-  //           toast.error(result === -1 ? CAR_CONSTRAINT_ERROR : GENERAL_ERROR)
-  //         }
-
-  //         isLoading(false)
-  //       })
-  //       .catch(err => {
-  //         console.log(err)
-  //         toast.error(CAR_CONSTRAINT_ERROR)
-  //         isLoading(false)
-  //       })
-  //   }
-  // }
   const handleDelete = async (id: string) => {
     if (!id) return
 
     try {
       await deleteCard({ id }).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.DELETE))
+      showDeletToast('Carte')
       refetch() // Recharge seulement la page courante
     } catch (error) {
       console.error(error)

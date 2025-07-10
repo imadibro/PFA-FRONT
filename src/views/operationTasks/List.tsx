@@ -18,6 +18,7 @@ import type { ChangeEvent } from 'react'
 import { useCallback, useState } from 'react'
 import CreateOperation from './Create'
 import UpdateOperation from './Update'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const customColumns = () => [
   {
@@ -57,7 +58,8 @@ const OperationTasksList = ({ mode }: { mode: SystemMode }) => {
   const [operationToEdit, setOperationToEdit] = useState<IOperation | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
-  const { showAlert, showConfirm, showToast } = useSweetAlert()
+  const { showAlert, showToast } = useSweetAlert()
+  const { confirmDelete, showDeletToast } = useToastComponante()
   const [deleteOperation, { isLoading: deleteOperationIsLoading, isError, error: deleteOperationError, isSuccess }] =
     useDeleteOperationTasksMutation()
 
@@ -109,40 +111,18 @@ const OperationTasksList = ({ mode }: { mode: SystemMode }) => {
     setOpenUpdateModal(true)
   }
 
-  // const handleDelete = async (id: string) => {
-  //   const confirmed = await showConfirm(
-  //     '',
-  //     'Etes-vous sûr de vouloir supprimer cette opération ?',
-  //     'Supprimer',
-  //     'Annuler'
-  //   )
-  //   if (confirmed) {
-  //     try {
-  //       await deleteOperation({ operationId: id })
-  //       showToast('Supprimé avec succès !', 'success')
-  //     } catch (error) {
-  //       showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression de l'opération", 'error')
-  //     }
-  //   }
-  // }
-
   const handleDelete = async (id: string) => {
     if (!id) {
       console.error('Operation ID manquant pour la suppression.')
       showAlert('Erreur', 'Impossible de supprimer : ID introuvable.', 'error')
       return
     }
+    const confirmed = await confirmDelete('cette contrainte')
 
-    const confirmed = await showConfirm(
-      '',
-      'Etes-vous sûr de vouloir supprimer cette opération ?',
-      'Supprimer',
-      'Annuler'
-    )
     if (confirmed) {
       try {
         await deleteOperation({ operationId: id }).unwrap()
-        showToast('Supprimé avec succès !', 'success')
+        await showDeletToast('Contraint')
       } catch (error) {
         showAlert('Erreur', "Une erreur s'est produite lors de la tentative de suppression de l'opération", 'error')
       }

@@ -15,6 +15,7 @@ import type { IVehiculeType, IVehiculeTypeRequest } from '@core/utils/types'
 import { vehiculeTypeService } from '@/@core/services'
 import VehiculeTypeForm from './VehiculeType.Form'
 import VehiculeTypeView from './VehiculeType.view'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 export const VehiculeTypeContainer = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -28,6 +29,8 @@ export const VehiculeTypeContainer = () => {
     pageSize: DEFAULT_SIZE_PER_PAGE,
     page: DEFAULT_PAGE
   })
+
+  const { confirmUpdate, confirmAdd, showDeletToast } = useToastComponante()
 
   const [searchValue, setSearchValue] = useState<string>('')
 
@@ -75,10 +78,10 @@ export const VehiculeTypeContainer = () => {
       const type = await vehiculeTypeService.postVehiculeType(newType)
 
       setVehiculeType(prevType => [type, ...prevType])
-      console.log(type)
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL_TYPE, TOAST_ACTIONS.ADD))
 
       toggleForm()
+      await confirmAdd('Type de vehicule')
     } catch (error) {
       console.error('Error adding type:', error)
       toast.error('Failed to add type')
@@ -90,7 +93,7 @@ export const VehiculeTypeContainer = () => {
   const handleEdit = (editedType: IVehiculeTypeRequest) => {
     if (editedType) {
       setIsLoading(true)
-      vehiculeTypeService.patchVehiculeType(editedType.id!, editedType).then(result => {
+      vehiculeTypeService.patchVehiculeType(editedType.id!, editedType).then(async result => {
         const newType = vehiculeType.map(type => {
           if (result.id === type.id) return result
 
@@ -101,6 +104,7 @@ export const VehiculeTypeContainer = () => {
         toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL_TYPE, TOAST_ACTIONS.EDIT))
         setIsLoading(false)
         handleCancelEditMode()
+        await confirmUpdate('Type de vehicule')
       })
     }
   }
@@ -110,12 +114,13 @@ export const VehiculeTypeContainer = () => {
       setIsLoading(true)
       vehiculeTypeService
         .deleteVehiculeType(id)
-        .then(result => {
+        .then(async result => {
           if (result === 1) {
             const newOwners = vehiculeType.filter(owner => owner.id !== id)
 
             setVehiculeType(newOwners)
             toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL_TYPE, TOAST_ACTIONS.DELETE))
+            await showDeletToast('Type de vehicule')
           } else {
             toast.error(result === -1 ? CAR_CONSTRAINT_ERROR : GENERAL_ERROR)
           }

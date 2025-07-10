@@ -5,16 +5,17 @@ import { Icon } from '@iconify/react'
 import { Card, IconButton } from '@mui/material'
 import type { GridColDef, GridPaginationModel } from '@mui/x-data-grid'
 import { DataGrid } from '@mui/x-data-grid'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const RowOptions = ({ row, toggleEditMode, deleteObject }: IActionColumnsProps<IVehiculeOwner>) => {
-  const { showConfirm } = useSweetAlert()
+  const { confirmDelete } = useToastComponante()
 
   const handleEdit = () => {
     toggleEditMode(row!)
   }
 
   const handleDelete = async () => {
-    const result = await showConfirm('', 'Êtes-vous sûr de vouloir supprimer ce propriétaire ?', 'confirme')
+    const result = await confirmDelete('ce propriétaire')
 
     if (result) row && deleteObject(row.id!)
   }

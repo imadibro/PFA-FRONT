@@ -14,6 +14,7 @@ import {
   useGetOperationsQuery,
   useUpdateOperationMutation
 } from '@/store/features/operation/operationApi'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const OperationContainer = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -23,6 +24,8 @@ const OperationContainer = () => {
     pageSize: DEFAULT_SIZE_PER_PAGE,
     page: DEFAULT_PAGE
   })
+
+  const { confirmUpdate } = useToastComponante()
 
   const [searchValue, setSearchValue] = useState<string>('')
 
@@ -92,6 +95,7 @@ const OperationContainer = () => {
       await updateOperation({ id: editedOperation.id!, operation: editedOperation }).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.OPERATION, TOAST_ACTIONS.EDIT))
       handleCancelEditMode()
+      await confirmUpdate('Operation')
     } catch (error) {
       console.error('Error updating operation:', error)
       toast.error('Failed to update operation')

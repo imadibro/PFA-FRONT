@@ -12,6 +12,7 @@ import { formatDateFR, stringToDate } from '@/@core/utils/format'
 import exportData from '@/@core/utils/exportData'
 import type { SystemMode } from '@/@core/types'
 import type { ITask } from '@/@core/utils/types'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const customColumns = () => [
   {
@@ -39,7 +40,8 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
   const [taskToEdit, setTaskToEdit] = useState<ITask | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
-  const { showAlert, showConfirm, showToast } = useSweetAlert()
+  const { showAlert, showToast } = useSweetAlert()
+  const { confirmDelete } = useToastComponante()
 
   const { data, error, isLoading } = useGetTasksQuery()
 
@@ -93,7 +95,7 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
   }
 
   const handleDelete = async (id: string) => {
-    const confirmed = await showConfirm('', 'Etes-vous sûr de vouloir supprimer cette tâche ?', 'Supprimer', 'Annuler')
+    const confirmed = await confirmDelete('cette tâche?')
 
     if (confirmed) {
       try {

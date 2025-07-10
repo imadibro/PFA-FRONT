@@ -15,6 +15,7 @@ import type { IVehiculeOwner, IVehiculeOwnerRequest } from '@core/utils/types'
 import VehiculeOwnerView from './VehiculeOwner.view'
 import VehiculeOwnerForm from './VehiculeOwner.Form'
 import { vehiculeOwnerService } from '@/@core/services'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 export const VehiculeOwnerContainer = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -28,6 +29,8 @@ export const VehiculeOwnerContainer = () => {
     pageSize: DEFAULT_SIZE_PER_PAGE,
     page: DEFAULT_PAGE
   })
+
+  const { confirmUpdate, confirmAdd, showDeletToast } = useToastComponante()
 
   const [searchValue, setSearchValue] = useState<string>('')
 
@@ -80,6 +83,7 @@ export const VehiculeOwnerContainer = () => {
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL_OWNER, TOAST_ACTIONS.ADD))
 
       toggleForm()
+      await confirmAdd('Propriétaire')
     } catch (error) {
       console.error('Error adding owner:', error)
       toast.error('Failed to add owner')
@@ -91,7 +95,7 @@ export const VehiculeOwnerContainer = () => {
   const handleEdit = (editedVehicule: IVehiculeOwnerRequest) => {
     if (editedVehicule) {
       setIsLoading(true)
-      vehiculeOwnerService.patchVehiculeOwner(editedVehicule.id!, editedVehicule).then(result => {
+      vehiculeOwnerService.patchVehiculeOwner(editedVehicule.id!, editedVehicule).then(async result => {
         const newOwner = vehiculeOwner.map(owner => {
           if (result.id === owner.id) return result
 
@@ -102,6 +106,7 @@ export const VehiculeOwnerContainer = () => {
         toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL_OWNER, TOAST_ACTIONS.EDIT))
         setIsLoading(false)
         handleCancelEditMode()
+        await confirmUpdate('Proprietaire')
       })
     }
   }
@@ -111,7 +116,7 @@ export const VehiculeOwnerContainer = () => {
       setIsLoading(true)
       vehiculeOwnerService
         .deleteVehiculeOwner(id)
-        .then(result => {
+        .then(async result => {
           if (result === 1) {
             const newOwners = vehiculeOwner.filter(owner => owner.id !== id)
 
@@ -122,6 +127,7 @@ export const VehiculeOwnerContainer = () => {
           }
 
           setIsLoading(false)
+          showDeletToast('propriétaire')
         })
         .catch(err => {
           console.log(err)

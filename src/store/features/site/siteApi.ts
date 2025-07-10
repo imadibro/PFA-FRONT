@@ -5,9 +5,26 @@ import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
 
 export const siteApi = api.injectEndpoints({
   endpoints: builder => ({
-    getSite: builder.query<any, FetchBaseQueryError | SerializedError | void>({
-      query: () => 'site',
+    getAllSitesForDropDawn: builder.query<ISite[], void>({
+      query: () => `site/all`,
       providesTags: [{ type: 'Site', id: 'LIST' }]
+    }),
+    getSite: builder.query<
+      { data: ISite[]; total: number; page: number; pages: number },
+      { page: number; limit: number; search?: string }
+    >({
+      query: ({ page, limit, search }) => ({
+        url: 'site',
+        params: {
+          page,
+          limit,
+          search
+        }
+      }),
+      providesTags: (_result, _error, { page }) => [
+        { type: 'Site', id: 'LIST' },
+        { type: 'Site', id: `PAGE-${page}` }
+      ]
     }),
     getSiteById: builder.query<ISite, string>({
       query: siteId => `site/${siteId}`,
@@ -76,6 +93,7 @@ export const siteApi = api.injectEndpoints({
 
 export const {
   useGetSiteQuery,
+  useGetAllSitesForDropDawnQuery,
   useGetSiteByIdQuery,
   useGetSiteOwnersQuery,
   useGetSiteTypesQuery,

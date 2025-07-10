@@ -9,16 +9,19 @@ import {
   renderTypographyCell
 } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
-import { useDeleteEmployeeMutation, useGetAllEmployeesQuery } from '@/store/features/employee/employeeApi'
+import { useDeleteEmployeeMutation, useGetEmployeesQuery } from '@/store/features/employee/employeeApi'
 import { useGetRolesQuery } from '@/store/features/role/roleApi'
 import type { SystemMode } from '@core/types'
 import { Alert } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import type { ChangeEvent } from 'react'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import EmployeeForm from './EmployeeForm'
 import type { GridRenderCellParams } from '@mui/x-data-grid'
+import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@/@core/utils/constants'
+import Chip from '@mui/material/Chip'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const customColumns = () => [
   {
@@ -61,10 +64,22 @@ const customColumns = () => [
   {
     flex: 1,
     minWidth: 250,
-    field: 'status',
+    field: 'isMember',
     headerName: 'Status',
     renderCell: ({ row }: GridRenderCellParams<any, any>) => (
-      <span style={{ color: row.status ? 'green' : 'gray' }}>{row.status ? 'Actif' : 'Non actif'}</span>
+      <Chip
+        label={row.isMember ? 'Affecté' : 'Non affecté'}
+        color={row.isMember ? 'success' : 'error'}
+        sx={{
+          fontWeight: 400,
+          fontSize: 10,
+          px: 2,
+          height: 32,
+          borderRadius: 2,
+          bgcolor: row.isMember ? '#12d85b' : '#e94747',
+          color: '#fff'
+        }}
+      />
     )
   }
 ]
@@ -73,19 +88,22 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
   const [searchText, setSearchText] = useState<string>('')
   const [filteredData, setFilteredData] = useState<IEmployee[]>([])
   const [isFiltering, setIsFiltering] = useState(false)
-  const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
+  const [paginationModel, setPaginationModel] = React.useState({
+    pageSize: DEFAULT_SIZE_PER_PAGE,
+    page: DEFAULT_PAGE
+  })
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [employeeToEdit, setEmployeeToEdit] = useState<IEmployee | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
-  const { showAlert, showConfirm, showToast } = useSweetAlert()
-  const [deleteEmployee, { isLoading: deleteEmployeeIsLoading, isError, error: deleteEmployeeError, isSuccess }] =
-    useDeleteEmployeeMutation()
+  const { showAlert, showToast } = useSweetAlert()
+  const { confirmDelete } = useToastComponante()
+  const [deleteEmployee, { isLoading: deleteEmployeeIsLoading }] = useDeleteEmployeeMutation()
 
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
     const searchRegex = new RegExp(escapeRegExp(searchValue), 'i')
-    const filteredRows = data.filter((row: IEmployee) => {
+    const filteredRows = data?.data.filter((row: IEmployee) => {
       return Object.keys(row).some(field => {
         if (row[field as keyof IEmployee] !== null && row[field as keyof IEmployee] !== undefined) {
           return searchRegex.test(row[field as keyof IEmployee]!.toString())
@@ -94,14 +112,21 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
     })
     if (searchValue.length) {
       setIsFiltering(true)
-      setFilteredData(filteredRows)
+      setFilteredData(filteredRows ?? [])
     } else {
       setIsFiltering(false)
       setFilteredData([])
     }
   }
 
-  const { data, error, isLoading } = useGetAllEmployeesQuery()
+  const { data, error, isLoading } = useGetEmployeesQuery({
+    page: paginationModel.page + 1,
+    limit: paginationModel.pageSize
+  })
+
+  const employees = data?.data || []
+  const totalItems = data?.total || 0
+
   const { data: rolesData, error: rolesError, isLoading: isLoadingRoles } = useGetRolesQuery()
 
   if (error) {
@@ -127,11 +152,13 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
 
   const onCloseForm = () => {
     setEmployeeToEdit(null)
+    setIsEditMode(false)
     toggleForm()
   }
 
   const handleDelete = async (id: string) => {
-    const confirmed = await showConfirm('', 'Etes-vous sûr de vouloir supprimer cet employé ?', 'Supprimer', 'Annuler')
+    const confirmed = await confirmDelete('cet employé')
+
     if (confirmed) {
       try {
         await deleteEmployee({ employeeId: id })
@@ -143,7 +170,7 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
   }
 
   const handleDateFilter = (start: Date, end: Date) => {
-    const filteredRows = data.filter((row: IEmployee) => {
+    const filteredRows = data?.data.filter((row: IEmployee) => {
       const formattedCreatedAt = stringToDate(row?.createdAt || '')
 
       if (!formattedCreatedAt || isNaN(formattedCreatedAt.getTime())) {
@@ -153,7 +180,7 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
       return formattedCreatedAt >= start && formattedCreatedAt <= end
     })
     setIsFiltering(true)
-    setFilteredData(filteredRows)
+    setFilteredData(filteredRows ?? [])
   }
 
   const clearDateFilter = () => {
@@ -170,7 +197,8 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
 
   const fieldHandlers = {
     createdAt: (value: string) => formatDateFR(new Date(value)),
-    updatedAt: (value: string) => formatDateFR(new Date(value))
+    updatedAt: (value: string) => formatDateFR(new Date(value)),
+    role: (value: any) => value?.role ?? ''
   }
 
   const toolbarProps = {
@@ -185,7 +213,7 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
     showDateFilter: false,
     handleDateFilter,
     clearDateFilter,
-    data: exportData(isFiltering ? filteredData : data, customColumns(), fieldHandlers),
+    data: !isLoading ? exportData(isFiltering ? filteredData : employees, customColumns(), fieldHandlers) : [],
     showExcel: true,
     hideAddButton: false
   }
@@ -196,7 +224,9 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
       <DataGrid
         rowHeight={44}
         loading={isLoading || deleteEmployeeIsLoading}
-        rows={isFiltering ? filteredData : data}
+        rows={isFiltering ? filteredData : employees}
+        paginationMode='server'
+        rowCount={totalItems}
         localeText={{ noRowsLabel: 'Aucune données a afficher' }}
         columns={columns}
         slots={{ toolbar: () => <QuickSearchToolbar {...toolbarProps} /> }}
@@ -224,7 +254,7 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
           employeeToEdit={employeeToEdit}
           onClose={onCloseForm}
           isEditMode={isEditMode}
-          roles={rolesData}
+          roles={rolesData ?? []}
         />
       )}
     </div>

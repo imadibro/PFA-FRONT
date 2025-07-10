@@ -14,6 +14,7 @@ import React, { useState } from 'react'
 import toast from 'react-hot-toast'
 import EquipeForm from './Equipe.form'
 import EquipeView from './Equipe.view'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const EquipeContainer = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -23,6 +24,8 @@ const EquipeContainer = () => {
     pageSize: DEFAULT_SIZE_PER_PAGE,
     page: DEFAULT_PAGE
   })
+
+  const { confirmUpdate, confirmAdd, showDeletToast } = useToastComponante()
 
   const [searchValue, setSearchValue] = useState<string>('')
 
@@ -77,6 +80,7 @@ const EquipeContainer = () => {
       await createEquipe(newEquipe).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.EQUIPE, TOAST_ACTIONS.ADD))
       toggleForm()
+      await confirmAdd('Equipe')
     } catch (error) {
       console.error('Error adding vehicule:', error)
       toast.error('Failed to add vehicule')
@@ -92,6 +96,7 @@ const EquipeContainer = () => {
       await updateEquipe({ id: editedEquipe.id!, equipe: editedEquipe }).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.EQUIPE, TOAST_ACTIONS.EDIT))
       handleCancelEditMode()
+      await confirmUpdate('Equipe')
     } catch (error) {
       console.error('Error updating vehicule:', error)
       toast.error('Failed to update vehicule')
@@ -103,6 +108,7 @@ const EquipeContainer = () => {
     try {
       await deleteEquipe({ id }).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.EQUIPE, TOAST_ACTIONS.DELETE))
+      await showDeletToast('Equipe')
     } catch (error) {
       console.error(error)
       toast.error('Failed to delete vehicule')

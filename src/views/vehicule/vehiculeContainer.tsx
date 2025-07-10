@@ -14,6 +14,7 @@ import {
   useGetVehiculeQuery,
   useUpdateVehiculeMutation
 } from '@/store/features/vehicule/vehiculeApi'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 export const VehiculeContainer = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
@@ -24,6 +25,8 @@ export const VehiculeContainer = () => {
     pageSize: DEFAULT_SIZE_PER_PAGE,
     page: DEFAULT_PAGE
   })
+
+  const { confirmUpdate, confirmAdd, showDeletToast } = useToastComponante()
 
   const [searchValue, setSearchValue] = useState<string>('')
 
@@ -78,6 +81,7 @@ export const VehiculeContainer = () => {
       await createVehicule(newVehicule).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL, TOAST_ACTIONS.ADD))
       toggleForm()
+      await confirmAdd('Véhicule')
     } catch (error) {
       console.error('Error adding vehicule:', error)
       toast.error('Failed to add vehicule')
@@ -93,6 +97,7 @@ export const VehiculeContainer = () => {
       await updateVehicule({ id: editedVehicule.id!, vehicule: editedVehicule }).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL, TOAST_ACTIONS.EDIT))
       handleCancelEditMode()
+      await confirmUpdate('Véhicule')
     } catch (error) {
       console.error('Error updating vehicule:', error)
       toast.error('Failed to update vehicule')
@@ -104,6 +109,7 @@ export const VehiculeContainer = () => {
     try {
       await deleteVehicule({ id }).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL, TOAST_ACTIONS.DELETE))
+      await showDeletToast('Véhicule')
     } catch (error) {
       console.error(error)
       toast.error('Failed to delete vehicule')

@@ -26,9 +26,24 @@ export const addAbsencesToDB = async (absences: any[]) => {
   await tx.done
 }
 
+// export const getAbsencesFromDB = async () => {
+//   const db = await initDB(ABSENCE_STORE_NAME)
+//   return db.getAll(ABSENCE_STORE_NAME)
+// }
 export const getAbsencesFromDB = async () => {
-  const db = await initDB(ABSENCE_STORE_NAME)
-  return db.getAll(ABSENCE_STORE_NAME)
+  try {
+    const db = await initDB(ABSENCE_STORE_NAME)
+
+    // Vérifier si le store existe avant d'essayer de lire
+    if (!db.objectStoreNames.contains(ABSENCE_STORE_NAME)) {
+      return []
+    }
+
+    return db.getAll(ABSENCE_STORE_NAME)
+  } catch (error) {
+    console.error('Erreur de lecture:', error)
+    return [] // Retourne un tableau vide en cas d'erreur
+  }
 }
 
 export const removeAbsenceFromDB = async (id: string) => {
@@ -47,9 +62,19 @@ export const addSitesToDB = async (sites: any[]) => {
   await tx.done
 }
 
+// export const getSitesFromDB = async () => {
+//   const db = await initDB(SITE_STORE_NAME)
+//   return db.getAll(SITE_STORE_NAME)
+// }
+
 export const getSitesFromDB = async () => {
-  const db = await initDB(SITE_STORE_NAME)
-  return db.getAll(SITE_STORE_NAME)
+  try {
+    const db = await initDB(SITE_STORE_NAME)
+    if (!db.objectStoreNames.contains(SITE_STORE_NAME)) return []
+    return db.getAll(SITE_STORE_NAME)
+  } catch {
+    return []
+  }
 }
 
 export const removeSiteFromDB = async (id: string) => {

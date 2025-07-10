@@ -190,8 +190,8 @@
 
 'use client'
 
-import { useEffect, useState } from 'react'
-import { Box, IconButton, TextField, Button, Checkbox, Tooltip, Typography } from '@mui/material'
+import { useState } from 'react'
+import { Box, IconButton, TextField, Button, Checkbox, Tooltip, Typography, Grid } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
 import Chip from '@mui/material/Chip'
 import { styled } from '@mui/material/styles'
@@ -199,9 +199,9 @@ import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import {
   useGetOperationsTypesQuery,
   useGetOperationsZonesQuery,
-  useGetOperationsTransQuery
+  useGetOperationsTransQuery,
+  useUpdateOperationTasksMutation
 } from '@/store/features/operation/operationTasksApi'
-import { useUpdateOperationMutation } from '@/store/features/operation/operationApi'
 import type {
   IOperation,
   IOperationTask,
@@ -234,7 +234,7 @@ const UpdateOperation = ({
   onClose: () => void
 }) => {
   const { showAlert, showToast } = useSweetAlert()
-  const [updateOperation, { isLoading }] = useUpdateOperationMutation()
+  const [updateOperation, { isLoading }] = useUpdateOperationTasksMutation()
 
   const [selectedType, setSelectedType] = useState<IOperationType | null>(operationToEdit?.operationType || null)
   const [selectedZone, setSelectedZone] = useState<IOperationZone | null>(operationToEdit?.operationZone || null)
@@ -254,12 +254,11 @@ const UpdateOperation = ({
     }
 
     const form = new FormData(e.currentTarget as HTMLFormElement)
-    const label = form.get('label') as string
-    const description = form.get('description') as string
 
     const initialTasks = operationToEdit?.tasks || []
     const tasksToAdd = selectedTasks.filter(t => !initialTasks.some(init => init.id === t.id)).map(t => t.id)
-    const tasksToRemove = initialTasks.filter(t => !selectedTasks.some(sel => sel.id === t.id)).map(t => t.id)
+    // const tasksToRemove = initialTasks.filter(t => !selectedTasks.some(sel => sel.id === t.id)).map(t => t.id)
+    const newTasks = selectedTasks.map(t => t.id)
 
     try {
       await updateOperation({
@@ -268,8 +267,8 @@ const UpdateOperation = ({
         operationTypeId: selectedType.id,
         operationZoneId: selectedZone.id,
         operationTransId: selectedTrans.id,
-        tasksToAdd,
-        tasksToRemove
+        tasksToAdd: newTasks
+        // tasksToRemove
       }).unwrap()
       showToast('Opération modifiée avec succès', 'success')
       onClose()
@@ -280,12 +279,14 @@ const UpdateOperation = ({
 
   return (
     <Box sx={{ width: '100%', position: 'relative', p: 4, minWidth: 450 }}>
-      <IconButton onClick={onClose} sx={{ position: 'absolute', top: 8, left: 8 }}>
-        <i className='tabler-x' />
-      </IconButton>
-      <Typography variant='h4' className='my-4 mt-10'>
-        Modifier type d'opération
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+        <Typography variant='h6' sx={{ fontWeight: 600 }}>
+          Modifier type d'opération
+        </Typography>
+        <IconButton onClick={onClose} sx={{ color: 'grey.600' }}>
+          <i className='tabler-x' />
+        </IconButton>
+      </Box>
 
       <form onSubmit={handleSubmit}>
         <div className='mb-4'>
@@ -338,23 +339,37 @@ const UpdateOperation = ({
                   <StyledChip
                     {...getTagProps({ index })}
                     variant='filled'
-                    label={`${option.label}`}
                     deleteIcon={<i className='tabler:trash' />}
+                    label={`${option.label}`}
+                    onAbort={() => setSelectedTasks(selectedTasks.filter(t => t.id !== option.id))}
                   />
                 </Tooltip>
               ))
             }
           />
         </div>
+        <Grid item xs={12} sx={{ display: 'flex', gap: 2, mt: 2 }}>
+          <Button
+            type='submit'
+            variant='contained'
+            fullWidth
+            sx={{ fontWeight: 600, bgcolor: '#7C5CFA', '&:hover': { bgcolor: '#6c4edb' } }}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Modifier...' : 'Modifier'}
+          </Button>
 
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-          <Button disabled={isLoading} variant='outlined' size='small' onClick={onClose}>
+          <Button
+            fullWidth
+            disabled={isLoading}
+            onClick={onClose}
+            style={{ marginLeft: 3 }}
+            variant='outlined'
+            color='error'
+          >
             Annuler
           </Button>
-          <Button disabled={isLoading} variant='contained' size='small' type='submit'>
-            {isLoading ? 'Modification...' : 'Modifier'}
-          </Button>
-        </Box>
+        </Grid>
       </form>
     </Box>
   )

@@ -1,20 +1,20 @@
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import QuickSearchToolbar from '@core/components/quicksearch/QuickSearchToolbar'
 import type { IActionColumnsProps, ICellType, IVehicule } from '@core/utils/types'
 import { Icon } from '@iconify/react'
 import { Card, IconButton, Typography } from '@mui/material'
 import type { GridColDef, GridPaginationModel } from '@mui/x-data-grid'
 import { DataGrid } from '@mui/x-data-grid'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const RowOptions = ({ row, toggleEditMode, deleteObject }: IActionColumnsProps<IVehicule>) => {
-  const { showConfirm } = useSweetAlert()
+  const { confirmDelete } = useToastComponante()
 
   const handleEdit = () => {
     toggleEditMode(row!)
   }
 
   const handleDelete = async () => {
-    const result = await showConfirm('', 'Êtes-vous sûr de vouloir supprimer cette vehicule ?', 'confirme')
+    const result = await confirmDelete('')
 
     if (result) row && deleteObject(row.id!)
   }

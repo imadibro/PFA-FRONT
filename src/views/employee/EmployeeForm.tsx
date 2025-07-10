@@ -1,6 +1,7 @@
 import CustomTabList from '@/@core/components/mui/TabList'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import type { IEmployee, IRole } from '@/@core/utils/types'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
 import {
   useCreateEmployeeMutation,
@@ -41,6 +42,7 @@ const EmployeeForm = ({
   isOpen: boolean
 }) => {
   const { showAlert, showToast } = useSweetAlert()
+  const { confirmUpdate } = useToastComponante()
   const [tabValue, setTabValue] = React.useState('1')
 
   const [showPassword, setShowPassword] = React.useState(false)
@@ -118,9 +120,9 @@ const EmployeeForm = ({
           firstName,
           lastName,
           password,
-          role: EmployeeRole
+          role: EmployeeRole.id
         }).unwrap()
-        showToast('Employé mis à jour avec succès!', 'success')
+        await confirmUpdate('Employé')
       } else {
         await createEmployee({
           username,
@@ -128,7 +130,7 @@ const EmployeeForm = ({
           firstName,
           lastName,
           password,
-          role: EmployeeRole
+          role: EmployeeRole.id
         }).unwrap()
         showToast('Employé créé avec succès!', 'success')
       }
@@ -208,7 +210,7 @@ const EmployeeForm = ({
                 placeholder="Nom d'utilisateur"
                 required
                 fullWidth
-                defaultValue={employeeToEdit?.username}
+                defaultValue={isEditMode ? employeeToEdit?.username : ''}
               />
             </div>
             <div className='mb-4'>
@@ -479,3 +481,275 @@ const EmployeeForm = ({
 }
 
 export default EmployeeForm
+
+// import { useForm, Controller } from 'react-hook-form'
+
+// interface EmployeeFormValues {
+//   username: string
+//   email: string
+//   firstName: string
+//   lastName: string
+//   password: string
+//   role: string
+// }
+
+// const EmployeeForm = ({
+//   roles,
+//   employeeToEdit,
+//   onClose,
+//   isEditMode,
+//   isOpen
+// }: {
+//   mode: SystemMode
+//   roles: IRole[]
+//   employeeToEdit?: IEmployee | null
+//   onClose: () => void
+//   isEditMode: boolean
+//   isOpen: boolean
+// }) => {
+//   const { showAlert, showToast } = useSweetAlert()
+//   const [showPassword, setShowPassword] = React.useState(false)
+
+//   const [updateEmployee, { isLoading: isUpdating }] = useUpdateEmployeeMutation()
+//   const [createEmployee, { isLoading: isCreating }] = useCreateEmployeeMutation()
+
+//   const isUpdatingEmployee = isEditMode && employeeToEdit?.id
+//   const isLoading = isUpdatingEmployee ? isUpdating : isCreating
+
+//   const {
+//     control,
+//     handleSubmit,
+//     reset,
+//     formState: { errors }
+//   } = useForm<EmployeeFormValues>({
+//     defaultValues: {
+//       username: isEditMode && employeeToEdit ? employeeToEdit?.username : '',
+//       email: isEditMode && employeeToEdit ? employeeToEdit?.email : '',
+//       firstName: isEditMode && employeeToEdit ? employeeToEdit?.firstName : '',
+//       lastName: isEditMode && employeeToEdit ? employeeToEdit?.lastName : '',
+//       password: '',
+//       role: isEditMode && employeeToEdit ? employeeToEdit?.role?.role : ''
+//     }
+//   })
+
+//   // Remise à zéro des valeurs quand l'employé change ou mode change
+//   React.useEffect(() => {
+//     reset({
+//       username: employeeToEdit?.username ?? '',
+//       email: employeeToEdit?.email ?? '',
+//       firstName: employeeToEdit?.firstName ?? '',
+//       lastName: employeeToEdit?.lastName ?? '',
+//       password: '',
+//       role: employeeToEdit?.role?.role ?? '',
+//     })
+//   }, [employeeToEdit, isEditMode, reset])
+
+//   const onSubmit = async (data: EmployeeFormValues) => {
+//     const employeeRole = roles.find(item => item.role === data.role)
+//     if (!employeeRole) return
+
+//     try {
+//       if (isUpdatingEmployee) {
+//         await updateEmployee({
+//           id: employeeToEdit.id,
+//           username: data.username,
+//           email: data.email,
+//           firstName: data.firstName,
+//           lastName: data.lastName,
+//           password: data.password,
+//           role: employeeRole.id
+//         }).unwrap()
+//         showToast('Employé mis à jour avec succès!', 'success')
+//       } else {
+//         await createEmployee({
+//           username: data.username,
+//           email: data.email,
+//           firstName: data.firstName,
+//           lastName: data.lastName,
+//           password: data.password,
+//           role: employeeRole.id
+//         }).unwrap()
+//         showToast('Employé créé avec succès!', 'success')
+//       }
+//       onClose()
+//     } catch (err) {
+//       showAlert(
+//         'Erreur',
+//         `Une erreur est survenue lors de la ${isUpdatingEmployee ? 'mise à jour' : 'création'} de l'employé`,
+//         'error'
+//       )
+//     }
+//   }
+
+//   return (
+//     <SidebarDrawerForm headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} employé`} open={isOpen} toggle={onClose}>
+//       <form onSubmit={handleSubmit(onSubmit)}>
+//         <div className='mb-4'>
+//           <Controller
+//             control={control}
+//             name='username'
+//             rules={{ required: "Nom d'utilisateur requis" }}
+//             render={({ field }) => (
+//               <TextField
+//                 {...field}
+//                 size='small'
+//                 label="Nom d'utilisateur"
+//                 required
+//                 fullWidth
+//                 error={!!errors.username}
+//                 helperText={errors.username?.message}
+//               />
+//             )}
+//           />
+//         </div>
+//         <div className='mb-4'>
+//           <Controller
+//             control={control}
+//             name='email'
+//             rules={{ required: 'E-mail requis', pattern: { value: /\S+@\S+\.\S+/, message: 'E-mail invalide' } }}
+//             render={({ field }) => (
+//               <TextField
+//                 {...field}
+//                 size='small'
+//                 label='E-mail'
+//                 type='email'
+//                 required
+//                 fullWidth
+//                 error={!!errors.email}
+//                 helperText={errors.email?.message}
+//               />
+//             )}
+//           />
+//         </div>
+//         <div className='mb-4'>
+//           <Controller
+//             control={control}
+//             name='firstName'
+//             rules={{ required: 'Prénom requis' }}
+//             render={({ field }) => (
+//               <TextField
+//                 {...field}
+//                 size='small'
+//                 label='Prénom'
+//                 required
+//                 fullWidth
+//                 error={!!errors.firstName}
+//                 helperText={errors.firstName?.message}
+//               />
+//             )}
+//           />
+//         </div>
+//         <div className='mb-4'>
+//           <Controller
+//             control={control}
+//             name='lastName'
+//             rules={{ required: 'Nom de famille requis' }}
+//             render={({ field }) => (
+//               <TextField
+//                 {...field}
+//                 size='small'
+//                 label='Nom de famille'
+//                 required
+//                 fullWidth
+//                 error={!!errors.lastName}
+//                 helperText={errors.lastName?.message}
+//               />
+//             )}
+//           />
+//         </div>
+//         {!isEditMode && (
+//           <div className='mb-4'>
+//             <Controller
+//               control={control}
+//               name='password'
+//               rules={{
+//                 required: 'Mot de passe requis',
+//                 minLength: { value: 8, message: 'Mot de passe doit être d’au moins 8 caractères' }
+//               }}
+//               render={({ field }) => (
+//                 <FormControl sx={{ width: '100%' }} variant='outlined'>
+//                   <InputLabel htmlFor='password'>Mot de passe</InputLabel>
+//                   <OutlinedInput
+//                     {...field}
+//                     id='password'
+//                     size='small'
+//                     error={!!errors.password}
+//                     type={showPassword ? 'text' : 'password'}
+//                     endAdornment={
+//                       <InputAdornment position='end'>
+//                         <IconButton onClick={() => setShowPassword(show => !show)} edge='end'>
+//                           {showPassword ? (
+//                             <span className='tabler-eye w-5 h-5 mr-2' />
+//                           ) : (
+//                             <span className='tabler-eye-off w-5 h-5 mr-2' />
+//                           )}
+//                         </IconButton>
+//                       </InputAdornment>
+//                     }
+//                     label='Mot de passe'
+//                   />
+//                   <Typography variant='body2' color={errors.password ? 'red' : 'textSecondary'}>
+//                     {errors.password?.message || 'Donnez à votre employé un mot de passe clair et concis.'}
+//                   </Typography>
+//                 </FormControl>
+//               )}
+//             />
+//           </div>
+//         )}
+//         <div className='mb-4'>
+//           <Controller
+//             control={control}
+//             name='role'
+//             rules={{ required: 'Rôle requis' }}
+//             render={({ field }) => (
+//               <FormControl fullWidth size='small' error={!!errors.role}>
+//                 <InputLabel id='role-select-label'>Rôle</InputLabel>
+//                 <Select {...field} labelId='role-select-label' label='Rôle' required>
+//                   {roles.map(roleItem => (
+//                     <MenuItem key={roleItem.id} value={roleItem.role}>
+//                       {roleItem.role}
+//                     </MenuItem>
+//                   ))}
+//                 </Select>
+//                 {errors.role && (
+//                   <Typography variant='body2' color='red'>
+//                     {errors.role.message}
+//                   </Typography>
+//                 )}
+//               </FormControl>
+//             )}
+//           />
+//         </div>
+//         <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, justifyContent: 'space-between', gap: 2 }}>
+//           <Button
+//             type='submit'
+//             sx={{ mr: 1 }}
+//             disabled={isLoading}
+//             variant='contained'
+//             size='small'
+//             className='h-10 mt-4 w-full'
+//           >
+//             {isLoading
+//               ? isUpdatingEmployee
+//                 ? 'Mise à jour...'
+//                 : 'Création...'
+//               : isUpdatingEmployee
+//                 ? 'Modifier'
+//                 : 'Ajouter'}
+//           </Button>
+//           <Button
+//             disabled={isLoading}
+//             variant='outlined'
+//             size='small'
+//             onClick={onClose}
+//             color='error'
+//             className='h-10 mt-4 w-full'
+//           >
+//             Annuler
+//           </Button>
+//         </Box>
+//       </form>
+//     </SidebarDrawerForm>
+//   )
+// }
+// export default EmployeeForm

@@ -10,7 +10,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { formatDate, formatDateFR } from '@/@core/utils/format'
 import CustomTextField from '@/@core/components/mui/TextField'
-import { ExcelComponent } from '@/@core/components/excel/ExcelComponent'
+import ExcelComponent from '@/@core/components/excel/ExcelComponent'
 
 interface Props {
   value: string

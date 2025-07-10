@@ -1,6 +1,5 @@
 import type { ChangeEvent } from 'react'
 import { useState } from 'react'
-import Typography from '@mui/material/Typography'
 import { Alert, Drawer, Skeleton } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
@@ -8,11 +7,12 @@ import { useDeleteRequirementMutation, useGetRequirementQuery } from '@/store/fe
 import type { SystemMode } from '@core/types'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import { GetColumns, renderChipCell, renderDateCell, renderTypographyCell } from '@/components/common/GridColumns'
+import { GetColumns, renderChipCell, renderTypographyCell } from '@/components/common/GridColumns'
 import exportData from '@/@core/utils/exportData'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
 import RequirementForm from './RequirementForm'
 import type { IRequirement } from '@/@core/utils/types'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const customColumns = () => [
   {
@@ -52,11 +52,9 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
   const [requirementToEdit, setRequirementToEdit] = useState<IRequirement | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
-  const { showAlert, showConfirm, showToast } = useSweetAlert()
-  const [
-    deleteRequirement,
-    { isLoading: deleteRequirementIsLoading, isError, error: deleteRequirementError, isSuccess }
-  ] = useDeleteRequirementMutation()
+  const { showAlert } = useSweetAlert()
+  const { confirmDelete, showDeletToast } = useToastComponante()
+  const [deleteRequirement, { isLoading: deleteRequirementIsLoading }] = useDeleteRequirementMutation()
 
   const handleSearch = (searchValue: string) => {
     setSearchText(searchValue)
@@ -86,21 +84,18 @@ const RequirementList = ({ mode }: { mode: SystemMode }) => {
   }
 
   const onCloseForm = () => {
+    setIsEditMode(false)
     setRequirementToEdit(null)
     toggleForm()
   }
 
   const handleDelete = async (id: string) => {
-    const confirmed = await showConfirm(
-      'Es-tu sûr?',
-      'Etes-vous sûr de vouloir supprimer ce prérequis ?',
-      'Supprimer',
-      'Annuler'
-    )
+    const confirmed = await confirmDelete('cette contrainte')
+
     if (confirmed) {
       try {
         await deleteRequirement({ requirementId: id })
-        showToast('Supprimé avec succès!', 'success')
+        showDeletToast('Contrainte')
       } catch (error) {
         showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression de prérequis", 'error')
       }

@@ -7,7 +7,18 @@ import { useGetAllVehiculeQuery } from '@/store/features/vehicule/vehiculeApi'
 import CustomTextField from '@core/components/mui/TextField'
 import type { IEquipe, IEquipeRequest } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Box, Button, Grid, MenuItem, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Grid,
+  MenuItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography
+} from '@mui/material'
 import { useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
@@ -36,9 +47,11 @@ const schema = yup
         })
       )
       .min(1, 'Au moins un employé est requis'),
-    fuelCard: yup.string().nullable().optional(),
-    highwayCard: yup.string().nullable().optional(),
-    vehicule: yup.string().nullable().optional()
+    fuelCard: yup.string().nullable().required('Carte Gasoil requise'),
+    highwayCard: yup.string().nullable().required('Carte Telepaige requise'),
+    vehicule: yup.string().nullable().required('Véhicule requis'),
+    selectedEmployee: yup.string().nullable().optional(),
+    selectedRole: yup.string().nullable().optional()
   })
   .required()
 
@@ -117,7 +130,12 @@ export default function EquipeForm(props: Props) {
   }
 
   return (
-    <SidebarDrawerForm headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} Equipe`} open={isOpen} toggle={toggle}>
+    <SidebarDrawerForm
+      headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} Equipe`}
+      open={isOpen}
+      toggle={toggle}
+      customWidth='600px'
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={5}>
           <Grid item xs={12} sm={12}>
@@ -209,31 +227,46 @@ export default function EquipeForm(props: Props) {
           </Grid>
 
           <Grid item xs={12}>
-            <Typography variant='h6'>Les members d'équipe</Typography>
+            <Typography variant='h6' gutterBottom>
+              Les membres de l'équipe
+            </Typography>
             {members && members.length > 0 ? (
-              members.map((member, index) => (
-                <Box key={index} display='flex' alignItems='center' gap={2} mt={1}>
-                  <Typography>
-                    {member.name} - {member.role || 'Aucun rôle sélectionné'}
-                  </Typography>
-                  <Button
-                    size='small'
-                    color='error'
-                    onClick={() =>
-                      setValue(
-                        'members',
-                        members.filter((_, i) => i !== index)
-                      )
-                    }
-                  >
-                    Supprimer
-                  </Button>
-                </Box>
-              ))
+              <Table size='small'>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Nom</TableCell>
+                    <TableCell>Rôle</TableCell>
+                    <TableCell align='right'>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {members.map((member, index) => (
+                    <TableRow key={index}>
+                      <TableCell>{member.name}</TableCell>
+                      <TableCell>{member.role || 'Aucun rôle sélectionné'}</TableCell>
+                      <TableCell align='right'>
+                        <Button
+                          size='small'
+                          color='error'
+                          onClick={() =>
+                            setValue(
+                              'members',
+                              members.filter((_, i) => i !== index)
+                            )
+                          }
+                        >
+                          Supprimer
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             ) : (
               <Typography>Aucun membre ajouté</Typography>
             )}
           </Grid>
+
           <Grid item xs={12} sm={12}>
             <Controller
               name='vehicule'

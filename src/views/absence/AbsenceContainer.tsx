@@ -13,6 +13,7 @@ import { Alert } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import AbsenceForm from './AbsenceForm'
 import AbsenceView from './Absence.view'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const AbsencesContainer = ({ mode }: { mode: SystemMode }) => {
   const [searchText, setSearchText] = useState<string>('')
@@ -24,7 +25,8 @@ const AbsencesContainer = ({ mode }: { mode: SystemMode }) => {
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
   const [isProcessing, setIDBIsProcessing] = useState(false)
   const workerRef = useRef<Worker>()
-  const { showAlert, showConfirm, showToast } = useSweetAlert()
+  const { showAlert, showToast } = useSweetAlert()
+  const { confirmDelete } = useToastComponante()
 
   const { data, error, isLoading } = useGetAbsencesQuery(
     {
@@ -151,12 +153,7 @@ const AbsencesContainer = ({ mode }: { mode: SystemMode }) => {
   }
 
   const handleDelete = async (id: string) => {
-    const confirmed = await showConfirm(
-      '',
-      'Etes-vous sûr de vouloir supprimer cette absence ?',
-      'Supprimer',
-      'Annuler'
-    )
+    const confirmed = await confirmDelete('cette absence ?')
     if (confirmed) {
       try {
         await deleteAbsence({ absenceId: id })

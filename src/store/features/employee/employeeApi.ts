@@ -1,15 +1,33 @@
-import type { IEmployee, IRole } from '@/@core/utils/types'
+import type { IEmployee } from '@/@core/utils/types'
 import { api } from '@/store/api'
 
 export const employeeApi = api.injectEndpoints({
   endpoints: builder => ({
     getAllEmployees: builder.query<IEmployee[], void>({
-      query: () => `employee`,
+      query: () => `employee/all`,
       providesTags: [{ type: 'Employee', id: 'LIST' }]
+    }),
+
+    getEmployees: builder.query<
+      { data: IEmployee[]; total: number; page: number; pages: number },
+      { page: number; limit: number; search?: string }
+    >({
+      query: ({ page, limit, search }) => ({
+        url: 'employee',
+        params: {
+          page,
+          limit,
+          search
+        }
+      }),
+      providesTags: (_result, _error, { page }) => [
+        { type: 'Employee', id: 'LIST' },
+        { type: 'Employee', id: `PAGE-${page}` }
+      ]
     }),
     createEmployee: builder.mutation<
       any,
-      { username: string; email: string; firstName: string; lastName: string; password: string; role: IRole }
+      { username: string; email: string; firstName: string; lastName: string; password: string; role: string }
     >({
       query: newEmployee => ({
         url: 'employee',
@@ -34,7 +52,7 @@ export const employeeApi = api.injectEndpoints({
         firstName: string
         lastName: string
         password: string
-        role: IRole
+        role: string
       }
     >({
       query: employee => ({
@@ -72,6 +90,7 @@ export const employeeApi = api.injectEndpoints({
 
 export const {
   useGetAllEmployeesQuery,
+  useGetEmployeesQuery,
   useCreateEmployeeMutation,
   useDeleteEmployeeMutation,
   useUpdateEmployeeMutation,

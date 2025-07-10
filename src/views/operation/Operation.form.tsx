@@ -2,7 +2,7 @@ import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
 import { useGetEquipesQuery } from '@/store/features/equipe/equipeApi'
 import { useGetOperationsTasksQuery } from '@/store/features/operation/operationTasksApi'
 import { useGetProjectsQuery } from '@/store/features/project/projectApi'
-import { useGetSiteQuery } from '@/store/features/site/siteApi'
+import { useGetAllSitesForDropDawnQuery } from '@/store/features/site/siteApi'
 import CustomTextField from '@core/components/mui/TextField'
 import type { IOperationRequest, IOperation, ISite, IProject } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -35,7 +35,7 @@ export default function OperationForm(props: Props) {
 
   const { data: operationTasksData } = useGetOperationsTasksQuery()
   const { data: projectsData } = useGetProjectsQuery()
-  const { data: sitesData } = useGetSiteQuery()
+  const { data: sitesData } = useGetAllSitesForDropDawnQuery()
   const { data: equipesData } = useGetEquipesQuery()
 
   const operationTasks = operationTasksData ?? []

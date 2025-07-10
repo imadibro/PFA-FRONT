@@ -132,6 +132,7 @@ export interface IEmployee {
   password: string
   role: IRole
   name?: string
+  isMember?: boolean
   createdAt?: string
   updatedAt?: string
 }
