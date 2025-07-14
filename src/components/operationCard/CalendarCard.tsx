@@ -2,16 +2,27 @@ import type { IEquipe, IOperation } from '@/@core/utils/types'
 import { Car, Fuel, MapPin, RouteIcon as Road, Users } from 'lucide-react'
 import React from 'react'
 
+// Define ExternalEvent type if not already imported
+type ExternalEvent = {
+  id: string
+  [key: string]: any
+}
+
 import { useDrop } from 'react-dnd'
+import OperationHeader from './OperationHeader'
 
 export function CalendarCard({
   operation,
   equipe,
-  onEquipeDrop
+  onEquipeDrop,
+  calendarRef,
+  setEvents
 }: {
   operation: IOperation
   equipe?: IEquipe
   onEquipeDrop?: (equipe: IEquipe) => void
+  calendarRef: React.RefObject<any>
+  setEvents: React.Dispatch<React.SetStateAction<ExternalEvent[]>>
 }) {
   // console.log('operation ===>', operation)
 
@@ -40,13 +51,24 @@ export function CalendarCard({
   }, [onEquipeDrop, drop])
 
   if (!operation) return null
+
+  const handleDeleteOperation = (operationId: string) => {
+    // Supprime l'événement du calendrier FullCalendar
+    if (calendarRef.current && typeof calendarRef.current.getApi === 'function') {
+      const event = calendarRef.current.getApi().getEventById(operationId)
+      if (event) event.remove()
+    }
+    // Supprime l'événement du state React
+    setEvents(prev => prev.filter(ev => ev.id !== operationId))
+  }
+
   return (
     <div
       ref={divRef}
       className={`w-full max-w-3xl rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden ${isOver && canDrop ? 'ring-2 ring-blue-400' : ''}`}
     >
       <div className='p-4'>
-        <div className='flex justify-between items-start'>
+        {/* <div className='flex justify-between items-start'>
           <div>
             <h3 className='font-bold text-lg'>{operation?.project?.projectCode}</h3>
             <p className='text-sm flex items-center gap-1 mt-1'>
@@ -57,7 +79,8 @@ export function CalendarCard({
           <span className='inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800'>
             {operation?.operationTasks?.operationTasksIds?.length} tasks
           </span>
-        </div>
+        </div> */}
+        <OperationHeader operation={operation} onDelete={handleDeleteOperation} />
 
         {/* Team/Members */}
         <div className='mt-3 flex flex-wrap gap-2'>

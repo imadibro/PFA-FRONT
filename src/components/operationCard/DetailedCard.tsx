@@ -52,13 +52,13 @@ export default function DetailedCard({ operation }: { operation: IOperation }) {
               <p className='text-xs text-slate-500 pl-6'>{operation.site.label}</p>
             </div>
 
-            <div className='space-y-1'>
+            {/* <div className='space-y-1'>
               <div className='flex items-center gap-2 text-sm font-medium text-slate-700'>
                 <CheckSquare size={18} className='text-slate-500' />
                 <span>Tasks</span>
               </div>
               <p className='text-sm pl-6'>{operation.operationTasks.operationTasksIds.length} tasks</p>
-            </div>
+            </div> */}
 
             {/* <div className='space-y-1'>
               <div className='flex items-center gap-2 text-sm font-medium text-slate-700'>

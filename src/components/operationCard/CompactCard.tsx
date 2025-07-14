@@ -1,4 +1,5 @@
 import type { IEquipe, IOperation } from '@/@core/utils/types'
+import { Typography } from '@mui/material'
 import { Car, CheckSquare, Fuel, MapPin, RouteIcon as Road, Users } from 'lucide-react'
 
 export function CompactCard({
@@ -27,7 +28,7 @@ export function CompactCard({
           <div className='mt-2 space-y-1 text-xs'>
             <div className='flex items-center gap-1 text-slate-600'>
               <Users size={12} />
-              {equipe?.members.length} members
+              {equipe?.members?.length} members
             </div>
 
             <div className='flex items-center justify-between'>

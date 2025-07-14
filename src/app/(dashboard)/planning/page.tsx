@@ -7,7 +7,8 @@ import { useGetOperationsQuery } from '@/store/features/operation/operationApi'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
 import FullCalendar from '@fullcalendar/react'
-import { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
+
 import { DndProvider, useDrag } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
@@ -25,6 +26,7 @@ interface ExternalEvent {
 function Page() {
   const [events, setEvents] = useState<ExternalEvent[]>([])
   const externalEventsRef = useRef<HTMLDivElement>(null)
+  const calendarRef = React.useRef<any>(null)
 
   const {
     data: operations,
@@ -90,11 +92,11 @@ function Page() {
   //   setEvents(events)
   // }
 
-  const handleEventClick = (clickInfo: any) => {
-    if (confirm(`Are you sure you want to delete the event '${clickInfo.event.extendedProps.text}'`)) {
-      clickInfo.event.remove()
-    }
-  }
+  // const handleEventClick = (clickInfo: any) => {
+  //   if (confirm(`Are you sure you want to delete the event '${clickInfo.event.extendedProps.text}'`)) {
+  //     clickInfo.event.remove()
+  //   }
+  // }
 
   // console.log('events ===>', events)
 
@@ -130,6 +132,7 @@ function Page() {
         <div className='flex-1 p-6 overflow-auto'>
           <div className='mx-auto'>
             <FullCalendar
+              ref={calendarRef}
               initialView='dayGridWeek'
               plugins={[dayGridPlugin, interactionPlugin]}
               headerToolbar={{
@@ -148,14 +151,14 @@ function Page() {
                 id: ev.id
               }))}
               // eventsSet={handleEvents}
-              eventClick={handleEventClick}
+              // eventClick={handleEventClick}
               editable={true}
               droppable={true}
               selectable={true}
               // selectMirror={true}
               weekends={false}
               drop={handleEventReceive}
-              eventContent={renderEventContentWithDrop(setEvents)}
+              eventContent={renderEventContentWithDrop(setEvents, calendarRef)}
               dayMaxEventRows={true}
               eventChange={function (e: any) {
                 // console.log('event change ===>', e)
@@ -199,7 +202,7 @@ function DraggableEquipeCard({ equipe }: { equipe: any }) {
 }
 
 // Render event content with drop target for equipe assignment
-function renderEventContentWithDrop(setEvents: any) {
+function renderEventContentWithDrop(setEvents: any, calendarRef: React.RefObject<any>) {
   return (eventInfo: { event: any }) => {
     const operation = eventInfo.event.extendedProps.operation
       ? JSON.parse(eventInfo.event.extendedProps.operation)
@@ -212,6 +215,7 @@ function renderEventContentWithDrop(setEvents: any) {
       <CalendarCard
         operation={operation}
         equipe={equipe}
+        calendarRef={calendarRef}
         onEquipeDrop={(droppedEquipe: any) => {
           setEvents((prev: any[]) =>
             prev.map(ev =>
@@ -221,6 +225,7 @@ function renderEventContentWithDrop(setEvents: any) {
             )
           )
         }}
+        setEvents={setEvents}
       />
     )
   }
