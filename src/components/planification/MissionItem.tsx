@@ -1,5 +1,5 @@
 import type { Mission } from '@/app/(dashboard)/planification/page'
-import { useDraggable, closestCenter } from '@dnd-kit/core'
+import { useDraggable /**closestCenter */ } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import { Avatar, AvatarGroup, IconButton } from '@mui/material'
 import React, { useEffect, useState } from 'react'
@@ -68,7 +68,7 @@ const MissionItem = ({
     data: mission
   })
   const [width, setWidth] = useState(10.5) // Default width
-  const [rightOffset, setRightOffset] = useState(0)
+  const [rightOffset /*setRightOffset*/] = useState(0)
 
   // Calculate the initial width based on startDate and endDate
   useEffect(() => {
@@ -93,7 +93,7 @@ const MissionItem = ({
   }
   const onResizeStop = (
     _event: React.SyntheticEvent,
-    { size, handle }: { size: { width: number }; handle: string }
+    { size /*handle*/ }: { size: { width: number }; handle: string }
   ) => {
     const newWidth = size.width
 

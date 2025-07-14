@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react'
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
 import type { SystemMode } from '@core/types'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
@@ -13,7 +13,7 @@ import type { IClientOrder } from '@/@core/utils/types'
 import { useDeleteClientOrderMutation, useGetClientOrdersQuery } from '@/store/features/clientOrder/clientOrderApi'
 import { useGetSiteQuery } from '@/store/features/site/siteApi'
 import CreateClientOrder from './Create'
-import { useGetClientQuery } from '@/store/features/client/clientApi'
+// import { useGetClientsQuery } from '@/store/features/client/clientApi'
 import { useGetProjectsQuery } from '@/store/features/project/projectApi'
 import UpdateClientOrder from './Update'
 import { useGetOperationsQuery } from '@/store/features/operation/operationApi'
@@ -69,9 +69,9 @@ const ClientOrdersList = ({ mode }: { mode: SystemMode }) => {
   const [filteredData, setFilteredData] = useState<IClientOrder[]>([])
   const [isFiltering, setIsFiltering] = useState(false)
   const [paginationModel, setPaginationModel] = useState({ page: 0, pageSize: 10 })
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  // const [isOpen, setIsOpen] = useState<boolean>(false)
   const [clientOrderToEdit, setClientOrderToEdit] = useState<IClientOrder | null>(null)
-  const [isEditMode, setIsEditMode] = useState<boolean>(false)
+  const [, /*isEditMode*/ setIsEditMode] = useState<boolean>(false)
   const { showAlert, showConfirm, showToast } = useSweetAlert()
 
   const handleSearch = (searchValue: string) => {
@@ -94,7 +94,7 @@ const ClientOrdersList = ({ mode }: { mode: SystemMode }) => {
   }
 
   const { data, error, isLoading } = useGetClientOrdersQuery()
-  const [deleteClientOrder, { isLoading: deleteClientOrderIsLoading }] = useDeleteClientOrderMutation()
+  const [deleteClientOrder /*{ isLoading: deleteClientOrderIsLoading }*/] = useDeleteClientOrderMutation()
   const { data: sites, error: siteErrors, isLoading: isSiteIsLoading } = useGetSiteQuery()
   const { data: clients, error: clientErrors, isLoading: isClientIsLoading } = useGetClientQuery()
   const { data: projects, error: projectErrors, isLoading: isProjectIsLoading } = useGetProjectsQuery()
@@ -123,10 +123,10 @@ const ClientOrdersList = ({ mode }: { mode: SystemMode }) => {
     setOpenUpdateModal(true)
   }
 
-  const onCloseForm = () => {
-    setClientOrderToEdit(null)
-    toggleForm()
-  }
+  // const onCloseForm = () => {
+  //   setClientOrderToEdit(null)
+  //   toggleForm()
+  // }
 
   const handleDateFilter = (start: Date, end: Date) => {
     const filteredRows = data.filter((row: IClientOrder) => {

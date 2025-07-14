@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 // Component Imports
 
 // Server Action Imports
-import { getServerMode } from '@core/utils/serverHelpers'
+// import { getServerMode } from '@core/utils/serverHelpers'
 import OperationContainer from '@/views/operation/Operation.Container'
 
 export const metadata: Metadata = {
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 const OperationPage = () => {
   // Vars
-  const mode = getServerMode()
+  // const mode = getServerMode()
 
   // return <OperationList mode={mode} />
   return <OperationContainer />

@@ -7,7 +7,6 @@ import { Alert, Box, Button, IconButton, TextField } from '@mui/material'
 import Typography from '@mui/material/Typography'
 
 const TaskForm = ({
-  mode,
   taskToEdit,
   onClose,
   isEditMode

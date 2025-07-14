@@ -2,17 +2,7 @@
 
 import React from 'react'
 import Typography from '@mui/material/Typography'
-import {
-  Button,
-  FormControl,
-  FormControlLabel,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  Switch,
-  TextField
-} from '@mui/material'
+import { Button, FormControl, IconButton, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 import Box from '@mui/material/Box'
 import { useUpdateClientOrderMutation } from '@/store/features/clientOrder/clientOrderApi'
 import type { SystemMode } from '@core/types'
@@ -26,7 +16,6 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import Alert from '@mui/material/Alert'
 
 const UpdateClientOrder = ({
-  mode,
   clients,
   sites,
   projects,
@@ -55,7 +44,7 @@ const UpdateClientOrder = ({
 
   const { showAlert, showToast } = useSweetAlert()
 
-  const [updateClientOrder, { isLoading, isError, error, isSuccess }] = useUpdateClientOrderMutation()
+  const [updateClientOrder, { isLoading, isError, error }] = useUpdateClientOrderMutation()
 
   const handleUpdateClientOrderSubmit = async (event: React.FormEvent) => {
     event.preventDefault()

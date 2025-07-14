@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { DataGrid } from '@mui/x-data-grid'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import type { ChangeEvent } from 'react'
@@ -9,8 +9,8 @@ import {
   renderDateCell,
   renderTypographyCell
 } from '@/components/common/GridColumns'
-import type { IAbsence } from '@/@core/utils/types'
-import { formatDateFR, stringToDate } from '@/@core/utils/format'
+// import type { IAbsence } from '@/@core/utils/types'
+import { formatDateFR /* stringToDate*/ } from '@/@core/utils/format'
 
 const customColumns = () => [
   {
@@ -52,7 +52,7 @@ const customColumns = () => [
 ]
 
 const AbsenceView = (props: any) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+  // const [isOpen, setIsOpen] = useState<boolean>(false)
   const {
     data,
     isLoading,

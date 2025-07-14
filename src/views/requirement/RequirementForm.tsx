@@ -18,7 +18,6 @@ import type { IRequirement } from '@/@core/utils/types'
 import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const RequirementForm = ({
-  mode,
   requirementToEdit,
   onClose,
   isEditMode

@@ -14,18 +14,19 @@ interface Row {
   id: string
 }
 
-interface RowOptionsHookProps {
-  toggleEditMode: (row: Row) => void
-  deleteObject: (id: string) => void
-}
+// interface RowOptionsHookProps {
+//   toggleEditMode: (row: Row) => void
+//   deleteObject: (id: string) => void
+// }
 
-interface RowOptionProps {
-  row: Row
-  toggleEditMode: (row: any) => void
-  deleteObject: (id: string) => void
-  customAction?: any
-  handleCustomAction?: (row: any) => void
-}
+// interface RowOptionProps {
+//   row: Row
+//   toggleEditMode: (row: any) => void
+//   deleteObject: (id: string) => void
+//   customAction?: any
+//   handleCustomAction?: (row: any) => void
+// }
+
 interface DynamicColumn extends GridBaseColDef {}
 interface ColumnsProps {
   toggleEditMode?: (row: Row | any) => void

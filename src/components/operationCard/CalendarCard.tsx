@@ -1,5 +1,6 @@
 import type { IEquipe, IOperation } from '@/@core/utils/types'
-import { Car, Fuel, MapPin, RouteIcon as Road, Users } from 'lucide-react'
+import { Car, Fuel, RouteIcon as Road, Users } from 'lucide-react'
+// import {  MapPin} from 'lucide-react'
 import React from 'react'
 
 // Define ExternalEvent type if not already imported

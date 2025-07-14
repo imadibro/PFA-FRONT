@@ -202,14 +202,7 @@ import {
   useGetOperationsTransQuery,
   useUpdateOperationTasksMutation
 } from '@/store/features/operation/operationTasksApi'
-import type {
-  IOperation,
-  IOperationTask,
-  IOperationTrans,
-  IOperationType,
-  IOperationZone,
-  ITask
-} from '@/@core/utils/types'
+import type { IOperationTask, IOperationTrans, IOperationType, IOperationZone, ITask } from '@/@core/utils/types'
 
 const StyledChip = styled(Chip)({
   '&.MuiChip-root': {

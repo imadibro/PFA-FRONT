@@ -1,4 +1,3 @@
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import QuickSearchToolbar from '@core/components/quicksearch/QuickSearchToolbar'
 import type { IActionColumnsProps, ICellType, IVehiculeOwner } from '@core/utils/types'
 import { Icon } from '@iconify/react'

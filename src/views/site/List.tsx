@@ -70,9 +70,9 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
   const { showAlert, showToast } = useSweetAlert()
   const { confirmDelete, showDeletToast } = useToastComponante()
 
-  const [deleteSite, { isLoading: deleteSiteIsLoading, isError, error: deleteSiteError, isSuccess }] =
+  const [deleteSite, { isLoading: deleteSiteIsLoading /* isError, error: deleteSiteError, isSuccess */ }] =
     useDeleteSiteMutation()
-  const [createSite, { isLoading: isCreating, isError: createError, error: createErr }] = useCreateSiteMutation()
+  const [createSite /* { isLoading: isCreating, isError: createError, error: createErr }*/] = useCreateSiteMutation()
   // Initialize the RTK Query hook
   const [triggerGetRequirements] = useLazyGetRequirementsByLabelsQuery()
 

@@ -45,7 +45,12 @@ const AbsencesContainer = ({ mode }: { mode: SystemMode }) => {
   const [triggerGetEmployees] = useLazyGetEmployeesByUsernamesQuery()
 
   const [deleteAbsence, { isLoading: deleteAbsenceIsLoading }] = useDeleteAbsenceMutation()
-  const [createAbsence, { isLoading: isCreating, isError: createError, error: createErr }] = useCreateAbsenceMutation()
+  const [
+    createAbsence,
+    {
+      /* isLoading: isCreating, isError: createError, error: createErr*/
+    }
+  ] = useCreateAbsenceMutation()
 
   const processAbsencesFromDB = async () => {
     setIDBIsProcessing(true)

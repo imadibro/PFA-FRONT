@@ -4,7 +4,6 @@ import { formatDateFR, stringToDate } from '@/@core/utils/format'
 import type { IOperation, IOperationTask } from '@/@core/utils/types'
 import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
-import { useDeleteOperationMutation } from '@/store/features/operation/operationApi'
 import {
   useDeleteOperationTasksMutation,
   useGetOperationsTasksQuery
@@ -54,14 +53,19 @@ const OperationTasksList = ({ mode }: { mode: SystemMode }) => {
     page: 0,
     pageSize: 10
   })
-  const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false)
-  const [operationToEdit, setOperationToEdit] = useState<IOperation | null>(null)
-  const [isEditMode, setIsEditMode] = useState<boolean>(false)
+  const [, /*isDetailsOpen*/ setIsDetailsOpen] = useState<boolean>(false)
+  const [
+    ,
+    /*operationToEdit, setOperationToEdit] = useState<IOperation | null>(null)
+  const [/*isEditMode*/ setIsEditMode
+  ] = useState<boolean>(false)
 
-  const { showAlert, showToast } = useSweetAlert()
+  const { showAlert } = useSweetAlert()
   const { confirmDelete, showDeletToast } = useToastComponante()
-  const [deleteOperation, { isLoading: deleteOperationIsLoading, isError, error: deleteOperationError, isSuccess }] =
-    useDeleteOperationTasksMutation()
+  const [
+    deleteOperation,
+    { isLoading: deleteOperationIsLoading /* isError, error: deleteOperationError, isSuccess*/ }
+  ] = useDeleteOperationTasksMutation()
 
   const { data, error, isLoading } = useGetOperationsTasksQuery()
   const { data: taskData, error: taskError, isLoading: isLoadingTasks } = useGetTasksQuery()

@@ -5,28 +5,26 @@ import Typography from '@mui/material/Typography'
 import {
   Button,
   FormControl,
-  FormControlLabel,
+  // FormControlLabel,
   IconButton,
   InputLabel,
   MenuItem,
   Select,
-  Switch,
+  // Switch,
   TextField
 } from '@mui/material'
 import Box from '@mui/material/Box'
 import { useCreateClientOrderMutation } from '@/store/features/clientOrder/clientOrderApi'
 import type { SystemMode } from '@core/types'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import type { IOrderStatus } from '@/@core/utils/types'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
-import type { IClient, IOperation, IProject, ISite } from '@/@core/utils/types'
+import type { IClient, IOperation, IProject, ISite, IOrderStatus } from '@/@core/utils/types'
 import dayjs from 'dayjs'
 import type { Dayjs } from 'dayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 
 const CreateClientOrder = ({
-  mode,
   clients,
   sites,
   projects,
@@ -49,7 +47,7 @@ const CreateClientOrder = ({
 
   const { showAlert, showToast } = useSweetAlert()
 
-  const [createClientOrder, { isLoading, isError, error, isSuccess }]: any = useCreateClientOrderMutation()
+  const [createClientOrder, { isLoading /* isError, error, isSuccess */ }]: any = useCreateClientOrderMutation()
 
   const handleCreateClientOrderSubmit = async (event: React.FormEvent) => {
     event.preventDefault()

@@ -1,5 +1,4 @@
 import type { IEquipe, IOperation } from '@/@core/utils/types'
-import { Typography } from '@mui/material'
 import { Car, CheckSquare, Fuel, MapPin, RouteIcon as Road, Users } from 'lucide-react'
 
 export function CompactCard({

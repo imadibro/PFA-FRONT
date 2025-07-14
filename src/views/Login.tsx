@@ -18,7 +18,7 @@ import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
 
 // Type Imports
-import type { SystemMode } from '@core/types'
+// import type { SystemMode } from '@core/types'
 import { Alert, Box, Card, CardContent } from '@mui/material'
 
 // Component Imports
@@ -35,7 +35,7 @@ type FormData = {
   password: string
 }
 
-const LoginV2 = ({ mode }: { mode: SystemMode }) => {
+const LoginV2 = (/*{ mode }: { mode: SystemMode }*/) => {
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [rememberMe, setRememberMe] = useState<boolean>(true)
@@ -45,7 +45,7 @@ const LoginV2 = ({ mode }: { mode: SystemMode }) => {
   const {
     control,
     handleSubmit,
-    formState: { errors, isLoading, isSubmitting },
+    formState: { errors, isSubmitting },
     setError
   } = useForm<FormData>()
 

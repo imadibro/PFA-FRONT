@@ -7,18 +7,7 @@ import { useGetAllVehiculeQuery } from '@/store/features/vehicule/vehiculeApi'
 import CustomTextField from '@core/components/mui/TextField'
 import type { IEquipe, IEquipeRequest } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
-import {
-  Box,
-  Button,
-  Grid,
-  MenuItem,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableRow,
-  Typography
-} from '@mui/material'
+import { Button, Grid, MenuItem, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
 import { useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'

@@ -1,5 +1,5 @@
 import type { IVehicule, IVehiculeModel, IVehiculeRequest } from '@/@core/utils/types'
-import api from '@/store/api'
+import { api } from '@/store/api'
 
 export const vehiculeApi = api.injectEndpoints({
   endpoints: builder => ({

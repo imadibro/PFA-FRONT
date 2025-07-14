@@ -29,16 +29,16 @@ function Page() {
   const calendarRef = React.useRef<any>(null)
 
   const {
-    data: operations,
-    error: operationsError,
-    isLoading: operationsLoading
+    data: operations
+    // error: operationsError,
+    //  isLoading: operationsLoading
   } = useGetOperationsQuery({
     limit: 20,
     page: 1,
     search: ''
   })
 
-  const { data: equipes, error: equipesError, isLoading: equipesLoading } = useGetEquipesQuery()
+  const { data: equipes } = useGetEquipesQuery()
 
   useEffect(() => {
     if (externalEventsRef.current) {
@@ -161,7 +161,7 @@ function Page() {
               eventContent={renderEventContentWithDrop(setEvents, calendarRef)}
               dayMaxEventRows={true}
               eventChange={function (e: any) {
-                // console.log('event change ===>', e)
+                console.log('event change ===>', e)
                 // setEvents(prev => prev.map(event => event.id === e.id ? e : event))
               }}
               eventRemove={function (e: any) {

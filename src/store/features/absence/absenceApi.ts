@@ -1,5 +1,3 @@
-import type { FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
-import type { SerializedError } from '@reduxjs/toolkit'
 import { api } from '@/store/api'
 import type { IAbsenceReasons, IEmployee } from '@/@core/utils/types'
 

@@ -1,5 +1,5 @@
 import type { IEquipe, IEquipeRequest } from '@/@core/utils/types'
-import api from '@/store/api'
+import { api } from '@/store/api'
 
 export const equipeApi = api.injectEndpoints({
   endpoints: builder => ({

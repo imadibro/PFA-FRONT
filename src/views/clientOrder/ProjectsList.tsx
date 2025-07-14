@@ -1,10 +1,10 @@
 import type { ChangeEvent } from 'react'
 import { useState } from 'react'
 import { DataGrid } from '@mui/x-data-grid'
-import type { SystemMode } from '@core/types'
+// import type { SystemMode } from '@core/types'
 import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
-import { Alert, Skeleton, Typography } from '@mui/material'
+import { Alert, Skeleton } from '@mui/material'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import { useGetProjectsQuery } from '@/store/features/project/projectApi'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
@@ -35,7 +35,7 @@ const customColumns = () => [
   }
 ]
 
-const ProjectsList = ({ mode }: { mode: SystemMode }) => {
+const ProjectsList = (/*{ mode }: { mode: SystemMode }*/) => {
   const [searchText, setSearchText] = useState<string>('')
   const [filteredData, setFilteredData] = useState<IProject[]>([])
   const [isFiltering, setIsFiltering] = useState(false)

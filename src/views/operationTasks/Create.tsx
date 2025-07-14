@@ -37,28 +37,28 @@ const CreateOperation = ({ close }: { close: () => void }) => {
   const [selectedType, setSelectedType] = React.useState<IOperationType | null>(null)
   const [selectedZone, setSelectedZone] = React.useState<IOperationZone | null>(null)
   const [selectedTrans, setSelectedTrans] = React.useState<IOperationTrans | null>(null)
-  const [durationMode, setDurationMode] = React.useState(false)
+  // const [durationMode, setDurationMode] = React.useState(false)
 
   const { showAlert, showToast } = useSweetAlert()
 
-  const { data: tasks, error: taskError, isLoading: isLoadingTasks } = useGetTasksQuery()
+  const { data: tasks /* error: taskError, isLoading: isLoadingTasks */ } = useGetTasksQuery()
   const {
-    data: operationTypes,
-    error: operationTypeError,
-    isLoading: isLoadingOperationTypes
+    data: operationTypes
+    // error: operationTypeError,
+    // isLoading: isLoadingOperationTypes
   } = useGetOperationsTypesQuery()
   const {
-    data: operationTrans,
-    error: operationTransError,
-    isLoading: isLoadingOperationTrans
+    data: operationTrans
+    // error: operationTransError,
+    // isLoading: isLoadingOperationTrans
   } = useGetOperationsTransQuery()
   const {
-    data: operationZones,
-    error: operationZoneError,
-    isLoading: isLoadingOperationZones
+    data: operationZones
+    // error: operationZoneError,
+    // isLoading: isLoadingOperationZones
   } = useGetOperationsZonesQuery()
 
-  const [createOperationTasks, { isLoading, isError, error, isSuccess }] = useCreateOperationTasksMutation()
+  const [createOperationTasks, { isLoading /* isError, error, isSuccess */ }] = useCreateOperationTasksMutation()
 
   const handleCreateOperationSubmit = async (event: React.FormEvent) => {
     event.preventDefault()

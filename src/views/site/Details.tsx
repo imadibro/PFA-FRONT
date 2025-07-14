@@ -15,7 +15,7 @@ import { useGetSiteByIdQuery } from '@/store/features/site/siteApi'
 import type { SystemMode } from '@core/types'
 
 const SiteDetails = ({ mode, site, close }: { mode: SystemMode; site: ISite | null; close: () => void }) => {
-  const { data, error, isLoading } = useGetSiteByIdQuery(site?.id || '')
+  const { data, isLoading } = useGetSiteByIdQuery(site?.id || '')
 
   return (
     <Box sx={{ width: '100%', position: 'relative', p: 4, px: 0, minWidth: 450 }}>

@@ -1,5 +1,6 @@
 import type { IOperation } from '@/@core/utils/types'
-import { CheckSquare, MapPin } from 'lucide-react'
+import { MapPin } from 'lucide-react'
+// import { CheckSquare } from 'lucide-react'
 
 // Detailed Card Component
 export default function DetailedCard({ operation }: { operation: IOperation }) {
