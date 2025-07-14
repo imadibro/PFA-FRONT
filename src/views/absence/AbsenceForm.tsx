@@ -36,7 +36,8 @@ const AbsenceForm = ({
   employees,
   onClose,
   isEditMode,
-  isOpen
+  isOpen,
+  setAbsenceToEdit
 }: {
   mode: SystemMode
   absenceToEdit?: IAbsence | null
@@ -44,6 +45,7 @@ const AbsenceForm = ({
   onClose: () => void
   isEditMode: boolean
   isOpen: boolean
+  setAbsenceToEdit?: (absence: IAbsence | null) => void
 }) => {
   const [updateAbsence, { isLoading: isUpdating, isError: updateError, error: updateErr }] = useUpdateAbsenceMutation()
   const [createAbsence, { isLoading: isCreating, isError: createError, error: createErr }] = useCreateAbsenceMutation()
@@ -96,7 +98,7 @@ const AbsenceForm = ({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
-    const employee = selectedEmployee
+    const employee = selectedEmployee || employees.find((emp: IEmployee) => emp.id === absenceToEdit?.employee?.id)
     const absence = selectedAbsenceReason
 
     if (!employee?.id) {
@@ -165,6 +167,42 @@ const AbsenceForm = ({
     }
   })
 
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedEmployee(null)
+      setSelectedAbsenceReason(null)
+      setIsSelectedEmployeeError(false)
+      setIsSelectedAbsenceReasonError(false)
+      setIsSelectedStartDateError(false)
+      setIsSelectedEndDateError(false)
+      setStartDate(null)
+      setEndDate(null)
+      setAutre('')
+      setIsAutre(false)
+      setNotes('')
+
+      if (setAbsenceToEdit) setAbsenceToEdit(null)
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    if (absenceToEdit) {
+      if (absenceToEdit.notes) setNotes(absenceToEdit.notes)
+      if (absenceToEdit.autre) setAutre(absenceToEdit.autre)
+      if (absenceToEdit.startDate) setStartDate(dayjs(absenceToEdit.startDate))
+      if (absenceToEdit.endDate) setEndDate(dayjs(absenceToEdit.endDate))
+      if (absenceToEdit.absence) {
+        setSelectedAbsenceReason(absenceToEdit.absence as IAbsenceReasons)
+        if (absenceToEdit.absence.toLowerCase() === 'autre') {
+          setIsAutre(true)
+        } else {
+          setIsAutre(false)
+          setAutre('')
+        }
+      }
+    }
+  }, [absenceToEdit])
+
   return (
     <SidebarDrawerForm
       isAbsence={true}
@@ -186,7 +224,9 @@ const AbsenceForm = ({
             options={employees}
             size='small'
             getOptionLabel={option => `${option.firstName} ${option.lastName}`}
-            value={selectedEmployee}
+            value={
+              selectedEmployee || employees.find((emp: IEmployee) => emp.id === absenceToEdit?.employee?.id) || null
+            }
             onChange={(event, newValue) => setSelectedEmployee(newValue)}
             ChipProps={{ color: 'warning' }}
             renderOption={(props, option, { selected }) => (
@@ -217,7 +257,7 @@ const AbsenceForm = ({
             size='small'
             options={absenceReasons}
             getOptionLabel={option => option}
-            value={selectedAbsenceReason}
+            value={selectedAbsenceReason || null}
             onChange={(event, newValue) => setSelectedAbsenceReason(newValue)}
             ChipProps={{ color: 'warning' }}
             renderOption={(props, option, { selected }) => (
@@ -306,7 +346,7 @@ const AbsenceForm = ({
             rows={4}
             fullWidth
             multiline
-            value={notes}
+            value={notes || ''}
             onChange={e => setNotes(e.target.value)}
           />
         </div>

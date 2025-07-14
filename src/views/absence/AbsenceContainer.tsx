@@ -51,7 +51,6 @@ const AbsencesContainer = ({ mode }: { mode: SystemMode }) => {
     setIDBIsProcessing(true)
 
     const absences = await getAbsencesFromDB()
-    console.log('Processing absences from IndexedDB:', absences)
     if (!absences.length) {
       setIDBIsProcessing(false)
       return
@@ -219,6 +218,7 @@ const AbsencesContainer = ({ mode }: { mode: SystemMode }) => {
           onClose={onCloseForm}
           isEditMode={isEditMode}
           employees={employeeData}
+          setAbsenceToEdit={setAbsenceToEdit}
         />
       )}
     </div>
