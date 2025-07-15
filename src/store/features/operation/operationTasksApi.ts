@@ -50,12 +50,10 @@ export const operationApi = api.injectEndpoints({
       IOperationTask,
       {
         id: string
-        label: string
-        duration: number
-        durationMode: string
-        description: string
+        operationTypeId: string
+        operationZoneId: string
+        operationTransId: string
         tasksToAdd: string[]
-        tasksToRemove: string[]
       }
     >({
       query: operation => ({

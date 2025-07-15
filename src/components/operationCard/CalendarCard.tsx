@@ -1,7 +1,6 @@
 import type { IEquipe, IOperation } from '@/@core/utils/types'
 import { Car, Fuel, RouteIcon as Road, Users } from 'lucide-react'
-// import {  MapPin} from 'lucide-react'
-import React from 'react'
+import React, { useState } from 'react'
 
 // Define ExternalEvent type if not already imported
 type ExternalEvent = {
@@ -25,7 +24,8 @@ export function CalendarCard({
   calendarRef: React.RefObject<any>
   setEvents: React.Dispatch<React.SetStateAction<ExternalEvent[]>>
 }) {
-  // console.log('operation ===>', operation)
+  // State for action menu visibility
+  const [showMenu, setShowMenu] = useState(false)
 
   // Always call useDrop (never conditionally)
   const [{ isOver, canDrop }, drop] = useDrop(
@@ -51,6 +51,19 @@ export function CalendarCard({
     }
   }, [onEquipeDrop, drop])
 
+  // Close menu when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (divRef.current && !divRef.current.contains(event.target as Node) && showMenu) {
+        setShowMenu(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showMenu])
+
   if (!operation) return null
 
   const handleDeleteOperation = (operationId: string) => {
@@ -66,7 +79,8 @@ export function CalendarCard({
   return (
     <div
       ref={divRef}
-      className={`w-full max-w-3xl rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden ${isOver && canDrop ? 'ring-2 ring-blue-400' : ''}`}
+      className={`w-full rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden ${isOver && canDrop ? 'ring-2 ring-blue-400' : ''}`}
+      style={{ position: 'relative' }} /* Ensure proper positioning context */
     >
       <div className='p-4'>
         {/* <div className='flex justify-between items-start'>
@@ -84,24 +98,25 @@ export function CalendarCard({
         <OperationHeader operation={operation} onDelete={handleDeleteOperation} />
 
         {/* Team/Members */}
-        <div className='mt-3 flex flex-wrap gap-2'>
+        <div className='mt-3 flex flex-wrap gap-2 overflow-hidden'>
           {operation?.equipe?.members && Array.isArray(operation?.equipe?.members) ? (
             operation?.equipe?.members.map((member: { id: string; name: string; role: string }) => (
               <span
                 key={member.id}
-                className='inline-flex items-center rounded-full border border-slate-200 px-2.5 py-0.5 text-xs font-medium text-slate-700'
+                className='inline-flex items-center rounded-full border border-slate-200 px-2.5 py-0.5 text-xs font-medium text-slate-700 whitespace-nowrap'
               >
-                <Users size={12} className='mr-1' />
-                {member.name} ({member.role})
+                <Users size={12} className='mr-1 flex-shrink-0' />
+                <span className='truncate'>{member.name}</span> <span className='truncate'>({member.role})</span>
               </span>
             ))
           ) : equipe?.members && Array.isArray(equipe.members) ? (
             <span
               key={equipe.id}
-              className='inline-flex items-center rounded-full border border-green-200 px-2.5 py-0.5 text-xs font-medium text-green-700 bg-green-50'
+              className='inline-flex items-center rounded-full border border-green-200 px-2.5 py-0.5 text-xs font-medium text-green-700 bg-green-50 whitespace-nowrap'
             >
-              <Users size={12} className='mr-1' />
-              {equipe.name} ({equipe.members.length} members)
+              <Users size={12} className='mr-1 flex-shrink-0' />
+              <span className='truncate'>{equipe.name}</span>{' '}
+              <span className='truncate'>({equipe.members.length} members)</span>
             </span>
           ) : null}
         </div>
@@ -109,9 +124,11 @@ export function CalendarCard({
         {/* Vehicle */}
         {(operation?.equipe?.vehicule?.registrationId || equipe?.vehicule?.registrationId) && (
           <div className='mt-3 flex gap-3 text-xs'>
-            <span className='flex items-center gap-1'>
-              <Car size={14} />
-              {operation?.equipe?.vehicule?.registrationId || equipe?.vehicule?.registrationId}
+            <span className='flex items-center gap-1 overflow-hidden'>
+              <Car size={14} className='flex-shrink-0' />
+              <span className='truncate'>
+                {operation?.equipe?.vehicule?.registrationId || equipe?.vehicule?.registrationId}
+              </span>
             </span>
           </div>
         )}
@@ -119,9 +136,9 @@ export function CalendarCard({
         {/* Fuel Card */}
         {(operation?.equipe?.fuelCard?.matricule || equipe?.fuelCard?.matricule) && (
           <div className='mt-3 flex gap-3 text-xs'>
-            <span className='flex items-center gap-1'>
-              <Fuel size={14} />
-              {operation?.equipe?.fuelCard?.matricule || equipe?.fuelCard?.matricule}
+            <span className='flex items-center gap-1 overflow-hidden'>
+              <Fuel size={14} className='flex-shrink-0' />
+              <span className='truncate'>{operation?.equipe?.fuelCard?.matricule || equipe?.fuelCard?.matricule}</span>
             </span>
           </div>
         )}
@@ -129,9 +146,11 @@ export function CalendarCard({
         {/* Highway Card */}
         {(operation?.equipe?.highwayCard?.matricule || equipe?.highwayCard?.matricule) && (
           <div className='mt-3 flex gap-3 text-xs'>
-            <span className='flex items-center gap-1'>
-              <Road size={14} />
-              {operation?.equipe?.highwayCard?.matricule || equipe?.highwayCard?.matricule}
+            <span className='flex items-center gap-1 overflow-hidden'>
+              <Road size={14} className='flex-shrink-0' />
+              <span className='truncate'>
+                {operation?.equipe?.highwayCard?.matricule || equipe?.highwayCard?.matricule}
+              </span>
             </span>
           </div>
         )}

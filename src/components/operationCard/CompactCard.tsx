@@ -74,28 +74,32 @@ export function CompactCard({
             </span>
           </div>
 
-          {/* <div className='flex items-center gap-1 text-slate-600'>
-            <Users size={12} />
-            {operation?.equipe?.members.length} members
-          </div>
+          {operation?.equipe && (
+            <>
+              <div className='flex items-center gap-1 text-slate-600'>
+                <Users size={12} />
+                {operation?.equipe?.members.length} members
+              </div>
 
-          <div className='flex items-center justify-between'>
-            <span className='flex items-center gap-1 text-slate-600'>
-              <Car size={12} />
-              {operation?.equipe?.vehicule?.registrationId}
-            </span>
-          </div>
+              <div className='flex items-center justify-between'>
+                <span className='flex items-center gap-1 text-slate-600'>
+                  <Car size={12} />
+                  {operation?.equipe?.vehicule?.registrationId}
+                </span>
+              </div>
 
-          <div className='flex items-center justify-between'>
-            <span className='flex items-center gap-1 text-slate-600'>
-              <Fuel size={12} />
-              {operation?.equipe?.fuelCard?.matricule}
-            </span>
-            <span className='flex items-center gap-1 text-slate-600'>
-              <Road size={12} />
-              {operation?.equipe?.highwayCard?.matricule}
-            </span>
-          </div> */}
+              <div className='flex items-center justify-between'>
+                <span className='flex items-center gap-1 text-slate-600'>
+                  <Fuel size={12} />
+                  {operation?.equipe?.fuelCard?.matricule}
+                </span>
+                <span className='flex items-center gap-1 text-slate-600'>
+                  <Road size={12} />
+                  {operation?.equipe?.highwayCard?.matricule}
+                </span>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

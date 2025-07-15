@@ -1,7 +1,8 @@
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import exportData from '@/@core/utils/exportData'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
-import type { IOperation, IOperationTask } from '@/@core/utils/types'
+import type { IOperationTask } from '@/@core/utils/types'
+import { useToastComponante } from '@/components/common/DeletedComponante'
 import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import {
@@ -17,7 +18,6 @@ import type { ChangeEvent } from 'react'
 import { useCallback, useState } from 'react'
 import CreateOperation from './Create'
 import UpdateOperation from './Update'
-import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const customColumns = () => [
   {
@@ -53,19 +53,13 @@ const OperationTasksList = ({ mode }: { mode: SystemMode }) => {
     page: 0,
     pageSize: 10
   })
-  const [, /*isDetailsOpen*/ setIsDetailsOpen] = useState<boolean>(false)
-  const [
-    ,
-    /*operationToEdit, setOperationToEdit] = useState<IOperation | null>(null)
-  const [/*isEditMode*/ setIsEditMode
-  ] = useState<boolean>(false)
+  // const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false)
+  const [operationToEdit, setOperationToEdit] = useState<IOperationTask | null>(null)
+  const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
   const { showAlert } = useSweetAlert()
   const { confirmDelete, showDeletToast } = useToastComponante()
-  const [
-    deleteOperation,
-    { isLoading: deleteOperationIsLoading /* isError, error: deleteOperationError, isSuccess*/ }
-  ] = useDeleteOperationTasksMutation()
+  const [deleteOperation, { isLoading: deleteOperationIsLoading }] = useDeleteOperationTasksMutation()
 
   const { data, error, isLoading } = useGetOperationsTasksQuery()
   const { data: taskData, error: taskError, isLoading: isLoadingTasks } = useGetTasksQuery()
@@ -109,7 +103,7 @@ const OperationTasksList = ({ mode }: { mode: SystemMode }) => {
     setOpenModal(true)
   }
 
-  const toggleEditMode = (operation: IOperation) => {
+  const toggleEditMode = (operation: IOperationTask) => {
     setIsEditMode(true)
     setOperationToEdit(operation)
     setOpenUpdateModal(true)
@@ -152,9 +146,9 @@ const OperationTasksList = ({ mode }: { mode: SystemMode }) => {
     setFilteredData([])
   }
 
-  const handleCustomAction = (operation: IOperation) => {
+  const handleCustomAction = (operation: IOperationTask) => {
     setOperationToEdit(operation)
-    setIsDetailsOpen(true)
+    // setIsDetailsOpen(true)
   }
 
   const columns = GetColumns({
@@ -228,8 +222,7 @@ const OperationTasksList = ({ mode }: { mode: SystemMode }) => {
       {/* Update Operation */}
       <Drawer open={openUpdateModal} onClose={() => setOpenUpdateModal(false)} anchor={'right'}>
         <UpdateOperation
-          mode={mode}
-          operationToEdit={operationToEdit}
+          operationToEdit={operationToEdit!}
           tasks={taskData}
           onClose={() => setOpenUpdateModal(false)}
         />

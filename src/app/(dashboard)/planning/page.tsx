@@ -7,8 +7,7 @@ import { useGetOperationsQuery } from '@/store/features/operation/operationApi'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
 import FullCalendar from '@fullcalendar/react'
-import React, { useEffect, useRef, useState } from 'react'
-
+import { useEffect, useRef, useState } from 'react'
 import { DndProvider, useDrag } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 
@@ -26,13 +25,9 @@ interface ExternalEvent {
 function Page() {
   const [events, setEvents] = useState<ExternalEvent[]>([])
   const externalEventsRef = useRef<HTMLDivElement>(null)
-  const calendarRef = React.useRef<any>(null)
+  const calendarRef = useRef<any>(null)
 
-  const {
-    data: operations
-    // error: operationsError,
-    //  isLoading: operationsLoading
-  } = useGetOperationsQuery({
+  const { data: operations } = useGetOperationsQuery({
     limit: 20,
     page: 1,
     search: ''
@@ -44,7 +39,7 @@ function Page() {
     if (externalEventsRef.current) {
       new Draggable(externalEventsRef.current, {
         itemSelector: '.fc-event',
-        eventData: function (eventEl) {
+        eventData: function (eventEl: any) {
           return {
             ...eventEl.dataset
           }
@@ -56,32 +51,36 @@ function Page() {
   // Handle dropping an operation card into the calendar
   const handleEventReceive = (info: any) => {
     // console.log('info ===>', info)
-    // console.log('info.draggedEl.dataset.type ===>', info.draggedEl.dataset.type)
-    // Prevent equipe cards from being dropped into the calendar grid
+    // Only allow operations to be dropped in the calendar
     if (info.draggedEl.dataset.type !== 'operation') {
-      // Remove the ghost element if present
       if (info.revert) info.revert()
       if (info.draggedEl.parentNode) {
         info.draggedEl.parentNode.removeChild(info.draggedEl)
       }
-      // return
+      return
     }
+
     setEvents(prev => {
       // Prevent operation duplication: don't add if operation (by originalId) is already scheduled for this date
       const alreadyExists = prev.some(
         event => event.originalId === info.draggedEl.dataset.id && event.date === info.dateStr
       )
-      if (alreadyExists) return prev
+      if (alreadyExists) {
+        console.warn('Operation already exists for this date in this row, not adding duplicate.')
+        return prev
+      }
+
       // Generate a unique ID for each event instance
       const uniqueId = `${info.draggedEl.dataset.id}-${info.dateStr}`
-      const newEvent = {
-        ...info.draggedEl.dataset,
+      const newEvent: ExternalEvent = {
+        ...(info.draggedEl.dataset as any),
         id: uniqueId, // Use the unique ID for this instance
         originalId: info.draggedEl.dataset.id, // Keep track of the original ID
         date: info.dateStr
       }
       return [...prev, newEvent]
     })
+
     if (info.draggedEl.parentNode) {
       info.draggedEl.parentNode.removeChild(info.draggedEl)
     }
@@ -98,7 +97,7 @@ function Page() {
   //   }
   // }
 
-  // console.log('events ===>', events)
+  console.log('events ===>', events)
 
   return (
     <div className='flex h-full'>
@@ -160,12 +159,24 @@ function Page() {
               drop={handleEventReceive}
               eventContent={renderEventContentWithDrop(setEvents, calendarRef)}
               dayMaxEventRows={true}
-              eventChange={function (e: any) {
-                console.log('event change ===>', e)
-                // setEvents(prev => prev.map(event => event.id === e.id ? e : event))
+              eventChange={function (changeInfo: any) {
+                console.log('changeInfo ===>', changeInfo)
+                // setEvents(prev =>
+                //   prev.map(ev =>
+                //     ev.id === changeInfo.event.id
+                //       ? {
+                //           ...ev,
+                //           date: changeInfo.event.startStr,
+                //           start: changeInfo.event.startStr,
+                //           end: changeInfo.event.endStr
+                //           // rowIndex is preserved from the existing event 'ev' by spreading it
+                //         }
+                //       : ev
+                //   )
+                // )
               }}
               eventRemove={function (e: any) {
-                // console.log('event remove ===>', e)
+                console.log('event remove ===>', e)
                 setEvents(prev => prev.filter(event => event.id !== e.event.id))
               }}
               // eventDragStart={function (e: any) {
@@ -210,7 +221,8 @@ function renderEventContentWithDrop(setEvents: any, calendarRef: React.RefObject
     const equipe = eventInfo.event.extendedProps.assignedEquipe
       ? JSON.parse(eventInfo.event.extendedProps.assignedEquipe)
       : undefined
-    if (operation) operation.equipe = equipe
+    if (operation && equipe) operation.equipe = equipe
+
     return (
       <CalendarCard
         operation={operation}
@@ -219,9 +231,7 @@ function renderEventContentWithDrop(setEvents: any, calendarRef: React.RefObject
         onEquipeDrop={(droppedEquipe: any) => {
           setEvents((prev: any[]) =>
             prev.map(ev =>
-              ev.id === eventInfo.event.extendedProps.eventId
-                ? { ...ev, assignedEquipe: JSON.stringify(droppedEquipe) }
-                : ev
+              ev.id === eventInfo.event.id ? { ...ev, assignedEquipe: JSON.stringify(droppedEquipe) } : ev
             )
           )
         }}

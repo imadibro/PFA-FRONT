@@ -7,7 +7,18 @@ import { useGetAllVehiculeQuery } from '@/store/features/vehicule/vehiculeApi'
 import CustomTextField from '@core/components/mui/TextField'
 import type { IEquipe, IEquipeRequest } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Grid, MenuItem, Table, TableBody, TableCell, TableHead, TableRow, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Grid,
+  MenuItem,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  Typography
+} from '@mui/material'
 import { useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
@@ -49,6 +60,7 @@ export default function EquipeForm(props: Props) {
 
   const [selectedEmployee, setSelectedEmployee] = useState('')
   const [selectedRole, setSelectedRole] = useState('')
+  const [showAddEmployee, setShowAddEmployee] = useState(false)
 
   const { data: cardsData } = useGetAllCardsQuery()
   const { data: vehiculesData } = useGetAllVehiculeQuery()
@@ -86,7 +98,7 @@ export default function EquipeForm(props: Props) {
     formState: { errors }
   } = useForm<IEquipeRequest>({
     defaultValues,
-    resolver: yupResolver(schema)
+    resolver: yupResolver(schema as any)
   })
 
   // Récupère la valeur actuelle des membres depuis le form
@@ -125,7 +137,7 @@ export default function EquipeForm(props: Props) {
       toggle={toggle}
       customWidth='600px'
     >
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit as any)}>
         <Grid container spacing={5}>
           <Grid item xs={12} sm={12}>
             <Controller
@@ -146,79 +158,23 @@ export default function EquipeForm(props: Props) {
             />
           </Grid>
 
-          <Grid item xs={12} sm={12}>
-            <CustomTextField
-              select
-              fullWidth
-              label='Employé'
-              value={selectedEmployee}
-              onChange={e => {
-                const empId = e.target.value
-                setSelectedEmployee(empId)
-
-                // Récupère le rôle automatiquement
-                const emp = employees.find(e => e.id === empId)
-                if (emp?.role?.id) {
-                  setSelectedRole(emp.role.id)
-                } else {
-                  setSelectedRole('')
-                }
-              }}
-            >
-              {employees.map(emp => (
-                <MenuItem key={emp.id} value={emp.id}>
-                  {emp.firstName} {emp.lastName}
-                </MenuItem>
-              ))}
-            </CustomTextField>
-          </Grid>
-
-          <Grid item xs={12} sm={12}>
-            <CustomTextField
-              select
-              fullWidth
-              label='Rôle'
-              value={selectedRole}
-              onChange={e => setSelectedRole(e.target.value)}
-            >
-              {roles.map(role => (
-                <MenuItem key={role.id} value={role.id}>
-                  {role.role}
-                </MenuItem>
-              ))}
-            </CustomTextField>
-          </Grid>
-
-          <Grid item xs={12} sm={12}>
-            <Button
-              variant='outlined'
-              onClick={() => {
-                const emp = employees.find(e => e.id === selectedEmployee)
-                const role = roles.find(r => r.id === selectedRole)
-                if (!emp || !role) return
-
-                setValue('members', [
-                  ...(watch('members') || []),
-                  {
-                    id: emp.id,
-                    name: emp.firstName + ' ' + emp.lastName,
-                    role: role.role
-                  }
-                ])
-
-                setSelectedEmployee('')
-                setSelectedRole('')
-              }}
-              disabled={!selectedEmployee || !selectedRole}
-            >
-              Ajouter le membre
-            </Button>
-          </Grid>
-
           <Grid item xs={12}>
-            <Typography variant='h6' gutterBottom>
-              Les membres de l'équipe
-            </Typography>
+            <Box display='flex' justifyContent='space-between' alignItems='center'>
+              <Typography variant='h6' gutterBottom>
+                Les membres de l'équipe
+              </Typography>
+              {!showAddEmployee && (
+                <Button
+                  variant='outlined'
+                  onClick={() => {
+                    setShowAddEmployee(true)
+                  }}
+                >
+                  Ajouter un membre
+                </Button>
+              )}
+            </Box>
+
             {members && members.length > 0 ? (
               <Table size='small'>
                 <TableHead>
@@ -255,6 +211,90 @@ export default function EquipeForm(props: Props) {
               <Typography>Aucun membre ajouté</Typography>
             )}
           </Grid>
+
+          {showAddEmployee && (
+            <>
+              <Grid item xs={12} sm={12}>
+                <CustomTextField
+                  select
+                  fullWidth
+                  label='Employé'
+                  value={selectedEmployee}
+                  onChange={e => {
+                    const empId = e.target.value
+                    setSelectedEmployee(empId)
+
+                    // Récupère le rôle automatiquement
+                    const emp = employees.find(e => e.id === empId)
+                    if (emp?.role?.id) {
+                      setSelectedRole(emp.role.id)
+                    } else {
+                      setSelectedRole('')
+                    }
+                  }}
+                >
+                  {employees.map(emp => (
+                    <MenuItem key={emp.id} value={emp.id}>
+                      {emp.firstName} {emp.lastName}
+                    </MenuItem>
+                  ))}
+                </CustomTextField>
+              </Grid>
+
+              <Grid item xs={12} sm={12}>
+                <CustomTextField
+                  select
+                  fullWidth
+                  label='Rôle'
+                  value={selectedRole}
+                  onChange={e => setSelectedRole(e.target.value)}
+                >
+                  {roles.map(role => (
+                    <MenuItem key={role.id} value={role.id}>
+                      {role.role}
+                    </MenuItem>
+                  ))}
+                </CustomTextField>
+              </Grid>
+
+              <Grid item xs={12} sm={12}>
+                <Button
+                  variant='outlined'
+                  onClick={() => {
+                    const emp = employees.find(e => e.id === selectedEmployee)
+                    const role = roles.find(r => r.id === selectedRole)
+                    if (!emp || !role) return
+
+                    setValue('members', [
+                      ...(watch('members') || []),
+                      {
+                        id: emp.id,
+                        name: emp.firstName + ' ' + emp.lastName,
+                        role: role.role
+                      }
+                    ])
+
+                    setSelectedEmployee('')
+                    setSelectedRole('')
+                    setShowAddEmployee(false)
+                  }}
+                  disabled={!selectedEmployee || !selectedRole}
+                >
+                  Ajouter le membre
+                </Button>
+                <Button
+                  style={{ marginLeft: 5 }}
+                  variant='outlined'
+                  color='error'
+                  onClick={() => {
+                    setShowAddEmployee(false)
+                  }}
+                >
+                  Annuler
+                </Button>
+              </Grid>
+            </>
+          )}
 
           <Grid item xs={12} sm={12}>
             <Controller
