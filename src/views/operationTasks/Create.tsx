@@ -82,7 +82,7 @@ const CreateOperation = ({ close }: { close: () => void }) => {
     }
 
     try {
-      const tasksIds = selectedTasks?.map((task: ITask) => task.id)
+      const tasksIds = selectedTasks?.map((task: ITask) => task.id).filter(Boolean) || []
       const operationType = selectedType?.id
       const operationZone = selectedZone?.id
       const operationTrans = selectedTrans?.id

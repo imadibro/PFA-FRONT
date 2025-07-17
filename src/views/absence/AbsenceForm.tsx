@@ -218,7 +218,7 @@ const AbsenceForm = ({
           </Alert>
         )}
 
-        <div className='my-8'>
+        <div className='mb-4'>
           <Autocomplete
             id='checkboxes-employees'
             options={employees}
@@ -251,7 +251,7 @@ const AbsenceForm = ({
           />
         </div>
 
-        <div className='my-8'>
+        <div className='mb-4'>
           <Autocomplete
             id='checkboxes-absenceReasons'
             size='small'

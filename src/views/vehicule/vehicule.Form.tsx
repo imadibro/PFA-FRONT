@@ -75,11 +75,12 @@ export default function VehiculeForm(props: Props) {
     resolver: yupResolver(schema)
   })
 
-  const onSubmit: SubmitHandler<IVehiculeRequest> = data => {
+  const onSubmit: SubmitHandler<IVehiculeRequest> = async data => {
+    console.log(data)
     if (isEditMode && vehiculeToEdit) {
-      handleEdit({ ...data, id: vehiculeToEdit?.id })
+      await handleEdit({ ...data, id: vehiculeToEdit?.id })
     } else {
-      handleAdd(data)
+      await handleAdd(data)
     }
 
     reset()

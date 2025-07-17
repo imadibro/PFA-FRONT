@@ -75,7 +75,9 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IOperatio
       )
     },
     {
-      flex: 1,
+      align: 'left',
+      headerAlign: 'left',
+      minWidth: 100,
       sortable: false,
       field: 'actions',
       headerName: 'Actions',

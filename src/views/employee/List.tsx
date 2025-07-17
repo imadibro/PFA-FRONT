@@ -70,13 +70,15 @@ const customColumns = () => [
       <Chip
         label={row.isMember ? 'Affecté' : 'Non affecté'}
         color={row.isMember ? 'success' : 'error'}
+        size='small'
         sx={{
           fontWeight: 400,
-          fontSize: 10,
+          fontSize: 13,
           px: 2,
           height: 32,
           borderRadius: 2,
-          bgcolor: row.isMember ? '#12d85b' : '#e94747',
+          padding: '0 0px',
+          bgcolor: row.isMember ? '#6be29f' : '#d36d6d',
           color: '#fff'
         }}
       />

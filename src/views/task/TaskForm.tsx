@@ -3,7 +3,7 @@ import type { ITask } from '@/@core/utils/types'
 import { useToastComponante } from '@/components/common/DeletedComponante'
 import { useCreateTaskMutation, useUpdateTaskMutation } from '@/store/features/task/taskApi'
 import type { SystemMode } from '@core/types'
-import { Alert, Box, Button, IconButton, TextField } from '@mui/material'
+import { Alert, Box, Button, Grid, IconButton, TextField } from '@mui/material'
 import Typography from '@mui/material/Typography'
 
 const TaskForm = ({
@@ -52,12 +52,14 @@ const TaskForm = ({
 
   return (
     <div className='bg-backgroundPaper p-4' style={{ minWidth: 450 }}>
-      <IconButton onClick={onClose} sx={{ position: 'absolute', top: 8, left: 8 }}>
-        <i className='tabler-x' />
-      </IconButton>
-      <Typography variant='h4' className='my-4  mt-10'>
-        {isUpdatingTask ? 'Mettre à jour la tâche' : 'Créer une tâche'}
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+        <Typography variant='h6' sx={{ fontWeight: 600 }}>
+          {isUpdatingTask ? 'Modifier la tâche' : 'Créer la tâche'}
+        </Typography>
+        <IconButton onClick={onClose} sx={{ color: 'grey.600' }}>
+          <i className='tabler-x' />
+        </IconButton>
+      </Box>
       <form onSubmit={handleSubmit}>
         {isError && (
           <Alert severity='error'>
@@ -87,21 +89,28 @@ const TaskForm = ({
             multiline
           />
         </div>
-        <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, justifyContent: 'space-between', gap: 2 }}>
-          <Button variant='outlined' size='small' onClick={onClose} className='h-10 mt-4 w-full'>
-            Annuler
-          </Button>
+        <Grid item xs={12} sx={{ display: 'flex', gap: 2, mt: 2 }}>
           <Button
             type='submit'
-            color='primary'
             variant='contained'
-            size='small'
-            className='h-10 mt-4 w-full'
+            fullWidth
+            sx={{ fontWeight: 600, bgcolor: '#7C5CFA', '&:hover': { bgcolor: '#6c4edb' } }}
             disabled={isLoading}
           >
             {isLoading ? (isUpdatingTask ? 'Mise à jour...' : 'Création...') : isUpdatingTask ? 'Modifier' : 'Créer'}
           </Button>
-        </Box>
+
+          <Button
+            fullWidth
+            disabled={isLoading}
+            onClick={onClose}
+            style={{ marginLeft: 3 }}
+            variant='outlined'
+            color='error'
+          >
+            Annuler
+          </Button>
+        </Grid>
       </form>
     </div>
   )

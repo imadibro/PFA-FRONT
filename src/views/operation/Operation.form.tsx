@@ -10,7 +10,12 @@ import { Button, Grid, MenuItem } from '@mui/material'
 import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
+import dynamic from 'next/dynamic'
+import { ContentState, convertToRaw, EditorState } from 'draft-js'
+import draftToHtml from 'draftjs-to-html'
+import htmlToDraft from 'html-to-draftjs'
 
+const RichTextEditor = dynamic(() => import('@/views/site/RichTextEditor'), { ssr: false })
 interface Props {
   isOpen: boolean
   toggleForm: () => void
@@ -20,7 +25,6 @@ interface Props {
   operationToEdit: IOperation | null
   isEditMode: boolean
 }
-
 const schema = yup
   .object({
     site: yup.string().required('Site est requis'),
@@ -29,62 +33,79 @@ const schema = yup
     equipe: yup.string().nullable().notRequired()
   })
   .required()
-
 export default function OperationForm(props: Props) {
   const { isOpen, toggleForm, operationToEdit, isEditMode, handleAdd, cancleEditMode, handleEdit } = props
-
   const { data: operationTasksData } = useGetOperationsTasksQuery()
   const { data: projectsData } = useGetProjectsQuery()
   const { data: sitesData } = useGetAllSitesForDropDawnQuery()
   const { data: equipesData } = useGetEquipesQuery()
-
   const operationTasks = operationTasksData ?? []
   const projects = projectsData ?? []
   const sites = sitesData ?? []
   const equipes = equipesData ?? []
-
+  type OperationFormValues = {
+    site: string
+    operationTasks: string
+    project: string
+    equipe?: string | null
+    comment: EditorState
+  }
   const defaultValues: IOperationRequest = {
     site: isEditMode && operationToEdit && operationToEdit?.site?.id ? operationToEdit.site.id : '',
     operationTasks:
       isEditMode && operationToEdit && operationToEdit.operationTasks ? operationToEdit.operationTasks.id || '' : '',
     project: isEditMode && operationToEdit && operationToEdit?.project?.id ? operationToEdit.project.id || '' : '',
-    equipe: isEditMode && operationToEdit && operationToEdit.equipe?.id ? operationToEdit.equipe.id || '' : ''
+    equipe: isEditMode && operationToEdit && operationToEdit.equipe?.id ? operationToEdit.equipe.id || '' : '',
+    comment:
+      isEditMode && operationToEdit?.comment
+        ? (() => {
+            const html = operationToEdit.comment || ''
+            try {
+              const blocksFromHtml = htmlToDraft(html)
+              if (!blocksFromHtml?.contentBlocks?.length) {
+                return EditorState.createEmpty()
+              }
+              const contentState = ContentState.createFromBlockArray(
+                blocksFromHtml.contentBlocks,
+                blocksFromHtml.entityMap
+              )
+              return EditorState.createWithContent(contentState)
+            } catch (error) {
+              console.error('Failed to parse HTML to EditorState', error)
+              return EditorState.createEmpty()
+            }
+          })()
+        : EditorState.createEmpty()
   }
-
   const {
     reset,
     control,
     handleSubmit,
     formState: { errors }
-  } = useForm<IOperationRequest>({
+  } = useForm<OperationFormValues>({
     defaultValues,
     resolver: yupResolver(schema)
   })
-
-  const onSubmit: SubmitHandler<IOperationRequest> = data => {
+  const onSubmit: SubmitHandler<OperationFormValues> = data => {
     const cleanData = {
       ...data,
-      equipe: data.equipe === '' ? null : data.equipe
+      equipe: data.equipe === '' ? null : data.equipe,
+      comment: draftToHtml(convertToRaw(data.comment.getCurrentContent()))
     }
-
     if (isEditMode && operationToEdit) {
       handleEdit({ ...cleanData, id: operationToEdit?.id })
     } else {
       handleAdd(cleanData)
     }
-
     reset()
     toggleForm()
   }
-
   const toggle = () => {
     if (isEditMode) {
       cancleEditMode()
     }
-
     toggleForm()
   }
-
   return (
     <SidebarDrawerForm headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} operation`} open={isOpen} toggle={toggle}>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -118,7 +139,6 @@ export default function OperationForm(props: Props) {
               )}
             />
           </Grid>
-
           <Grid item xs={12} sm={12}>
             <Controller
               name='operationTasks'
@@ -141,7 +161,7 @@ export default function OperationForm(props: Props) {
                   {operationTasks &&
                     operationTasks.map(operationTasks => (
                       <MenuItem key={operationTasks.id} value={operationTasks.id}>
-                        {`${operationTasks.operationType.label} ${operationTasks.operationZone.label} 
+                        {`${operationTasks.operationType.label} ${operationTasks.operationZone.label}
                         ${operationTasks.operationTrans.label}`}
                       </MenuItem>
                     ))}
@@ -149,7 +169,6 @@ export default function OperationForm(props: Props) {
               )}
             />
           </Grid>
-
           <Grid item xs={12} sm={12}>
             <Controller
               name='project'
@@ -179,7 +198,6 @@ export default function OperationForm(props: Props) {
               )}
             />
           </Grid>
-
           <Grid item xs={12} sm={12}>
             <Controller
               name='equipe'
@@ -209,7 +227,15 @@ export default function OperationForm(props: Props) {
               )}
             />
           </Grid>
-
+          <Grid item xs={12} sm={12}>
+            <Controller
+              name='comment'
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <RichTextEditor mode={'dark'} editorState={value} setEditorState={onChange} />
+              )}
+            />
+          </Grid>
           <Grid item xs={6} sm={6}>
             <Button fullWidth type='submit' variant='contained'>
               {isEditMode ? 'Modifier' : 'Ajouter'}

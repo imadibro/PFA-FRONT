@@ -149,7 +149,7 @@ const draftStyle = {
   }
 }
 
-const RichTextEditor = (props: { mode: SystemMode; editorState: any; setEditorState: (state: any) => void }) => {
+const RichTextEditor = (props: { editorState: any; setEditorState: (state: any) => void }) => {
   const { setEditorState, editorState } = props
 
   const onEditorStateChange = (state: any = {}) => {

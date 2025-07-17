@@ -277,6 +277,7 @@ export interface IOperation extends ICommonProps {
   operationTasks: IOperationTask
   project: IProject
   equipe: IEquipe
+  comment?: string
 }
 
 export interface IOperationRequest {
@@ -285,6 +286,7 @@ export interface IOperationRequest {
   operationTasks: string
   project: string
   equipe?: string | null
+  comment?: string
 }
 export interface IEquipe extends ICommonProps {
   id: string

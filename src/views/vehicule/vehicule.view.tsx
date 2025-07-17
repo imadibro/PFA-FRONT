@@ -68,7 +68,9 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IVehicule
       )
     },
     {
-      flex: 1,
+      align: 'left',
+      headerAlign: 'left',
+      minWidth: 100,
       sortable: false,
       field: 'actions',
       headerName: 'Actions',
