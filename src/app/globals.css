@@ -136,3 +136,17 @@ code {
 .swal2-container {
   z-index: 9999;
 }
+
+.fc-license-message {
+  display: none !important;
+}
+
+.fc-timeline-header-row.fc-timeline-header-row-chrono {
+  /* display: none !important; */
+  visibility: hidden !important;
+}
+
+/* .fc-h-event {
+  background-color: transparent !important;
+  border: 0 !important;
+} */

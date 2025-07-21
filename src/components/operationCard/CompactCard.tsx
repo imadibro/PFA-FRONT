@@ -1,5 +1,5 @@
 import type { IEquipe, IOperation } from '@/@core/utils/types'
-import { Car, CheckSquare, Fuel, MapPin, RouteIcon as Road, Users } from 'lucide-react'
+import { Car, CheckSquare, Fuel, MapPin, MessageSquareTextIcon, RouteIcon as Road, Users } from 'lucide-react'
 
 export function CompactCard({
   operation,
@@ -99,6 +99,16 @@ export function CompactCard({
                 </span>
               </div>
             </>
+          )}
+
+          {/* Add borders to  the content */}
+          {operation?.comment && (
+            <div className='flex items-center justify-between border-t border-slate-200 pt-2'>
+              <span className='flex items-center gap-1 text-slate-600'>
+                <MessageSquareTextIcon size={12} />
+                <div dangerouslySetInnerHTML={{ __html: operation?.comment || '' }} />
+              </span>
+            </div>
           )}
         </div>
       </div>

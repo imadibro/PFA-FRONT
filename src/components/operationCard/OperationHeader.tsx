@@ -1,120 +1,22 @@
-// import React from 'react'
-// import { Box, Typography, Stack, IconButton, Menu, MenuItem, Chip, ListItemIcon } from '@mui/material'
-// import { MapPin, MoreVertical } from 'lucide-react'
-// import type { IOperation } from '@/@core/utils/types'
-
-// export default function OperationHeader({
-//   operation,
-//   onDelete
-// }: {
-//   operation: IOperation
-//   onDelete: (id: string) => void
-// }) {
-//   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
-//   const open = Boolean(anchorEl)
-//   const [opens, setOpens] = React.useState(false)
-
-//   const handleClickOpen = () => {
-//     setOpens(true)
-//   }
-//   const handleClose = () => {
-//     setOpens(false)
-//   }
-
-//   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-//     setAnchorEl(event.currentTarget)
-//   }
-
-//   const handleMenuClose = () => {
-//     setAnchorEl(null)
-//   }
-
-//   const handleChangeEquipe = () => {
-//     console.log('Changer équipe')
-//     handleMenuClose()
-//   }
-
-//   const handleChangeOperation = () => {
-//     console.log('Changer opération')
-//     handleMenuClose()
-//   }
-
-//   const handleDelete = () => {
-//     if (operation && onDelete) {
-//       onDelete(operation.id)
-//     }
-//     handleMenuClose()
-//   }
-
-//   return (
-//     <Stack direction='row' justifyContent='space-between' alignItems='flex-start'>
-//       {/* Left: project + site */}
-//       <Box sx={{ minWidth: 0 }}>
-//         <Typography variant='subtitle1' fontWeight={600} noWrap>
-//           {operation?.project?.projectCode}
-//         </Typography>
-//         <Stack direction='row' spacing={0.5} alignItems='center'>
-//           <MapPin size={14} />
-//           <Typography variant='body2' noWrap>
-//             {operation?.site?.siteNbr}
-//           </Typography>
-//         </Stack>
-//       </Box>
-
-//       {/* Right: tasks + menu */}
-//       <Stack direction='row' spacing={1} alignItems='center'>
-//         <Chip
-//           label={`${operation?.operationTasks?.operationTasksIds?.length || 0} tasks`}
-//           size='small'
-//           color='primary'
-//         />
-//         <IconButton size='small' onClick={handleMenuOpen}>
-//           <MoreVertical size={18} />
-//         </IconButton>
-//         <Menu anchorEl={anchorEl} open={open} onClose={handleMenuClose}>
-//           <MenuItem onClick={handleChangeOperation}>
-//             <ListItemIcon>
-//               <i className='tabler-eye' />
-//             </ListItemIcon>
-//             Affichier detailes
-//           </MenuItem>
-//           <MenuItem onClick={handleChangeEquipe}>
-//             <ListItemIcon>
-//               <i className='tabler-edit' />
-//             </ListItemIcon>
-//             Changer équipe
-//           </MenuItem>
-//           <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
-//             <ListItemIcon>
-//               <i className='tabler-trash' />
-//             </ListItemIcon>
-//             Supprimer
-//           </MenuItem>
-//         </Menu>
-//       </Stack>
-//     </Stack>
-//   )
-// }
-
-import React from 'react'
+import type { IEquipeRequest, IOperation } from '@/@core/utils/types'
 import {
   Box,
-  Typography,
-  Stack,
+  Button,
+  Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Divider,
   IconButton,
+  ListItemIcon,
   Menu,
   MenuItem,
-  Chip,
-  ListItemIcon,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  Divider
+  Stack,
+  Typography
 } from '@mui/material'
 import { MapPin, MoreVertical } from 'lucide-react'
-import type { IOperation } from '@/@core/utils/types'
+import React from 'react'
 import ModifierEquipe from './ModifierEquipe'
 
 export default function OperationHeader({
@@ -159,12 +61,12 @@ export default function OperationHeader({
       <Stack direction='row' justifyContent='space-between' alignItems='flex-start'>
         {/* Gauche : Projet + site */}
         <Box sx={{ minWidth: 0 }}>
-          <Typography variant='subtitle1' fontWeight={600} noWrap>
+          <Typography className='text-white' variant='subtitle1' fontWeight={600} noWrap>
             {operation.project.projectCode}
           </Typography>
           <Stack direction='row' spacing={0.5} alignItems='center'>
-            <MapPin size={14} />
-            <Typography variant='body2' noWrap>
+            <MapPin className='text-white' size={14} />
+            <Typography className='text-white' variant='body2' noWrap>
               {operation.site.siteNbr}
             </Typography>
           </Stack>
@@ -178,7 +80,7 @@ export default function OperationHeader({
             color='primary'
           /> */}
           <IconButton size='small' onClick={handleMenuOpen}>
-            <MoreVertical size={18} />
+            <MoreVertical className='text-white' size={18} />
           </IconButton>
 
           {/* Menu contextuel */}
@@ -246,7 +148,11 @@ export default function OperationHeader({
         </DialogActions>
       </Dialog>
 
-      <ModifierEquipe open={showEquipeDialog} onClose={() => setShowEquipeDialog(false)} />
+      <ModifierEquipe
+        equipeToEdit={{ ...operation?.equipe } as IEquipeRequest}
+        open={showEquipeDialog}
+        onClose={() => setShowEquipeDialog(false)}
+      />
     </>
   )
 }

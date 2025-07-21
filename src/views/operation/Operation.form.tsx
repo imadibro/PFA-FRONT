@@ -4,16 +4,16 @@ import { useGetOperationsTasksQuery } from '@/store/features/operation/operation
 import { useGetProjectsQuery } from '@/store/features/project/projectApi'
 import { useGetAllSitesForDropDawnQuery } from '@/store/features/site/siteApi'
 import CustomTextField from '@core/components/mui/TextField'
-import type { IOperationRequest, IOperation, ISite, IProject } from '@core/utils/types'
+import type { IOperation, IOperationRequest, IProject, ISite } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Grid, MenuItem } from '@mui/material'
-import type { SubmitHandler } from 'react-hook-form'
-import { Controller, useForm } from 'react-hook-form'
-import * as yup from 'yup'
-import dynamic from 'next/dynamic'
 import { ContentState, convertToRaw, EditorState } from 'draft-js'
 import draftToHtml from 'draftjs-to-html'
 import htmlToDraft from 'html-to-draftjs'
+import dynamic from 'next/dynamic'
+import type { SubmitHandler } from 'react-hook-form'
+import { Controller, useForm } from 'react-hook-form'
+import * as yup from 'yup'
 
 const RichTextEditor = dynamic(() => import('@/views/site/RichTextEditor'), { ssr: false })
 interface Props {
@@ -107,7 +107,12 @@ export default function OperationForm(props: Props) {
     toggleForm()
   }
   return (
-    <SidebarDrawerForm headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} operation`} open={isOpen} toggle={toggle}>
+    <SidebarDrawerForm
+      headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} operation`}
+      open={isOpen}
+      toggle={toggle}
+      customWidth='50%'
+    >
       <form onSubmit={handleSubmit(onSubmit)}>
         <Grid container spacing={5}>
           <Grid item xs={12} sm={12}>
@@ -211,7 +216,7 @@ export default function OperationForm(props: Props) {
                     onChange: e => onChange(e.target.value)
                   }}
                   fullWidth
-                  label='Equipe *'
+                  label='Equipe'
                   id='equipe'
                   error={Boolean(errors.equipe)}
                   aria-describedby='Equipe'
@@ -232,7 +237,7 @@ export default function OperationForm(props: Props) {
               name='comment'
               control={control}
               render={({ field: { value, onChange } }) => (
-                <RichTextEditor mode={'dark'} editorState={value} setEditorState={onChange} />
+                <RichTextEditor editorState={value} setEditorState={onChange} />
               )}
             />
           </Grid>

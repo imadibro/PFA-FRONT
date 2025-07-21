@@ -1,5 +1,5 @@
 import type { IEquipe, IOperation } from '@/@core/utils/types'
-import { Car, Fuel, RouteIcon as Road, Users } from 'lucide-react'
+import { Car, Fuel, MessageSquareTextIcon, RouteIcon as Road, Users } from 'lucide-react'
 import React, { useState } from 'react'
 
 // Define ExternalEvent type if not already imported
@@ -80,7 +80,10 @@ export function CalendarCard({
     <div
       ref={divRef}
       className={`w-full rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden ${isOver && canDrop ? 'ring-2 ring-blue-400' : ''}`}
-      style={{ position: 'relative' }} /* Ensure proper positioning context */
+      style={{
+        position: 'relative'
+        // backgroundColor: generateColor(operation?.project?.projectCode.substring(1, 7))
+      }} /* Ensure proper positioning context */
     >
       <div className='p-4'>
         {/* <div className='flex justify-between items-start'>
@@ -105,8 +108,9 @@ export function CalendarCard({
                 key={member.id}
                 className='inline-flex items-center rounded-full border border-slate-200 px-2.5 py-0.5 text-xs font-medium text-slate-700 whitespace-nowrap'
               >
-                <Users size={12} className='mr-1 flex-shrink-0' />
-                <span className='truncate'>{member.name}</span> <span className='truncate'>({member.role})</span>
+                <Users size={12} className='mr-1 flex-shrink-0 text-white' />
+                <span className='truncate text-white'>{member.name}</span>
+                <span className='truncate text-white ml-1'>({member.role})</span>
               </span>
             ))
           ) : equipe?.members && Array.isArray(equipe.members) ? (
@@ -114,9 +118,9 @@ export function CalendarCard({
               key={equipe.id}
               className='inline-flex items-center rounded-full border border-green-200 px-2.5 py-0.5 text-xs font-medium text-green-700 bg-green-50 whitespace-nowrap'
             >
-              <Users size={12} className='mr-1 flex-shrink-0' />
-              <span className='truncate'>{equipe.name}</span>{' '}
-              <span className='truncate'>({equipe.members.length} members)</span>
+              <Users size={12} className='mr-1 flex-shrink-0 text-white' />
+              <span className='truncate text-white'>{equipe.name}</span>{' '}
+              <span className='truncate text-white'>({equipe.members.length} members)</span>
             </span>
           ) : null}
         </div>
@@ -126,7 +130,7 @@ export function CalendarCard({
           <div className='mt-3 flex gap-3 text-xs'>
             <span className='flex items-center gap-1 overflow-hidden'>
               <Car size={14} className='flex-shrink-0' />
-              <span className='truncate'>
+              <span className='truncate text-white'>
                 {operation?.equipe?.vehicule?.registrationId || equipe?.vehicule?.registrationId}
               </span>
             </span>
@@ -138,7 +142,9 @@ export function CalendarCard({
           <div className='mt-3 flex gap-3 text-xs'>
             <span className='flex items-center gap-1 overflow-hidden'>
               <Fuel size={14} className='flex-shrink-0' />
-              <span className='truncate'>{operation?.equipe?.fuelCard?.matricule || equipe?.fuelCard?.matricule}</span>
+              <span className='truncate text-white'>
+                {operation?.equipe?.fuelCard?.matricule || equipe?.fuelCard?.matricule}
+              </span>
             </span>
           </div>
         )}
@@ -151,6 +157,16 @@ export function CalendarCard({
               <span className='truncate'>
                 {operation?.equipe?.highwayCard?.matricule || equipe?.highwayCard?.matricule}
               </span>
+            </span>
+          </div>
+        )}
+
+        {operation?.comment && (
+          <div className='flex items-center justify-between border-t border-slate-200 pt-2 mt-2'>
+            <span className='flex items-center gap-1 text-slate-600'>
+              {/* make icon color white */}
+              <MessageSquareTextIcon size={14} className='flex-shrink-0 text-white mr-1' />
+              <div dangerouslySetInnerHTML={{ __html: operation?.comment || '' }} className='text-white' />
             </span>
           </div>
         )}
