@@ -7,15 +7,16 @@ import CustomTextField from '@core/components/mui/TextField'
 import type { IOperation, IOperationRequest, IProject, ISite } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Grid, MenuItem } from '@mui/material'
-import { ContentState, convertToRaw, EditorState } from 'draft-js'
-import draftToHtml from 'draftjs-to-html'
-import htmlToDraft from 'html-to-draftjs'
-import dynamic from 'next/dynamic'
 import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
+import dynamic from 'next/dynamic'
+import { convertToRaw, EditorState } from 'draft-js'
+import draftToHtml from 'draftjs-to-html'
+import getEditorStateFromHtml from './getEditorStateFromHtml'
 
-const RichTextEditor = dynamic(() => import('@/views/site/RichTextEditor'), { ssr: false })
+const RichTextEditor = dynamic(() => import('./RichTextEditor'), { ssr: false })
+
 interface Props {
   isOpen: boolean
   toggleForm: () => void
@@ -56,26 +57,7 @@ export default function OperationForm(props: Props) {
       isEditMode && operationToEdit && operationToEdit.operationTasks ? operationToEdit.operationTasks.id || '' : '',
     project: isEditMode && operationToEdit && operationToEdit?.project?.id ? operationToEdit.project.id || '' : '',
     equipe: isEditMode && operationToEdit && operationToEdit.equipe?.id ? operationToEdit.equipe.id || '' : '',
-    comment:
-      isEditMode && operationToEdit?.comment
-        ? (() => {
-            const html = operationToEdit.comment || ''
-            try {
-              const blocksFromHtml = htmlToDraft(html)
-              if (!blocksFromHtml?.contentBlocks?.length) {
-                return EditorState.createEmpty()
-              }
-              const contentState = ContentState.createFromBlockArray(
-                blocksFromHtml.contentBlocks,
-                blocksFromHtml.entityMap
-              )
-              return EditorState.createWithContent(contentState)
-            } catch (error) {
-              console.error('Failed to parse HTML to EditorState', error)
-              return EditorState.createEmpty()
-            }
-          })()
-        : EditorState.createEmpty()
+    comment: isEditMode ? getEditorStateFromHtml(operationToEdit?.comment || '') : EditorState.createEmpty()
   }
   const {
     reset,
