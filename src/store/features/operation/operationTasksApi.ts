@@ -53,7 +53,7 @@ export const operationApi = api.injectEndpoints({
         operationTypeId: string
         operationZoneId: string
         operationTransId: string
-        tasksToAdd: string[]
+        operationTasksIds: string[]
       }
     >({
       query: operation => ({
