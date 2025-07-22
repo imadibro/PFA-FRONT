@@ -1,3 +1,5 @@
+import type { EditorState } from 'draft-js'
+
 export interface ICommonProps {
   id: string
   createdAt: Date
@@ -56,17 +58,6 @@ export interface IRequirement {
   createdAt?: string
   updatedAt?: string
 }
-
-// export interface IOperation {
-//   id: string
-//   label: string
-//   duration: number
-//   durationMode: string
-//   description: string
-//   tasks?: ITask[]
-//   createdAt?: string
-//   updatedAt?: string
-// }
 
 export interface IOperationType extends ICommonProps {
   label: string
@@ -286,7 +277,7 @@ export interface IOperationRequest {
   operationTasks: string
   project: string
   equipe?: string | null
-  comment?: string
+  comment?: string | EditorState
 }
 export interface IEquipe extends ICommonProps {
   id: string

@@ -84,7 +84,7 @@ export default function OperationForm(props: Props) {
     formState: { errors }
   } = useForm<OperationFormValues>({
     defaultValues,
-    resolver: yupResolver(schema)
+    resolver: yupResolver(schema) as any
   })
   const onSubmit: SubmitHandler<OperationFormValues> = data => {
     const cleanData = {
