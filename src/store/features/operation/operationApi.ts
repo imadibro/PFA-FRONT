@@ -9,7 +9,17 @@ export const operationApi = api.injectEndpoints({
         method: 'POST',
         body: newOperation
       }),
-      invalidatesTags: (_result, _error) => [{ type: 'Operation', id: 'LIST' }]
+      invalidatesTags: (_result, _error) => [
+        { type: 'Operation', id: 'LIST' },
+        { type: 'Operation', id: 'ALL-LIST' }
+      ]
+    }),
+
+    getAllOperations: builder.query<IOperation[], void>({
+      query: () => ({
+        url: 'operation/all'
+      }),
+      providesTags: [{ type: 'Operation', id: 'ALL-LIST' }]
     }),
 
     getOperations: builder.query<
@@ -57,6 +67,7 @@ export const operationApi = api.injectEndpoints({
 
 export const {
   useGetOperationsQuery,
+  useGetAllOperationsQuery,
   useGetOperationByIdQuery,
   useCreateOperationMutation,
   useDeleteOperationMutation,

@@ -1,4 +1,4 @@
-import type { IEquipeRequest, IOperation } from '@/@core/utils/types'
+import type { IEquipe, IEquipeRequest, IOperation } from '@/@core/utils/types'
 import {
   Box,
   Button,
@@ -21,10 +21,14 @@ import ModifierEquipe from './ModifierEquipe'
 
 export default function OperationHeader({
   operation,
-  onDelete
+  onDelete,
+  equipe,
+  onMembersSave
 }: {
-  operation: IOperation
-  onDelete: (id: string) => void
+  operation: IOperation & { eventId?: string }
+  onDelete: (eventId: string, operationId: string) => void
+  equipe?: IEquipe
+  onMembersSave?: (members: { id: string; name: string; role: string }[]) => void
 }) {
   /* ---------------------------- MENU ---------------------------- */
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
@@ -50,7 +54,7 @@ export default function OperationHeader({
   }
 
   const handleDelete = () => {
-    onDelete(operation.id)
+    onDelete(operation.eventId!, operation.id!)
     handleMenuClose()
   }
 
@@ -62,12 +66,12 @@ export default function OperationHeader({
         {/* Gauche : Projet + site */}
         <Box sx={{ minWidth: 0 }}>
           <Typography className='text-white' variant='subtitle1' fontWeight={600} noWrap>
-            {operation.project.projectCode}
+            {operation?.project?.projectCode}
           </Typography>
           <Stack direction='row' spacing={0.5} alignItems='center'>
             <MapPin className='text-white' size={14} />
             <Typography className='text-white' variant='body2' noWrap>
-              {operation.site.siteNbr}
+              {operation?.site?.siteNbr}
             </Typography>
           </Stack>
         </Box>
@@ -115,30 +119,40 @@ export default function OperationHeader({
 
         <DialogContent dividers>
           <Stack spacing={1}>
-            <Typography variant='h6'>{operation.project.projectCode}</Typography>
+            <Typography variant='h6'>Code projet : {operation?.project?.projectCode}</Typography>
+
+            <Typography variant='h6'>
+              {' '}
+              Operation :{' '}
+              {`${operation.operationTasks.operationZone.label} - ${operation.operationTasks.operationTrans.label} - ${operation.operationTasks.operationType.label}`}{' '}
+            </Typography>
+            <Typography variant='body2'>
+              {' '}
+              nombre de tâches : {operation?.operationTasks?.operationTasksIds?.length || 0} tâches
+            </Typography>
 
             <Stack direction='row' spacing={0.5} alignItems='center'>
               <MapPin size={16} />
-              <Typography variant='body2'>Site : {operation.site.siteNbr}</Typography>
+              <Typography variant='body2'>Site : {operation?.site?.siteNbr}</Typography>
             </Stack>
 
             <Divider sx={{ my: 1 }} />
 
             <Typography variant='subtitle2'>Équipe</Typography>
             <Stack direction='row' spacing={1} flexWrap='wrap'>
-              {operation?.equipe?.members?.map(m => <Chip key={m.id} label={`${m.name} (${m.role})`} size='small' />)}
+              {equipe?.members?.map(m => <Chip key={m.id} label={`${m.name} (${m.role})`} size='small' />)}
             </Stack>
 
             <Divider sx={{ my: 1 }} />
 
             <Typography variant='body2'>
-              Matricule : {operation?.equipe?.vehicule ? operation?.equipe?.vehicule?.registrationId : 'N/A'}
+              Vehicule : {equipe?.vehicule ? equipe?.vehicule?.registrationId : 'N/A'}
             </Typography>
             <Typography variant='body2'>
-              Carte gasoil: {operation?.equipe?.fuelCard ? operation?.equipe?.fuelCard?.matricule : 'N/A'}
+              Carte gasoil : {equipe?.fuelCard ? equipe?.fuelCard?.matricule : 'N/A'}
             </Typography>
             <Typography variant='body2'>
-              Badge telepaige: {operation?.equipe?.highwayCard ? operation?.equipe?.highwayCard?.matricule : 'N/A'}
+              Badge télépéage : {equipe?.highwayCard ? equipe?.highwayCard?.matricule : 'N/A'}
             </Typography>
           </Stack>
         </DialogContent>
@@ -149,9 +163,10 @@ export default function OperationHeader({
       </Dialog>
 
       <ModifierEquipe
-        equipeToEdit={{ ...operation?.equipe } as IEquipeRequest}
+        equipeToEdit={{ ...equipe } as IEquipeRequest}
         open={showEquipeDialog}
         onClose={() => setShowEquipeDialog(false)}
+        onSave={onMembersSave}
       />
     </>
   )

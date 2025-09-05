@@ -8,6 +8,7 @@ import type { IOperation, IOperationRequest } from '@core/utils/types'
 import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@/@core/utils/constants'
 import OperationForm from './Operation.form'
 import OperationView from './Operation.view'
+import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
 import {
   useCreateOperationMutation,
   useDeleteOperationMutation,
@@ -25,7 +26,7 @@ const OperationContainer = () => {
     page: DEFAULT_PAGE
   })
 
-  const { confirmUpdate } = useToastComponante()
+  const { confirmUpdate, confirmAdd, showDeletToast } = useToastComponante()
 
   const [searchValue, setSearchValue] = useState<string>('')
 
@@ -79,6 +80,7 @@ const OperationContainer = () => {
     try {
       await createOperation(newOperation).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.OPERATION, TOAST_ACTIONS.ADD))
+      confirmAdd('Operation')
       toggleForm()
     } catch (error) {
       console.error('Error adding operation:', error)
@@ -95,7 +97,7 @@ const OperationContainer = () => {
       await updateOperation({ id: editedOperation.id!, operation: editedOperation }).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.OPERATION, TOAST_ACTIONS.EDIT))
       handleCancelEditMode()
-      await confirmUpdate('Operation')
+      confirmUpdate('Operation')
     } catch (error) {
       console.error('Error updating operation:', error)
       toast.error('Failed to update operation')
@@ -107,10 +109,18 @@ const OperationContainer = () => {
     try {
       await deleteOperation({ id }).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.OPERATION, TOAST_ACTIONS.DELETE))
+      showDeletToast('Operation')
     } catch (error) {
       console.error(error)
       toast.error('Failed to delete operation')
     }
+  }
+
+  const toggle = () => {
+    if (isEditMode) {
+      cancleEditMode()
+    }
+    toggleForm()
   }
 
   return (
@@ -137,15 +147,23 @@ const OperationContainer = () => {
         </Card>
       </Grid>
       {isOpen && (
-        <OperationForm
-          isOpen={isOpen}
-          toggleForm={toggleForm}
-          handleAdd={handleAdd}
-          handleEdit={handleEdit}
-          operationToEdit={operationToEdit}
-          isEditMode={isEditMode}
-          cancleEditMode={cancleEditMode}
-        />
+        <SidebarDrawerForm
+          headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} operation`}
+          open={isOpen}
+          toggle={toggle}
+          customWidth='50%'
+        >
+          <OperationForm
+            isOpen={isOpen}
+            // toggleForm={toggleForm}
+            handleAdd={handleAdd}
+            handleEdit={handleEdit}
+            operationToEdit={operationToEdit}
+            isEditMode={isEditMode}
+            cancleEditMode={cancleEditMode}
+            toggle={toggle}
+          />
+        </SidebarDrawerForm>
       )}
     </Grid>
   )

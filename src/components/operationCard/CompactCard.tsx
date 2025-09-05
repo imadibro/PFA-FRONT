@@ -23,7 +23,6 @@ export function CompactCard({
       >
         <div className='p-3'>
           <h3 className='font-semibold text-sm truncate'>{equipe?.name}</h3>
-
           <div className='mt-2 space-y-1 text-xs'>
             <div className='flex items-center gap-1 text-slate-600'>
               <Users size={12} />
@@ -60,7 +59,7 @@ export function CompactCard({
       {...props}
     >
       <div className='p-3'>
-        <h3 className='font-semibold text-sm truncate'>{operation?.project.projectCode}</h3>
+        <h3 className='font-semibold text-sm truncate'>{operation?.project?.projectCode}</h3>
 
         <div className='mt-2 space-y-1 text-xs'>
           <div className='flex items-center justify-between'>
@@ -74,7 +73,7 @@ export function CompactCard({
             </span>
           </div>
 
-          {operation?.equipe && (
+          {/* {operation?.equipe && (
             <>
               <div className='flex items-center gap-1 text-slate-600'>
                 <Users size={12} />
@@ -99,7 +98,7 @@ export function CompactCard({
                 </span>
               </div>
             </>
-          )}
+          )} */}
 
           {/* Add borders to  the content */}
           {operation?.comment && (

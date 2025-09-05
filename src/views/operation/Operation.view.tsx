@@ -14,7 +14,7 @@ const RowOptions = ({ row, toggleEditMode, deleteObject }: IActionColumnsProps<I
   }
 
   const handleDelete = async () => {
-    const result = await confirmDelete('cette operation ?')
+    const result = await confirmDelete('cette operation')
 
     if (result) row && deleteObject(row.id!)
   }
@@ -71,6 +71,16 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IOperatio
       renderCell: ({ row }: ICellType<IOperation>) => (
         <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
           {row.project?.projectCode ? row.project?.projectCode : 'N/A'}
+        </Typography>
+      )
+    },
+    {
+      field: 'gabarit',
+      headerName: 'Gabarit',
+      flex: 1,
+      renderCell: ({ row }: ICellType<IOperation>) => (
+        <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
+          {row.gabarit ? row.gabarit : 'N/A'}
         </Typography>
       )
     },

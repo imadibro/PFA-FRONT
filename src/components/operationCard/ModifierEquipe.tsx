@@ -19,7 +19,7 @@ import {
   TableRow,
   Typography
 } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 
@@ -27,6 +27,7 @@ type ModifierEquipeProps = {
   open: boolean
   onClose: () => void
   equipeToEdit: IEquipeRequest
+  onSave?: (members: { id: string; name: string; role: string }[]) => void
 }
 
 const schema = yup
@@ -44,7 +45,7 @@ const schema = yup
   })
   .required()
 
-const ModifierEquipe = ({ open, onClose, equipeToEdit }: ModifierEquipeProps) => {
+const ModifierEquipe = ({ open, onClose, equipeToEdit, onSave }: ModifierEquipeProps) => {
   const [showAddEmployee, setShowAddEmployee] = useState(false)
   const [selectedEmployee, setSelectedEmployee] = useState('')
   const [selectedRole, setSelectedRole] = useState('')
@@ -60,7 +61,6 @@ const ModifierEquipe = ({ open, onClose, equipeToEdit }: ModifierEquipeProps) =>
   }
   const {
     reset,
-    control,
     handleSubmit,
     formState: { errors },
     watch,
@@ -69,6 +69,19 @@ const ModifierEquipe = ({ open, onClose, equipeToEdit }: ModifierEquipeProps) =>
     defaultValues,
     resolver: yupResolver(schema as any)
   })
+
+  useEffect(() => {
+    if (equipeToEdit) {
+      reset({
+        members:
+          equipeToEdit.members?.map(member => ({
+            id: member.id,
+            name: member.name,
+            role: member.role
+          })) || []
+      })
+    }
+  }, [equipeToEdit, reset])
 
   // Récupère la valeur actuelle des membres depuis le form
   const members = watch('members')
@@ -80,14 +93,14 @@ const ModifierEquipe = ({ open, onClose, equipeToEdit }: ModifierEquipeProps) =>
   const roles = roleEmployees ?? []
 
   const onSubmitEquipe = (data: any) => {
-    console.log('Données soumises :', data)
+    onSave?.(data.members ?? [])
     reset()
     onClose()
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmitEquipe)}>
-      <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth>
+      <form onSubmit={handleSubmit(onSubmitEquipe)}>
         <DialogTitle>Changer l'équipe</DialogTitle>
 
         <DialogContent dividers>
@@ -231,13 +244,18 @@ const ModifierEquipe = ({ open, onClose, equipeToEdit }: ModifierEquipeProps) =>
         </DialogContent>
 
         <DialogActions sx={{ mt: 2 }}>
+          {errors.members && (
+            <Typography color='error' sx={{ mt: 2 }}>
+              {errors.members.message}
+            </Typography>
+          )}
           <Button onClick={onClose}>Annuler</Button>
           <Button type='submit' variant='contained'>
             Enregistrer
           </Button>
         </DialogActions>
-      </Dialog>
-    </form>
+      </form>
+    </Dialog>
   )
 }
 

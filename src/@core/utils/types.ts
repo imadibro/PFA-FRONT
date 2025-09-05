@@ -24,8 +24,8 @@ export interface ICard extends ICommonProps {
 export interface ICardRequest {
   id?: string
   matricule: string
-  expireDate: string
-  type: string
+  expireDate?: string
+  type?: string
 }
 
 export interface ITableItems<T> {
@@ -267,8 +267,9 @@ export interface IOperation extends ICommonProps {
   site: ISite
   operationTasks: IOperationTask
   project: IProject
-  equipe: IEquipe
   comment?: string
+  gabarit?: number
+  isPlanified: boolean
 }
 
 export interface IOperationRequest {
@@ -276,8 +277,9 @@ export interface IOperationRequest {
   site: string
   operationTasks: string
   project: string
-  equipe?: string | null
   comment?: string | EditorState
+  gabarit?: number | null
+  isPlanified: boolean
 }
 export interface IEquipe extends ICommonProps {
   id: string
@@ -290,11 +292,36 @@ export interface IEquipe extends ICommonProps {
 
 export interface IEquipeRequest {
   id?: string
-  name: string
+  name?: string
   members: { id: string; name: string; role: string }[]
   fuelCard: string | null
   highwayCard: string | null
   vehicule: string | null
   selectedEmployee?: string
   selectedRole?: string
+}
+
+export interface IPlanning extends ICommonProps {
+  id: string
+  startDate: string
+  endDate: string
+  operation: IOperation
+  equipe: IEquipe
+  equipeChangedAt?: Date | null
+  equipeChanged?: boolean
+}
+export interface IPlanningRequest {
+  id?: string
+  startDate: string
+  endDate: string
+  operationId: string
+  equipe: IEquipeData
+}
+
+export interface IEquipeData {
+  id: string
+  members: { id: string; name: string; role: string }[]
+  fuelCard: ICardRequest | null
+  highwayCard: ICardRequest | null
+  vehicule: { id: string; registrationId: string } | null
 }

@@ -42,11 +42,11 @@ const RowOptions = ({ row, toggleEditMode, deleteObject }: IActionColumnsProps<I
 
 const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IEquipe>): GridColDef[] => {
   return [
-    {
-      field: 'name',
-      headerName: "Nom d'equipe",
-      flex: 1
-    },
+    // {
+    //   field: 'name',
+    //   headerName: "Nom d'equipe",
+    //   flex: 1
+    // },
     {
       field: 'members',
       headerName: 'Employé',

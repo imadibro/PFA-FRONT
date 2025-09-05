@@ -16,10 +16,15 @@ export const useToastComponante = () => {
     await showToast(`${label} créé avec succès!`, 'success')
     return true
   }
+  const confirmSave = async (label: string): Promise<boolean> => {
+    await showToast(`${label} sauvgader avec succès!`, 'success')
+    return true
+  }
+
   const showDeletToast = async (label: string): Promise<boolean> => {
     await showToast(`${label} Supprimé avec succès !`, 'success')
     return true
   }
 
-  return { confirmDelete, confirmUpdate, confirmAdd, showDeletToast }
+  return { confirmDelete, confirmUpdate, confirmAdd, showDeletToast, confirmSave }
 }
