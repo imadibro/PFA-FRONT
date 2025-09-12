@@ -9,7 +9,7 @@ import type { SystemMode } from '@core/types'
 // import ProjectsList from './ProjectsList'
 // import ClientOrdersList from './OrdersList'
 
-const Tabs = ({ mode }: { mode: SystemMode }) => {
+const Tabs = ({} /*mode*/ : { mode: SystemMode }) => {
   // const [tabValue, setTabValue] = useState('1')
   // const theme = useTheme()
   // const isDarkMode = theme.palette.mode === 'dark'

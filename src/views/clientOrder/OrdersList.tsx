@@ -62,7 +62,7 @@ import type { SystemMode } from '@core/types'
 //   }
 // ]
 
-const ClientOrdersList = ({ mode }: { mode: SystemMode }) => {
+const ClientOrdersList = ({} /*mode*/ : { mode: SystemMode }) => {
   // const [openModal, setOpenModal] = useState(false)
   // const [openUpdateModal, setOpenUpdateModal] = useState(false)
   // const [searchText, setSearchText] = useState<string>('')

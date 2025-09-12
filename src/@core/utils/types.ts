@@ -270,6 +270,7 @@ export interface IOperation extends ICommonProps {
   comment?: string
   gabarit?: number
   isPlanified: boolean
+  isRecursive: boolean
 }
 
 export interface IOperationRequest {
@@ -280,6 +281,7 @@ export interface IOperationRequest {
   comment?: string | EditorState
   gabarit?: number | null
   isPlanified: boolean
+  isRecursive: boolean
 }
 export interface IEquipe extends ICommonProps {
   id: string

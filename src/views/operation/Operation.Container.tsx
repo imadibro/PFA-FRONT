@@ -26,7 +26,7 @@ const OperationContainer = () => {
     page: DEFAULT_PAGE
   })
 
-  const { confirmUpdate, confirmAdd, showDeletToast } = useToastComponante()
+  const { confirmUpdate, confirmAdd, showDeletToast, showErrorToast } = useToastComponante()
 
   const [searchValue, setSearchValue] = useState<string>('')
 
@@ -111,8 +111,8 @@ const OperationContainer = () => {
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.OPERATION, TOAST_ACTIONS.DELETE))
       showDeletToast('Operation')
     } catch (error) {
-      console.error(error)
-      toast.error('Failed to delete operation')
+      showErrorToast(error)
+      // toast.error('Failed to delete operation')
     }
   }
 

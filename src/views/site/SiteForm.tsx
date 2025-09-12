@@ -356,7 +356,6 @@ const StyledChip = styled(Chip)({
 const icon = <i className='tabler:circle-check' />
 const checkedIcon = <i className='tabler:checkbox' />
 const SiteForm = ({
-  mode,
   isOpen,
   siteToEdit,
   requirements,

@@ -12,6 +12,7 @@ type ExternalEvent = {
 import { useDrop } from 'react-dnd'
 import OperationHeader from './OperationHeader'
 import Tooltip from '@mui/material/Tooltip'
+import { useDeletePlaningMutation } from '@/store/features/planing/planingApi'
 
 export function CalendarCard({
   operation,
@@ -37,8 +38,10 @@ export function CalendarCard({
   // State for action menu visibility
   const [showMenu, setShowMenu] = useState(false)
 
+  const [deletePlanning] = useDeletePlaningMutation()
+
   // Use the custom hook for toast notifications
-  const { confirmDelete } = useToastComponante()
+  const { confirmDelete, showDeletToast } = useToastComponante()
 
   // Always call useDrop (never conditionally)
   const [{ isOver, canDrop }, drop] = useDrop(
@@ -93,6 +96,22 @@ export function CalendarCard({
     // lire l'op avant remove()
     const raw = fullEvent.extendedProps?.operation
     const op: IOperation | null = typeof raw === 'string' ? JSON.parse(raw) : raw
+
+    const planningId = fullEvent.extendedProps?.planningId
+
+    if (planningId) {
+      try {
+        const ok = await deletePlanning({ id: planningId }).unwrap()
+        if (ok) {
+          showDeletToast('Planning')
+        }
+      } catch (err) {
+        //toast.error(err)
+        // optionnel: resync UI si tu veux rollback visuel
+        // refetchPlaning?.(); refetchOperations?.();
+        return
+      }
+    }
 
     // 1) supprimer UNIQUEMENT l'event courant
     fullEvent.remove()
@@ -195,35 +214,6 @@ export function CalendarCard({
             )}
           </div>
         )}
-
-        {/* Commentaire — 1 ligne max, petite taille */}
-        {/* {operation?.comment && (
-          <div className='border-t border-white/10 mt-2 pt-2'>
-            <div className='flex items-start gap-1 text-[12px]'>
-              <MessageSquareTextIcon size={14} className='mt-[1px] opacity-90' />
-              <div
-                className='truncate opacity-95'
-                // si tu as le plugin line-clamp Tailwind, remplace 'truncate' par 'line-clamp-1'
-                dangerouslySetInnerHTML={{ __html: operation.comment || '' }}
-              />
-            </div>
-            <span>
-              {hasEquipeChanged && equipeChangedAt && (
-                <div className='mt-1 text-xs text-yellow-200 flex items-center gap-1'>
-                  <Tooltip
-                    title={`Équipe modifiée le ${new Date(equipeChangedAt).toLocaleString('fr-FR')}`}
-                    arrow
-                    placement='top'
-                  >
-                    <InfoIcon size={14} className='text-yellow-400 cursor-help' />
-                  </Tooltip>
-
-                  <span className='truncate'>Équipe modifiée</span>
-                </div>
-              )}
-            </span>
-          </div>
-        )} */}
 
         {operation?.comment && (
           <div className='border-t border-white/10 mt-2 pt-2'>

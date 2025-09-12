@@ -43,7 +43,7 @@ const customColumns = () => [
   }
 ]
 
-const OperationTasksList = ({ mode }: { mode: SystemMode }) => {
+const OperationTasksList = ({} /*mode*/ : { mode: SystemMode }) => {
   const [openModal, setOpenModal] = useState(false)
   const [openUpdateModal, setOpenUpdateModal] = useState(false)
   const [searchText, setSearchText] = useState<string>('')
@@ -55,7 +55,7 @@ const OperationTasksList = ({ mode }: { mode: SystemMode }) => {
   })
   // const [isDetailsOpen, setIsDetailsOpen] = useState<boolean>(false)
   const [operationToEdit, setOperationToEdit] = useState<IOperationTask | null>(null)
-  const [isEditMode, setIsEditMode] = useState<boolean>(false)
+  const [, /*isEditMode*/ setIsEditMode] = useState<boolean>(false)
 
   const { showAlert } = useSweetAlert()
   const { confirmDelete, showDeletToast } = useToastComponante()

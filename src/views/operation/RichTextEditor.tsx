@@ -1,7 +1,6 @@
 'use client'
 
 import { Editor } from 'react-draft-wysiwyg'
-import type { SystemMode } from '@core/types'
 
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 

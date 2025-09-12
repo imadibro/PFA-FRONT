@@ -19,7 +19,7 @@ import {
   TableRow,
   Typography
 } from '@mui/material'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import * as yup from 'yup'
 
@@ -59,6 +59,7 @@ const ModifierEquipe = ({ open, onClose, equipeToEdit, onSave }: ModifierEquipeP
         }))
       : []
   }
+
   const {
     reset,
     handleSubmit,
@@ -83,20 +84,36 @@ const ModifierEquipe = ({ open, onClose, equipeToEdit, onSave }: ModifierEquipeP
     }
   }, [equipeToEdit, reset])
 
-  // Récupère la valeur actuelle des membres depuis le form
-  const members = watch('members')
-
+  // ------------- Amélioration #1 -------------
+  const members = watch('members') ?? []
   const { data } = useGetAllEmployeesQuery()
   const { data: roleEmployees } = useGetRolesQuery()
 
   const employees = data || []
   const roles = roleEmployees ?? []
 
+  // employés disponibles = tous - déjà sélectionnés
+  const employeesAvailable = useMemo(
+    () => employees.filter(emp => !members.some((m: any) => m.id === emp.id)),
+    [employees, members]
+  )
+
+  // si l'employé sélectionné n'est plus dispo (car déjà ajouté), on nettoie
+  useEffect(() => {
+    if (selectedEmployee && !employeesAvailable.some(e => e.id === selectedEmployee)) {
+      setSelectedEmployee('')
+      setSelectedRole('')
+    }
+  }, [employeesAvailable, selectedEmployee])
+
   const onSubmitEquipe = (data: any) => {
     onSave?.(data.members ?? [])
     reset()
     onClose()
   }
+
+  // ------------- Amélioration #2 -------------
+  const canSave = (members?.length ?? 0) > 0
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth='sm' fullWidth>
@@ -110,12 +127,7 @@ const ModifierEquipe = ({ open, onClose, equipeToEdit, onSave }: ModifierEquipeP
                 Les membres de l'équipe
               </Typography>
               {!showAddEmployee && (
-                <Button
-                  variant='outlined'
-                  onClick={() => {
-                    setShowAddEmployee(true)
-                  }}
-                >
+                <Button variant='outlined' onClick={() => setShowAddEmployee(true)}>
                   Ajouter un membre
                 </Button>
               )}
@@ -169,21 +181,16 @@ const ModifierEquipe = ({ open, onClose, equipeToEdit, onSave }: ModifierEquipeP
                   onChange={e => {
                     const empId = e.target.value
                     setSelectedEmployee(empId)
-
-                    // Récupère le rôle automatiquement
-                    const emp = employees.find(e => e.id === empId)
-                    if (emp?.role?.id) {
-                      setSelectedRole(emp.role.id)
-                    } else {
-                      setSelectedRole('')
-                    }
+                    const emp = employees.find(x => x.id === empId)
+                    setSelectedRole(emp?.role?.id || '')
                   }}
                 >
-                  {employees.map(emp => (
+                  {employeesAvailable.map(emp => (
                     <MenuItem key={emp.id} value={emp.id}>
                       {emp.firstName} {emp.lastName}
                     </MenuItem>
                   ))}
+                  {employeesAvailable.length === 0 && <MenuItem disabled>Aucun employé disponible</MenuItem>}
                 </CustomTextField>
               </Grid>
 
@@ -210,14 +217,11 @@ const ModifierEquipe = ({ open, onClose, equipeToEdit, onSave }: ModifierEquipeP
                     const emp = employees.find(e => e.id === selectedEmployee)
                     const role = roles.find(r => r.id === selectedRole)
                     if (!emp || !role) return
+                    if (members.some((m: any) => m.id === emp.id)) return // garde-fou
 
                     setValue('members', [
-                      ...(watch('members') || []),
-                      {
-                        id: emp.id,
-                        name: emp.firstName + ' ' + emp.lastName,
-                        role: role.role
-                      }
+                      ...members,
+                      { id: emp.id, name: `${emp.firstName} ${emp.lastName}`, role: role.role }
                     ])
 
                     setSelectedEmployee('')
@@ -232,9 +236,7 @@ const ModifierEquipe = ({ open, onClose, equipeToEdit, onSave }: ModifierEquipeP
                   style={{ marginLeft: 5 }}
                   variant='outlined'
                   color='error'
-                  onClick={() => {
-                    setShowAddEmployee(false)
-                  }}
+                  onClick={() => setShowAddEmployee(false)}
                 >
                   Annuler
                 </Button>
@@ -246,11 +248,11 @@ const ModifierEquipe = ({ open, onClose, equipeToEdit, onSave }: ModifierEquipeP
         <DialogActions sx={{ mt: 2 }}>
           {errors.members && (
             <Typography color='error' sx={{ mt: 2 }}>
-              {errors.members.message}
+              {errors.members.message as any}
             </Typography>
           )}
           <Button onClick={onClose}>Annuler</Button>
-          <Button type='submit' variant='contained'>
+          <Button type='submit' variant='contained' disabled={!canSave}>
             Enregistrer
           </Button>
         </DialogActions>

@@ -17,7 +17,8 @@ export const operationApi = api.injectEndpoints({
 
     getAllOperations: builder.query<IOperation[], void>({
       query: () => ({
-        url: 'operation/all'
+        url: 'operation/all',
+        method: 'GET'
       }),
       providesTags: [{ type: 'Operation', id: 'ALL-LIST' }]
     }),

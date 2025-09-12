@@ -26,8 +26,8 @@ interface Props {
 const schema = yup
   .object({
     matricule: yup.string().required('Matricule is required'),
-    expireDate: yup.string().required('Expiration date is required'),
-    type: yup.string().required()
+    expireDate: yup.string().required('Expiration date is required').nullable(),
+    type: yup.string().required().nullable()
   })
   .required()
 
@@ -37,7 +37,7 @@ export default function CardForm(props: Props) {
   const defaultValues: ICardRequest = {
     matricule: isEditMode && cardToEdit ? cardToEdit.matricule : '',
     expireDate: isEditMode && cardToEdit ? dayjs(cardToEdit.expireDate).format('YYYY-MM-DD') : '',
-    type: activeTab
+    type: activeTab || ''
   }
 
   const {
@@ -45,7 +45,7 @@ export default function CardForm(props: Props) {
     control,
     handleSubmit,
     formState: { errors }
-  } = useForm<ICardRequest>({
+  } = useForm<any>({
     defaultValues,
     resolver: yupResolver(schema)
   })
@@ -118,7 +118,8 @@ export default function CardForm(props: Props) {
                       textField: {
                         fullWidth: true,
                         error: Boolean(errors.expireDate),
-                        helperText: errors.expireDate?.message,
+                        helperText:
+                          typeof errors.expireDate?.message === 'string' ? errors.expireDate.message : undefined,
                         InputProps: {
                           placeholder: ''
                         }

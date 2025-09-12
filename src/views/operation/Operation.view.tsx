@@ -85,6 +85,16 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IOperatio
       )
     },
     {
+      field: 'isRecursive',
+      headerName: 'Operation récursives',
+      flex: 1,
+      renderCell: ({ row }: ICellType<IOperation>) => (
+        <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
+          {row.isRecursive ? 'Oui' : 'Non'}
+        </Typography>
+      )
+    },
+    {
       align: 'left',
       headerAlign: 'left',
       minWidth: 100,

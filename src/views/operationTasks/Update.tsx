@@ -56,10 +56,10 @@ const UpdateOperation = ({
       return
     }
 
-    const form = new FormData(e.currentTarget as HTMLFormElement)
+    // const form = new FormData(e.currentTarget as HTMLFormElement)
 
     const initialTasks = operationToEdit?.tasks || []
-    const tasksToAdd = selectedTasks.filter(t => !initialTasks.some(init => init.id === t.id)).map(t => t.id)
+    // const tasksToAdd = selectedTasks.filter(t => !initialTasks.some(init => init.id === t.id)).map(t => t.id)
     // const tasksToRemove = initialTasks.filter(t => !selectedTasks.some(sel => sel.id === t.id)).map(t => t.id)
     const newTasks = selectedTasks.map(t => t.id)
 

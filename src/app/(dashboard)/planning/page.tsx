@@ -20,17 +20,6 @@ import { useCreatePlaningMutation, useLazyGetPlaningQuery } from '@/store/featur
 import { useToastComponante } from '@/components/common/DeletedComponante'
 import { ExportPlanningButton } from '@/@core/components/excel/ExcelBack'
 
-// interface ExternalEvent {
-//   id: string
-//   text: string
-//   color: string
-//   test: string
-//   icon: string
-//   date: string
-//   originalId?: string
-//   create?: boolean
-// }
-
 interface CalendarEvent {
   id: string
   title: string
@@ -107,9 +96,7 @@ function Page() {
   )
 
   useEffect(() => {
-    if (!plannings?.length) return
-
-    const mapped: CalendarEvent[] = plannings.map(p => {
+    const mapped: CalendarEvent[] = (plannings ?? []).map(p => {
       const dateISO = p.startDate
       const endISO = p.endDate
       const startTime = p.startDate.split('T')[1]?.slice(0, 8) || '09:00:00'
@@ -132,7 +119,7 @@ function Page() {
 
     setEvents(mapped)
 
-    setPlacedOperationIds(new Set(plannings.map(p => p.operation.id)))
+    setPlacedOperationIds(new Set((plannings ?? []).map(p => p.operation.id)))
   }, [plannings])
 
   useEffect(() => {
@@ -178,7 +165,7 @@ function Page() {
     const equipe = equipes?.find(eq => eq.id === resourceId) ?? null
     const newEvent = makeCalendarEvent({
       operation,
-      dateISO: dateStr, // début
+      dateISO: dateStr, // debut,
       endISO, // fin
       resourceId,
       equipe,
@@ -193,7 +180,7 @@ function Page() {
   const resources: CalendarResource[] = useMemo(() => {
     return (equipes ?? []).map((e, i) => ({
       id: e.id,
-      title: e.members.map(m => m.name).join(', '),
+      title: e.members.map(m => `${m.name} ${m.role}`).join('\n'),
       day: '',
       row: i + 1
     }))
@@ -204,34 +191,6 @@ function Page() {
     setSelectedResourceId(arg.resource?.id || null)
     setFormDialogOpen(true)
   }
-
-  // const handleEventChange = (changeInfo: any) => {
-  //   console.log(changeInfo)
-  //   const updatedEvent = changeInfo.event
-  //   const equipe = equipes?.find(e => e.id === updatedEvent._def.resourceIds?.[0]) || null
-  //   setEvents(prev =>
-  //     prev.map(ev =>
-  //       ev.id === updatedEvent.id
-  //         ? {
-  //             ...ev,
-  //             start: updatedEvent.startStr,
-  //             end: updatedEvent.endStr,
-  //             resourceId: updatedEvent._def.resourceIds?.[0] || ev.resourceId,
-  //             date: updatedEvent.startStr.split('T')[0],
-  //             planningId: ev.planningId,
-  //             extendedProps: {
-  //               ...ev.extendedProps,
-  //               operation: {
-  //                 ...ev.extendedProps?.operation
-  //               },
-  //               equipeId: equipe?.id,
-  //               equipe
-  //             }
-  //           }
-  //         : ev
-  //     )
-  //   )
-  // }
 
   const handleEventChange = (changeInfo: any) => {
     const updatedEvent = changeInfo.event
@@ -300,7 +259,8 @@ function Page() {
       const savedPlanning = await createPlanning({ plannings: planningRequests }).unwrap()
       confirmSave('Planning')
       const mappedEvents = savedPlanning.map(planning => {
-        const dateOnly = new Date(planning.startDate).toISOString().split('T')[0]
+        // const dateOnly = new Date(planning.startDate).toISOString().split('T')[0]
+        const dateOnly = toYmdLocal(new Date(planning.startDate))
         return {
           id: `${planning.operation.id}-${dateOnly}`,
           planningId: planning.id,
@@ -356,6 +316,11 @@ function Page() {
 
   return (
     <div className='flex h-full'>
+      {isLoading && (
+        <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50'>
+          <CircularProgress />
+        </div>
+      )}
       <DndProvider backend={HTML5Backend}>
         <div ref={externalEventsRef} className='w-64 p-4 h-full overflow-y-auto border-r border-slate-200'>
           <h2 className='text-lg font-semibold mb-4 text-gray-700'>Operations</h2>
@@ -417,6 +382,7 @@ function Page() {
                 right: 'next'
               }}
               resources={resources}
+              resourceLabelContent={arg => <span style={{ whiteSpace: 'pre-line' }}>{arg.resource.title}</span>}
               events={events.map(ev => ({
                 ...ev,
                 extendedProps: {
@@ -425,19 +391,6 @@ function Page() {
                 },
                 id: ev.id
               }))}
-              // events={events.map(ev => {
-              //   // console.log('ev :>>********************************* ', ev)
-              //   return {
-              //     ...ev,
-              //     // Set a unique data-event-id for drop targeting
-              //     extendedProps: {
-              //       ...ev,
-              //       eventId: ev.id
-              //     },
-              //     // Set id for DOM
-              //     id: ev.id
-              //   }
-              // })}
               editable={true}
               droppable={true}
               // drop={handleEventReceive}
@@ -455,7 +408,7 @@ function Page() {
                 plannings
               )}
               resourceAreaHeaderContent=''
-              resourceAreaWidth='60px'
+              resourceAreaWidth='220px'
               slotMinWidth={200}
               height='auto'
               aspectRatio={2.5}
@@ -589,8 +542,8 @@ function mapEventToPlanningRequest(event: CalendarEvent): IPlanningRequest {
 
 function makeCalendarEvent(params: {
   operation: IOperation
-  dateISO: string // "2025-08-04"
-  endISO?: string // "2025-08-04"
+  dateISO: string // "2025-09-08" ou "2025-09-08T09:00:00"
+  endISO?: string // "2025-09-08" ou "2025-09-08T10:00:00"
   resourceId: string
   equipe?: IEquipe | null
   startTime?: string // "09:00:00"
@@ -603,108 +556,29 @@ function makeCalendarEvent(params: {
     endISO,
     resourceId,
     equipe,
-    // startTime = '09:00:00',
+    startTime = '09:00:00',
     endTime = '10:00:00',
     planningId
   } = params
-  const end = endISO ? `${endISO}` : `${dateISO}T${endTime}`
+
+  // Si dateISO contient déjà un "T", c'est une date complète
+  const start = dateISO.includes('T') ? dateISO : `${dateISO}T${startTime}`
+  const end = endISO ? (endISO.includes('T') ? endISO : `${endISO}T${endTime}`) : `${dateISO}T${endTime}`
+
   return {
-    id: `${operation.id}-${dateISO}`,
+    id: `${operation.id}-${start.split('T')[0]}`,
     planningId,
     originalId: operation.id,
     title: operation.site?.label ?? '',
-    start: dateISO,
+    start,
     end,
-    date: dateISO,
+    date: start.split('T')[0],
     resourceId,
     extendedProps: {
       operation: { ...operation },
       equipe: equipe ?? null
     }
   }
-
-  // Draggable Equipe card using react-dnd
-  // function DraggableEquipeCard({ equipe }: { equipe: any }) {
-  //   const [{ isDragging }, drag] = useDrag(
-  //     () => ({
-  //       type: 'EQUIPE',
-  //       item: { equipe },
-  //       collect: monitor => ({
-  //         isDragging: monitor.isDragging()
-  //       })
-  //     }),
-  //     [equipe]
-  //   )
-  //   const ref = useRef<HTMLDivElement>(null)
-  //   drag(ref)
-
-  //   return (
-  //     <div ref={ref} style={{ opacity: isDragging ? 0.5 : 1 }}>
-  //       <CompactCard equipe={equipe} classNameProps='equipe-draggable cursor-pointer select-none' />
-  //     </div>
-  //   )
-  // }
-
-  // Render event content with drop target for equipe assignment
-
-  // function renderEventContentWithDrop(
-  //   setEvents: any,
-  //   calendarRef: React.RefObject<any>,
-  //   equipes: IEquipe[] | undefined,
-  //   setOperations: React.Dispatch<React.SetStateAction<IOperation[]>>,
-  //   setPlacedOperationIds: React.Dispatch<React.SetStateAction<Set<string>>>
-  // ) {
-  //   return (eventInfo: { event: any }) => {
-  //     // console.log('eventInfo =*****==>', eventInfo)
-
-  //     const rawOperation = eventInfo.event.extendedProps?.operation
-
-  //     const operation = typeof rawOperation === 'string' ? JSON.parse(rawOperation) : rawOperation
-
-  //     if (!operation) {
-  //       console.warn('Operation manquante pour l’événement', eventInfo)
-  //       return null // ou retourne un fallback
-  //     }
-
-  //     let equipe = undefined
-  //     const resourceId = eventInfo.event._def.resourceIds?.[0]
-
-  //     if (resourceId) {
-  //       equipe = equipes?.find(e => e.id === resourceId)
-  //     }
-  //     // if (!equipe && eventInfo.event.extendedProps.assignedEquipe) {
-  //     //   equipe = JSON.parse(eventInfo.event.extendedProps.assignedEquipe)
-  //     // }
-  //     // if (operation && equipe) {
-  //     //   operation.equipe = equipe
-  //     //   operation.equipeId = equipe.id
-  //     // }
-
-  //     // setEvents((prev: any) => {
-  //     //   return prev.map((ev: any) =>
-  //     //     ev.id === eventInfo.event.id ? { ...ev, extendedProps: { ...ev.extendedProps, operation } } : ev
-  //     //   )
-  //     // })
-
-  //     return (
-  //       <CalendarCard
-  //         operation={{ ...operation, eventId: eventInfo.event.id }}
-  //         equipe={equipe}
-  //         calendarRef={calendarRef}
-  //         onEquipeDrop={(droppedEquipe: any) => {
-  //           setEvents((prev: any[]) =>
-  //             prev.map(ev =>
-  //               ev.id === eventInfo.event.id ? { ...ev, assignedEquipe: JSON.stringify(droppedEquipe) } : ev
-  //             )
-  //           )
-  //         }}
-  //         setEvents={setEvents}
-  //         setOperations={setOperations}
-  //         setPlacedOperationIds={setPlacedOperationIds}
-  //       />
-  //     )
-  //   }
-  // }
 }
 
 export default Page

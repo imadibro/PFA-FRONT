@@ -1,11 +1,10 @@
-import { useGetEquipesQuery } from '@/store/features/equipe/equipeApi'
 import { useGetOperationsTasksQuery } from '@/store/features/operation/operationTasksApi'
 import { useGetProjectsQuery } from '@/store/features/project/projectApi'
 import { useGetAllSitesForDropDawnQuery } from '@/store/features/site/siteApi'
 import CustomTextField from '@core/components/mui/TextField'
 import type { IOperation, IOperationRequest, IProject, ISite } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Grid, MenuItem } from '@mui/material'
+import { Button, Checkbox, FormControlLabel, Grid, MenuItem } from '@mui/material'
 import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
@@ -35,7 +34,7 @@ const schema = yup
   })
   .required()
 export default function OperationForm(props: Props) {
-  const { isOpen, toggle, operationToEdit, isEditMode, handleAdd, handleEdit } = props
+  const { toggle, operationToEdit, isEditMode, handleAdd, handleEdit } = props
   const { data: operationTasksData } = useGetOperationsTasksQuery()
   const { data: projectsData } = useGetProjectsQuery()
   const { data: sitesData } = useGetAllSitesForDropDawnQuery()
@@ -50,6 +49,7 @@ export default function OperationForm(props: Props) {
     comment: EditorState
     gabarit?: number | null
     isPlanified: boolean
+    isRecursive: boolean
   }
   const defaultValues: IOperationRequest = {
     site: isEditMode && operationToEdit && operationToEdit?.site?.id ? operationToEdit.site.id : '',
@@ -58,7 +58,8 @@ export default function OperationForm(props: Props) {
     project: isEditMode && operationToEdit && operationToEdit?.project?.id ? operationToEdit.project.id || '' : '',
     comment: isEditMode ? getEditorStateFromHtml(operationToEdit?.comment || '') : EditorState.createEmpty(),
     gabarit: isEditMode && operationToEdit && operationToEdit?.gabarit ? (operationToEdit.gabarit ?? null) : null,
-    isPlanified: isEditMode && operationToEdit ? (operationToEdit.isPlanified ?? false) : false
+    isPlanified: isEditMode && operationToEdit ? (operationToEdit.isPlanified ?? false) : false,
+    isRecursive: isEditMode && operationToEdit ? (operationToEdit.isRecursive ?? false) : false
   }
   const {
     reset,
@@ -194,6 +195,21 @@ export default function OperationForm(props: Props) {
             )}
           />
         </Grid>
+
+        <Grid item xs={12} sm={12}>
+          <Controller
+            name='isRecursive'
+            control={control}
+            defaultValue={false} // par défaut false
+            render={({ field: { value, onChange } }) => (
+              <FormControlLabel
+                control={<Checkbox checked={!!value} onChange={e => onChange(e.target.checked)} />}
+                label='Operation récursive'
+              />
+            )}
+          />
+        </Grid>
+
         {/* <Grid item xs={12} sm={12}>
             <Controller
               name='equipe'

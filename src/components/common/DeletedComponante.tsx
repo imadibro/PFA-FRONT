@@ -26,5 +26,22 @@ export const useToastComponante = () => {
     return true
   }
 
-  return { confirmDelete, confirmUpdate, confirmAdd, showDeletToast, confirmSave }
+  const getApiMessage = (err: any) => {
+    // RTK Query: { status, data: { message, error, statusCode } }
+    const data = err?.data
+    const msg =
+      (Array.isArray(data?.message) ? data.message.join(', ') : data?.message) ||
+      data?.error || // parfois "Conflict"
+      err?.error || // ex: "FETCH_ERROR"
+      (typeof err === 'string' ? err : null)
+
+    return msg || 'Échec de suppression'
+  }
+
+  const showErrorToast = async (err: any) => {
+    const message = getApiMessage(err)
+    await showToast(message, 'error')
+  }
+
+  return { confirmDelete, confirmUpdate, confirmAdd, showDeletToast, confirmSave, showErrorToast }
 }
