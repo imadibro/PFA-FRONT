@@ -6,6 +6,7 @@ import { CompactCard } from '@/components/operationCard/CompactCard'
 import { useGetEquipesQuery } from '@/store/features/equipe/equipeApi'
 import { useCreateOperationMutation, useGetAllOperationsQuery } from '@/store/features/operation/operationApi'
 import OperationForm from '@/views/operation/Operation.form'
+import frLocale from '@fullcalendar/core/locales/fr'
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
 import FullCalendar from '@fullcalendar/react'
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline'
@@ -13,12 +14,12 @@ import { Button, CircularProgress, Dialog, DialogContent, DialogTitle } from '@m
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import frLocale from '@fullcalendar/core/locales/fr'
 // import ExcelComponent, { prepareCalendarExportData } from '@/@core/components/excel/ExcelComponent'
-import { Icon } from '@iconify/react'
-import { useCreatePlaningMutation, useLazyGetPlaningQuery } from '@/store/features/planing/planingApi'
-import { useToastComponante } from '@/components/common/DeletedComponante'
 import { ExportPlanningButton } from '@/@core/components/excel/ExcelBack'
+import { useToastComponante } from '@/components/common/DeletedComponante'
+import { useCreatePlaningMutation, useLazyGetPlaningQuery } from '@/store/features/planing/planingApi'
+import { Icon } from '@iconify/react'
+import { Car, Fuel, RouteIcon as Road, Users } from 'lucide-react'
 
 interface CalendarEvent {
   id: string
@@ -182,7 +183,10 @@ function Page() {
       id: e.id,
       title: e.members.map(m => `${m.name} ${m.role}`).join('\n'),
       day: '',
-      row: i + 1
+      row: i + 1,
+      extendedProps: {
+        equipe: e
+      }
     }))
   }, [equipes])
 
@@ -382,7 +386,8 @@ function Page() {
                 right: 'next'
               }}
               resources={resources}
-              resourceLabelContent={arg => <span style={{ whiteSpace: 'pre-line' }}>{arg.resource.title}</span>}
+              // resourceLabelContent={arg => <span style={{ whiteSpace: 'pre-line' }}>{arg.resource.title}</span>}
+              resourceLabelContent={renderTeam}
               events={events.map(ev => ({
                 ...ev,
                 extendedProps: {
@@ -579,6 +584,56 @@ function makeCalendarEvent(params: {
       equipe: equipe ?? null
     }
   }
+}
+
+function renderTeam(arg: any) {
+  const equipe = arg.resource.extendedProps?.equipe
+  return (
+    <>
+      {equipe?.members?.length ? (
+        <div className='mt-1 -ml-1 pr-1 whitespace-nowrap flex flex-wrap'>
+          {equipe.members.map((m: any) => (
+            <span
+              key={m.id}
+              className='inline-flex items-center mx-1 my-0.5 rounded-full border border-white/20 py-[2px] text-[13px]'
+              title={`${m.name} (${m.role})`}
+            >
+              <Users size={12} className='mr-1 flex-shrink-0 opacity-90' />
+              <span className='truncate'>{m.name}</span>
+              <span className='truncate ml-1 opacity-90'>({m.role})</span>
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      {/* LIGNE COMPACTE: véhicule • carte carburant • télépéage */}
+
+      {(equipe?.vehicule?.registrationId || equipe?.fuelCard?.matricule || equipe?.highwayCard?.matricule) && (
+        <div className='mt-2 text-[11px] flex items-center flex-wrap gap-x-3 gap-y-1'>
+          {equipe?.vehicule?.registrationId && (
+            <span className='inline-flex items-center gap-1 min-w-0'>
+              <Car size={14} className='flex-shrink-0 opacity-90' />
+              <span className='truncate'>{equipe.vehicule.registrationId}</span>
+            </span>
+          )}
+
+          {equipe?.fuelCard?.matricule && (
+            <span className='inline-flex items-center gap-1 min-w-0'>
+              <Fuel size={14} className='flex-shrink-0 opacity-90' />
+              <span className='truncate'>{equipe.fuelCard.matricule}</span>
+            </span>
+          )}
+
+          {equipe?.highwayCard?.matricule && (
+            <span className='inline-flex items-center gap-1 min-w-0'>
+              <Road size={14} className='flex-shrink-0 opacity-90' />
+              <span className='truncate'>{equipe.highwayCard.matricule}</span>
+            </span>
+          )}
+        </div>
+      )}
+    </>
+  )
 }
 
 export default Page

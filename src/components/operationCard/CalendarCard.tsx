@@ -1,18 +1,17 @@
 import type { IEquipe, IOperation } from '@/@core/utils/types'
+import { useToastComponante } from '@/components/common/DeletedComponante'
+import { useDeletePlaningMutation } from '@/store/features/planing/planingApi'
+import Tooltip from '@mui/material/Tooltip'
 import { Car, Fuel, InfoIcon, MessageSquareTextIcon, RouteIcon as Road, Users } from 'lucide-react'
 import React, { useState } from 'react'
-import { useToastComponante } from '@/components/common/DeletedComponante'
+import { useDrop } from 'react-dnd'
+import OperationHeader from './OperationHeader'
 
 // Define ExternalEvent type if not already imported
 type ExternalEvent = {
   id: string
   [key: string]: any
 }
-
-import { useDrop } from 'react-dnd'
-import OperationHeader from './OperationHeader'
-import Tooltip from '@mui/material/Tooltip'
-import { useDeletePlaningMutation } from '@/store/features/planing/planingApi'
 
 export function CalendarCard({
   operation,
@@ -173,11 +172,11 @@ export function CalendarCard({
 
         {/* Membres — puces fines, sur une seule ligne scrollable */}
         {equipe?.members?.length ? (
-          <div className='mt-1 -ml-1 pr-1 overflow-x-auto whitespace-nowrap scrollbar-thin'>
+          <div className='mt-1 pr-1 flex flex-wrap'>
             {equipe.members.map(m => (
               <span
                 key={m.id}
-                className='inline-flex items-center mx-1 my-0.5 rounded-full border border-white/20 px-2 py-[2px] text-[11px] font-medium'
+                className='inline-flex items-center my-0.5 rounded-full border border-white/20 px-2 py-[2px] text-[11px] font-medium'
                 title={`${m.name} (${m.role})`}
               >
                 <Users size={12} className='mr-1 flex-shrink-0 opacity-90' />
