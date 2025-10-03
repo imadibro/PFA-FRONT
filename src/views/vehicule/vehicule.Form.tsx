@@ -27,7 +27,7 @@ const schema = yup
     registrationId: yup.string().required('Registration est requis'),
     vehiculeOwner: yup.string().required('Le propriétaire est requis'),
     vehiculeType: yup.string().required('Le type est requis'),
-    vehiculeModel: yup.string().required('Le model est requis')
+    vehiculeModel: yup.string().nullable()
   })
   .required()
 
@@ -61,8 +61,13 @@ export default function VehiculeForm(props: Props) {
       isEditMode && vehiculeToEdit && vehiculeToEdit.vehiculeType.vehicule_type
         ? vehiculeToEdit.vehiculeType.id || ''
         : '',
+    // vehiculeModel:
+    //   isEditMode && vehiculeToEdit && vehiculeToEdit.vehiculeModel.name ? vehiculeToEdit.vehiculeModel.id || '' : ''
+
     vehiculeModel:
-      isEditMode && vehiculeToEdit && vehiculeToEdit.vehiculeModel.name ? vehiculeToEdit.vehiculeModel.id || '' : ''
+      isEditMode && vehiculeToEdit && vehiculeToEdit.vehiculeModel?.name
+        ? vehiculeToEdit.vehiculeModel.id || null
+        : null
   }
 
   const {
@@ -75,14 +80,28 @@ export default function VehiculeForm(props: Props) {
     resolver: yupResolver(schema)
   })
 
-  const onSubmit: SubmitHandler<IVehiculeRequest> = async data => {
-    console.log(data)
-    if (isEditMode && vehiculeToEdit) {
-      await handleEdit({ ...data, id: vehiculeToEdit?.id })
-    } else {
-      await handleAdd(data)
-    }
+  // const onSubmit: SubmitHandler<IVehiculeRequest> = async data => {
+  //   console.log(data)
+  //   if (isEditMode && vehiculeToEdit) {
+  //     await handleEdit({ ...data, id: vehiculeToEdit?.id })
+  //   } else {
+  //     await handleAdd(data)
+  //   }
 
+  //   reset()
+  //   toggleForm()
+  // }
+
+  const onSubmit: SubmitHandler<IVehiculeRequest> = async data => {
+    const payload = {
+      ...data,
+      vehiculeModel: data.vehiculeModel || null // <-- null si vide
+    }
+    if (isEditMode && vehiculeToEdit) {
+      await handleEdit({ ...payload, id: vehiculeToEdit?.id })
+    } else {
+      await handleAdd(payload)
+    }
     reset()
     toggleForm()
   }
@@ -189,7 +208,7 @@ export default function VehiculeForm(props: Props) {
                     onChange: e => onChange(e.target.value)
                   }}
                   fullWidth
-                  label='Le model *'
+                  label='Le model'
                   id='vehiculeModel'
                   error={Boolean(errors.vehiculeModel)}
                   aria-describedby='vehiculeModel'

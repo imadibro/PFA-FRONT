@@ -172,7 +172,7 @@ export interface IVehiculeRequest {
   registrationId: string
   vehiculeOwner: string
   vehiculeType: string
-  vehiculeModel: string
+  vehiculeModel?: string | null
 }
 
 export interface IClients {

@@ -47,8 +47,8 @@ const schema = yup
         })
       )
       .min(1, 'Au moins un employé est requis'),
-    fuelCard: yup.string().nullable().required('Carte Gasoil requise'),
-    highwayCard: yup.string().nullable().required('Carte Telepaige requise'),
+    fuelCard: yup.string().nullable(),
+    highwayCard: yup.string().nullable(),
     vehicule: yup.string().nullable().required('Véhicule requis'),
     selectedEmployee: yup.string().nullable().optional(),
     selectedRole: yup.string().nullable().optional()
@@ -83,9 +83,9 @@ export default function EquipeForm(props: Props) {
           }))
         : [],
 
-    fuelCard: isEditMode && equipeToEdit && equipeToEdit.fuelCard?.matricule ? equipeToEdit.fuelCard.id || '' : '',
+    fuelCard: isEditMode && equipeToEdit && equipeToEdit.fuelCard?.matricule ? equipeToEdit.fuelCard.id || null : null,
     highwayCard:
-      isEditMode && equipeToEdit && equipeToEdit.highwayCard?.matricule ? equipeToEdit.highwayCard.id || '' : '',
+      isEditMode && equipeToEdit && equipeToEdit.highwayCard?.matricule ? equipeToEdit.highwayCard.id || null : null,
     vehicule: isEditMode && equipeToEdit && equipeToEdit.vehicule?.registrationId ? equipeToEdit.vehicule.id || '' : ''
   }
 

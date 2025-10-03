@@ -212,10 +212,10 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
 
     if (confirmed) {
       try {
-        await deleteSite({ siteId: id })
+        await deleteSite({ siteId: id }).unwrap()
         showDeletToast('Site')
       } catch (error) {
-        showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression du site", 'error')
+        showAlert(`Vous ne pouvez pas supprimer ce site`, `Site lie a une operation`, 'error')
       }
     }
   }

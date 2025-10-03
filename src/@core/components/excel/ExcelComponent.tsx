@@ -1,7 +1,5 @@
-import React from 'react'
 import { Button } from '@mui/material'
 import * as XLSX from 'xlsx'
-import type { IEquipe } from '@/@core/utils/types'
 
 const exportToXLSX = (data: any, fileName: string) => {
   const wb = XLSX.utils.book_new()
