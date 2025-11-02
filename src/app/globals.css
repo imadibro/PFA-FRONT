@@ -141,9 +141,19 @@ code {
   display: none !important;
 }
 
-.fc-timeline-header-row.fc-timeline-header-row-chrono {
-  /* display: none !important; */
-  visibility: hidden !important;
+.fc-timeline-header-row {
+  height: 31px !important;
+}
+
+.fc-timeline-slot-frame {
+  height: 31px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.fc-timeline-header-row-chrono {
+  display: none !important;
 }
 
 /* .fc-h-event {
