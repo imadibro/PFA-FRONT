@@ -19,7 +19,7 @@ import { ExportPlanningButton } from '@/@core/components/excel/ExcelBack'
 import { useToastComponante } from '@/components/common/DeletedComponante'
 import { useCreatePlaningMutation, useLazyGetPlaningQuery } from '@/store/features/planing/planingApi'
 import { Icon } from '@iconify/react'
-import { Car, Fuel, RouteIcon as Road, Users } from 'lucide-react'
+import { Car, ChevronLeft, Fuel, List, RouteIcon as Road, Users } from 'lucide-react'
 
 interface CalendarEvent {
   id: string
@@ -75,6 +75,7 @@ function Page() {
   const [operationsList, setOperationsList] = useState<IOperation[]>([])
   const [week, setWeek] = useState<{ startDate?: string; endDate?: string }>({})
   const [placedOperationIds, setPlacedOperationIds] = useState<Set<string>>(new Set())
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
   const { data: operations, isLoading: isFetchingOperations } = useGetAllOperationsQuery()
   const [createOperation] = useCreateOperationMutation()
@@ -326,25 +327,51 @@ function Page() {
         </div>
       )}
       <DndProvider backend={HTML5Backend}>
-        <div ref={externalEventsRef} className='w-64 p-4 h-full overflow-y-auto border-r border-slate-200'>
-          <h2 className='text-lg font-semibold mb-4 text-gray-700'>Operations</h2>
-          <div className='space-y-3 mb-8 overflow-y-scroll h-[70vh]'>
-            {visibleOperations?.map((operation, index) => (
-              <CompactCard
-                key={operation.id ?? index}
-                operation={operation}
-                classNameProps='external-operation cursor-pointer select-none'
-                data-id={operation.id}
-                // data-type='operation'
-                draggable={true}
-                data-operation={JSON.stringify(operation)}
-                onDragStart={(e: DragEvent) => {
-                  e.dataTransfer?.setData('type', 'operation')
-                  e.dataTransfer?.setData('operation', JSON.stringify(operation))
-                }}
-              />
-            ))}
-          </div>
+        <div
+          ref={externalEventsRef}
+          className={`transition-all duration-300 h-full overflow-y-auto border-r border-slate-200 ${
+            isSidebarOpen ? 'w-64 p-4' : 'w-12 p-0'
+          }`}
+        >
+          {isSidebarOpen ? (
+            <>
+              <div className='flex items-center justify-between mb-4'>
+                <h2 className='text-lg font-semibold text-gray-700'>Operations</h2>
+                <button
+                  onClick={() => setIsSidebarOpen(false)}
+                  className='p-1.5 hover:bg-slate-100 rounded-md transition-colors'
+                  title='Masquer la liste des opérations'
+                >
+                  <ChevronLeft size={20} className='text-gray-600' />
+                </button>
+              </div>
+              <div className='space-y-3 mb-8 overflow-y-scroll h-[70vh]'>
+                {visibleOperations?.map((operation, index) => (
+                  <CompactCard
+                    key={operation.id ?? index}
+                    operation={operation}
+                    classNameProps='external-operation cursor-pointer select-none'
+                    data-id={operation.id}
+                    // data-type='operation'
+                    draggable={true}
+                    data-operation={JSON.stringify(operation)}
+                    onDragStart={(e: DragEvent) => {
+                      e.dataTransfer?.setData('type', 'operation')
+                      e.dataTransfer?.setData('operation', JSON.stringify(operation))
+                    }}
+                  />
+                ))}
+              </div>
+            </>
+          ) : (
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className='mt-4 p-2 hover:bg-slate-100 rounded-md transition-colors flex items-center justify-center'
+              title='Afficher la liste des opérations'
+            >
+              <List size={20} className='text-gray-600' />
+            </button>
+          )}
 
           {/* <h2 className='text-lg font-semibold mb-4 text-gray-700'>Equipes</h2>
           <div className='space-y-3 overflow-y-scroll max-h-[400px]'>
