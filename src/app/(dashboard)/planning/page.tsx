@@ -239,10 +239,17 @@ function Page() {
       if (selectedDate && selectedResourceId) {
         const dateOnly = new Date(selectedDate).toISOString().split('T')[0]
         const equipe = equipes?.find(e => e.id === selectedResourceId) || null
+        let endISO = dateOnly
+
+        if (added.gabarit && added.gabarit > 1) {
+          const endDate = addDays(new Date(dateOnly), added.gabarit - 1)
+          endISO = endDate.toISOString().split('T')[0]
+        }
 
         const newEvent = makeCalendarEvent({
           operation: added,
           dateISO: dateOnly,
+          endISO,
           resourceId: selectedResourceId,
           equipe
         })
