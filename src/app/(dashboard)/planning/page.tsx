@@ -158,9 +158,11 @@ function Page() {
 
     const endDate = addDays(new Date(dateStr), gabarit - 1)
     const endISO = `${toYmdLocal(endDate)}T10:00:00`
-    const id = `${operation.id}-${dateStr}`
-    if (events.some(ev => ev.id === id)) {
-      console.warn('[receive] duplicate -> ignore', id)
+    const id = `${operation.id}-${dateStr}-${Date.now()}`
+
+    // Check if this operation is already placed anywhere on the calendar
+    if (placedOperationIds.has(operation.id)) {
+      console.warn('[receive] operation already placed -> ignore', operation.id)
       info.event.remove()
       return
     }
@@ -460,8 +462,8 @@ function Page() {
               //   return `${rowNumber}`
               // }}
               // slotLabelFormat={[{ weekday: 'short' }, { month: 'numeric', day: 'numeric' }]}
-              eventOverlap={false}
-              selectOverlap={false}
+              eventOverlap={true}
+              selectOverlap={true}
               weekends={false}
               datesSet={handelDataSet}
               // eventDurationEditable={true}

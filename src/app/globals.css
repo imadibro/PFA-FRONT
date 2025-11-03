@@ -156,6 +156,15 @@ code {
   display: none !important;
 }
 
+/* Support for multiple overlapping events */
+.fc-timeline-event {
+  margin-bottom: 2px !important;
+}
+
+.fc-timeline-lane-frame {
+  min-height: auto !important;
+}
+
 /* .fc-h-event {
   background-color: transparent !important;
   border: 0 !important;

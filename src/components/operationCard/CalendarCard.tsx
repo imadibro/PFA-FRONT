@@ -92,7 +92,7 @@ export function CalendarCard({
       return
     }
 
-    // lire l'op avant remove()
+    // Get operation data before removing
     const raw = fullEvent.extendedProps?.operation
     const op: IOperation | null = typeof raw === 'string' ? JSON.parse(raw) : raw
 
@@ -112,25 +112,19 @@ export function CalendarCard({
       }
     }
 
-    // 1) supprimer UNIQUEMENT l'event courant
+    // Remove the event from calendar
     fullEvent.remove()
     setEvents(prev => prev.filter(ev => ev.id !== eventId))
 
-    // y a-t-il d'autres events de la même opération encore présents ?
-    const hasOtherInstances = api
-      ?.getEvents()
-      ?.some((e: any) => e.extendedProps?.operation?.id === operationId && e.id !== eventId)
-
-    // 2) ne l’enlever de placedOperationIds que s’il n’en reste plus
+    // Remove from placed operations and add back to sidebar
     setPlacedOperationIds(prev => {
-      if (hasOtherInstances) return prev
       const next = new Set(prev)
       next.delete(operationId)
       return next
     })
 
-    // 3) réinjecter à gauche (une seule fois), marqué isPlanified=false
-    if (!hasOtherInstances && op) {
+    // Re-add operation to sidebar
+    if (op) {
       const opBack = { ...op, isPlanified: false }
       setOperations(prev => {
         if (prev.some(o => o.id === operationId)) return prev
