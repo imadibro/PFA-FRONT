@@ -1,9 +1,11 @@
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@/@core/utils/constants'
 import exportData from '@/@core/utils/exportData'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
 import type { ISite } from '@/@core/utils/types'
 import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
+import { useToastComponante } from '@/components/common/ToastComponante'
 import {
   useGetRequirementQuery,
   useLazyGetRequirementsByLabelsQuery
@@ -18,8 +20,6 @@ import type { ChangeEvent } from 'react'
 import React, { useEffect, useRef, useState } from 'react'
 import SiteDetails from './Details'
 import SiteForm from './SiteForm'
-import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@/@core/utils/constants'
-import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const customColumns = () => [
   {

@@ -1,6 +1,6 @@
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import type { ITask } from '@/@core/utils/types'
-import { useToastComponante } from '@/components/common/DeletedComponante'
+import { useToastComponante } from '@/components/common/ToastComponante'
 import { useCreateTaskMutation, useUpdateTaskMutation } from '@/store/features/task/taskApi'
 import type { SystemMode } from '@core/types'
 import { Alert, Box, Button, Grid, IconButton, TextField } from '@mui/material'

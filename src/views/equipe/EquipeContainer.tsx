@@ -1,6 +1,7 @@
 'use client'
 
 import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@/@core/utils/constants'
+import { useToastComponante } from '@/components/common/ToastComponante'
 import {
   useCreateEquipeMutation,
   useDeleteEquipeMutation,
@@ -14,7 +15,6 @@ import React, { useState } from 'react'
 import toast from 'react-hot-toast'
 import EquipeForm from './Equipe.form'
 import EquipeView from './Equipe.view'
-import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const EquipeContainer = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)

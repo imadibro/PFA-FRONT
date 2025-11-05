@@ -11,14 +11,15 @@ import {
   Box,
   Button,
   Grid,
-  MenuItem,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableRow,
+  TextField,
   Typography
 } from '@mui/material'
+import Autocomplete from '@mui/material/Autocomplete'
 import { useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
@@ -215,46 +216,39 @@ export default function EquipeForm(props: Props) {
           {showAddEmployee && (
             <>
               <Grid item xs={12} sm={12}>
-                <CustomTextField
-                  select
-                  fullWidth
-                  label='Employé'
-                  value={selectedEmployee}
-                  onChange={e => {
-                    const empId = e.target.value
+                <Autocomplete
+                  size='small'
+                  options={employees || []}
+                  getOptionLabel={option => `${option.firstName} ${option.lastName}`}
+                  value={employees.find(e => e.id === selectedEmployee) || null}
+                  onChange={(event, newValue) => {
+                    const empId = newValue ? newValue.id : ''
                     setSelectedEmployee(empId)
 
                     // Récupère le rôle automatiquement
-                    const emp = employees.find(e => e.id === empId)
-                    if (emp?.role?.id) {
-                      setSelectedRole(emp.role.id)
+                    if (newValue?.role?.id) {
+                      setSelectedRole(newValue.role.id)
                     } else {
                       setSelectedRole('')
                     }
                   }}
-                >
-                  {employees.map(emp => (
-                    <MenuItem key={emp.id} value={emp.id}>
-                      {emp.firstName} {emp.lastName}
-                    </MenuItem>
-                  ))}
-                </CustomTextField>
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                  renderInput={params => <TextField {...params} label='Employé' />}
+                />
               </Grid>
 
               <Grid item xs={12} sm={12}>
-                <CustomTextField
-                  select
-                  fullWidth
-                  label='Rôle'
-                  value={selectedRole}
-                  onChange={e => setSelectedRole(e.target.value)}
-                >
-                  {roles.map(role => (
-                    <MenuItem key={role.id} value={role.id}>
-                      {role.role}
-                    </MenuItem>
-                  ))}
-                </CustomTextField>
+                <Autocomplete
+                  size='small'
+                  options={roles || []}
+                  getOptionLabel={option => option.role || ''}
+                  value={roles.find(r => r.id === selectedRole) || null}
+                  onChange={(event, newValue) => {
+                    setSelectedRole(newValue ? newValue.id : '')
+                  }}
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                  renderInput={params => <TextField {...params} label='Rôle' />}
+                />
               </Grid>
 
               <Grid item xs={12} sm={12}>
@@ -301,27 +295,25 @@ export default function EquipeForm(props: Props) {
               name='vehicule'
               control={control}
               rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <CustomTextField
-                  select
-                  SelectProps={{
-                    value,
-                    onChange: e => onChange(e.target.value)
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
+                <Autocomplete
+                  size='small'
+                  options={vehicules || []}
+                  getOptionLabel={option => option.registrationId || ''}
+                  value={vehicules?.find(vehicule => vehicule.id === value) || null}
+                  onChange={(event, newValue) => {
+                    onChange(newValue ? newValue.id : null)
                   }}
-                  fullWidth
-                  label='Vehicule'
-                  id='vehicule'
-                  error={Boolean(errors.vehicule)}
-                  aria-describedby='vehicule'
-                  {...(errors.vehicule && { helperText: 'Ce champs est obligatoire' })}
-                >
-                  {vehicules &&
-                    vehicules.map(vehicule => (
-                      <MenuItem key={vehicule.id} value={vehicule.id}>
-                        {vehicule.registrationId}
-                      </MenuItem>
-                    ))}
-                </CustomTextField>
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      label='Vehicule'
+                      error={Boolean(error)}
+                      helperText={error ? 'Ce champs est obligatoire' : ''}
+                    />
+                  )}
+                />
               )}
             />
           </Grid>
@@ -331,29 +323,25 @@ export default function EquipeForm(props: Props) {
               name='fuelCard'
               control={control}
               rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <CustomTextField
-                  select
-                  SelectProps={{
-                    value,
-                    onChange: e => onChange(e)
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
+                <Autocomplete
+                  size='small'
+                  options={cards?.filter(card => card.type === 'gasoil') || []}
+                  getOptionLabel={option => option.matricule || ''}
+                  value={cards?.find(card => card.id === value) || null}
+                  onChange={(event, newValue) => {
+                    onChange(newValue ? newValue.id : null)
                   }}
-                  fullWidth
-                  label='Carte Gasoil'
-                  id='fuelCard'
-                  error={Boolean(errors.fuelCard)}
-                  aria-describedby='type'
-                  {...(errors.fuelCard && { helperText: 'Ce champs est obligatoire' })}
-                >
-                  {cards &&
-                    cards
-                      .filter(card => card.type === 'gasoil')
-                      .map(card => (
-                        <MenuItem key={card.id} value={card.id}>
-                          {card.matricule}
-                        </MenuItem>
-                      ))}
-                </CustomTextField>
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      label='Carte Gasoil'
+                      error={Boolean(error)}
+                      helperText={error ? 'Ce champs est obligatoire' : ''}
+                    />
+                  )}
+                />
               )}
             />
           </Grid>
@@ -363,29 +351,25 @@ export default function EquipeForm(props: Props) {
               name='highwayCard'
               control={control}
               rules={{ required: true }}
-              render={({ field: { value, onChange } }) => (
-                <CustomTextField
-                  select
-                  SelectProps={{
-                    value,
-                    onChange: e => onChange(e.target.value)
+              render={({ field: { value, onChange }, fieldState: { error } }) => (
+                <Autocomplete
+                  size='small'
+                  options={cards?.filter(card => card.type === 'autoroute') || []}
+                  getOptionLabel={option => option.matricule || ''}
+                  value={cards?.find(card => card.id === value) || null}
+                  onChange={(event, newValue) => {
+                    onChange(newValue ? newValue.id : null)
                   }}
-                  fullWidth
-                  label='Carte Telepaige'
-                  id='highwayCard'
-                  error={Boolean(errors.highwayCard)}
-                  aria-describedby='highwayCard'
-                  {...(errors.highwayCard && { helperText: 'Ce champs est obligatoire' })}
-                >
-                  {cards &&
-                    cards
-                      .filter(card => card.type === 'autoroute')
-                      .map(card => (
-                        <MenuItem key={card.id} value={card.id}>
-                          {card.matricule}
-                        </MenuItem>
-                      ))}
-                </CustomTextField>
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      label='Carte Telepaige'
+                      error={Boolean(error)}
+                      helperText={error ? 'Ce champs est obligatoire' : ''}
+                    />
+                  )}
+                />
               )}
             />
           </Grid>

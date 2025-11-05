@@ -1,10 +1,13 @@
+import { TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@/@core/utils/toast-message'
 import type { IEquipe, IOperation } from '@/@core/utils/types'
-import { useToastComponante } from '@/components/common/DeletedComponante'
+import { useToastComponante } from '@/components/common/ToastComponante'
+import { useDeleteOperationMutation } from '@/store/features/operation/operationApi'
 import { useDeletePlaningMutation } from '@/store/features/planing/planingApi'
 import Tooltip from '@mui/material/Tooltip'
 import { Car, Fuel, InfoIcon, MessageSquareTextIcon, RouteIcon as Road, Users } from 'lucide-react'
 import React, { useState } from 'react'
 import { useDrop } from 'react-dnd'
+import toast from 'react-hot-toast'
 import OperationHeader from './OperationHeader'
 
 // Define ExternalEvent type if not already imported
@@ -39,8 +42,10 @@ export function CalendarCard({
 
   const [deletePlanning] = useDeletePlaningMutation()
 
+  const [deleteOperation] = useDeleteOperationMutation()
+
   // Use the custom hook for toast notifications
-  const { confirmDelete, showDeletToast } = useToastComponante()
+  const { showDeletToast, confirmDeleteWithCheckbox, showErrorToast } = useToastComponante()
 
   // Always call useDrop (never conditionally)
   const [{ isOver, canDrop }, drop] = useDrop(
@@ -81,9 +86,76 @@ export function CalendarCard({
 
   if (!operation) return null
 
+  // const handleDeleteOperation = async (eventId: string, operationId: string) => {
+  //   const ok = await confirmDeleteWithCheckbox(
+  //     'cette opération',
+  //     'Je comprends que cette action est irréversible et je souhaite supprimer cette opération.'
+  //   )
+  //   if (!ok) return
+
+  //   const api = calendarRef.current?.getApi()
+  //   const fullEvent = api?.getEventById?.(eventId)
+  //   if (!fullEvent) {
+  //     console.error("Événement non trouvé pour l'ID:", eventId)
+  //     return
+  //   }
+
+  //   // lire l'op avant remove()
+  //   const raw = fullEvent.extendedProps?.operation
+  //   const op: IOperation | null = typeof raw === 'string' ? JSON.parse(raw) : raw
+
+  //   const planningId = fullEvent.extendedProps?.planningId
+
+  //   if (planningId) {
+  //     try {
+  //       const ok = await deletePlanning({ id: planningId }).unwrap()
+  //       if (ok) {
+  //         showDeletToast('Planning')
+  //       }
+  //     } catch (err) {
+  //       //toast.error(err)
+  //       // optionnel: resync UI si tu veux rollback visuel
+  //       // refetchPlaning?.(); refetchOperations?.();
+  //       return
+  //     }
+  //   }
+
+  //   // 1) supprimer UNIQUEMENT l'event courant
+  //   fullEvent.remove()
+  //   setEvents(prev => prev.filter(ev => ev.id !== eventId))
+
+  //   // y a-t-il d'autres events de la même opération encore présents ?
+  //   const hasOtherInstances = api
+  //     ?.getEvents()
+  //     ?.some((e: any) => e.extendedProps?.operation?.id === operationId && e.id !== eventId)
+
+  //   // 2) ne l’enlever de placedOperationIds que s’il n’en reste plus
+  //   setPlacedOperationIds(prev => {
+  //     if (hasOtherInstances) return prev
+  //     const next = new Set(prev)
+  //     next.delete(operationId)
+  //     return next
+  //   })
+
+  //   // 3) réinjecter à gauche (une seule fois), marqué isPlanified=false
+  //   if (!hasOtherInstances && op) {
+  //     const opBack = { ...op, isPlanified: false }
+  //     setOperations(prev => {
+  //       if (prev.some(o => o.id === operationId)) return prev
+  //       return [opBack, ...prev]
+  //     })
+  //   }
+  // }
+
   const handleDeleteOperation = async (eventId: string, operationId: string) => {
-    const ok = await confirmDelete('cette opération')
-    if (!ok) return
+    // Destructurer le résultat pour obtenir isConfirmed et checkboxChecked
+    const { isConfirmed, checkboxChecked } = await confirmDeleteWithCheckbox(
+      'cette opération',
+      'Voulez-vous supprimer cette operation de facon difinitive.'
+    )
+
+    // Si l'utilisateur annule
+    if (!isConfirmed) return
 
     const api = calendarRef.current?.getApi()
     const fullEvent = api?.getEventById?.(eventId)
@@ -92,22 +164,43 @@ export function CalendarCard({
       return
     }
 
-    // Get operation data before removing
     const raw = fullEvent.extendedProps?.operation
     const op: IOperation | null = typeof raw === 'string' ? JSON.parse(raw) : raw
-
     const planningId = fullEvent.extendedProps?.planningId
 
+    // CAS 1: Checkbox coché = Suppression définitive via API
+    if (checkboxChecked) {
+      try {
+        if (planningId) {
+          await deletePlanning({ id: planningId }).unwrap()
+        }
+
+        await deleteOperation({ id: operationId }).unwrap()
+
+        fullEvent.remove()
+        setEvents(prev => prev.filter(ev => ev.id !== eventId))
+
+        setPlacedOperationIds(prev => {
+          const next = new Set(prev)
+          next.delete(operationId)
+          return next
+        })
+
+        toast.success(toastMessageSuccess(TOAST_COMPONENTS.OPERATION, TOAST_ACTIONS.DELETE))
+        showDeletToast('Operation')
+      } catch (error) {
+        showErrorToast(error)
+      }
+      return
+    }
+
+    // CAS 2: Checkbox non coché = Retirer du planning et remettre à gauche
     if (planningId) {
       try {
-        const ok = await deletePlanning({ id: planningId }).unwrap()
-        if (ok) {
-          showDeletToast('Planning')
-        }
+        await deletePlanning({ id: planningId }).unwrap()
+        showDeletToast('Planning')
       } catch (err) {
-        //toast.error(err)
-        // optionnel: resync UI si tu veux rollback visuel
-        // refetchPlaning?.(); refetchOperations?.();
+        showErrorToast(err)
         return
       }
     }

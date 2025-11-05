@@ -1,4 +1,8 @@
-import Typography from '@mui/material/Typography'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import type { IRequirement } from '@/@core/utils/types'
+import { useToastComponante } from '@/components/common/ToastComponante'
+import { useCreateRequirementMutation, useUpdateRequirementMutation } from '@/store/features/requirement/requirementApi'
+import type { SystemMode } from '@core/types'
 import {
   Alert,
   Box,
@@ -11,11 +15,7 @@ import {
   Select,
   TextField
 } from '@mui/material'
-import type { SystemMode } from '@core/types'
-import { useUpdateRequirementMutation, useCreateRequirementMutation } from '@/store/features/requirement/requirementApi'
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
-import type { IRequirement } from '@/@core/utils/types'
-import { useToastComponante } from '@/components/common/DeletedComponante'
+import Typography from '@mui/material/Typography'
 
 const RequirementForm = ({
   requirementToEdit,

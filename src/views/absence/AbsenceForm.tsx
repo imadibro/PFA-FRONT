@@ -206,7 +206,7 @@ const AbsenceForm = ({
   return (
     <SidebarDrawerForm
       isAbsence={true}
-      headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} site`}
+      headerTitle={`${isEditMode ? 'Modifier' : 'Ajouter'} absence`}
       open={isOpen}
       toggle={onClose}
     >

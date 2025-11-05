@@ -2,9 +2,9 @@ import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import exportData from '@/@core/utils/exportData'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
 import type { IOperationTask } from '@/@core/utils/types'
-import { useToastComponante } from '@/components/common/DeletedComponante'
 import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
+import { useToastComponante } from '@/components/common/ToastComponante'
 import {
   useDeleteOperationTasksMutation,
   useGetOperationsTasksQuery

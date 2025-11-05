@@ -4,13 +4,15 @@ import { useGetAllSitesForDropDawnQuery } from '@/store/features/site/siteApi'
 import CustomTextField from '@core/components/mui/TextField'
 import type { IOperation, IOperationRequest, IProject, ISite } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Button, Checkbox, FormControlLabel, Grid, MenuItem } from '@mui/material'
+import { Button, Checkbox, FormControlLabel, Grid } from '@mui/material'
+import Autocomplete from '@mui/material/Autocomplete'
+import TextField from '@mui/material/TextField'
+import { convertToRaw, EditorState } from 'draft-js'
+import draftToHtml from 'draftjs-to-html'
+import dynamic from 'next/dynamic'
 import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
-import dynamic from 'next/dynamic'
-import { convertToRaw, EditorState } from 'draft-js'
-import draftToHtml from 'draftjs-to-html'
 import getEditorStateFromHtml from './getEditorStateFromHtml'
 
 const RichTextEditor = dynamic(() => import('./RichTextEditor'), { ssr: false })
@@ -92,27 +94,25 @@ export default function OperationForm(props: Props) {
             name='site'
             control={control}
             rules={{ required: true }}
-            render={({ field: { value, onChange } }) => (
-              <CustomTextField
-                select
-                SelectProps={{
-                  value,
-                  onChange: e => onChange(e.target.value)
+            render={({ field: { value, onChange }, fieldState: { error } }) => (
+              <Autocomplete
+                size='small'
+                options={(sites as ISite[]) || []}
+                getOptionLabel={option => `${option.label} ${option.siteNbr}`}
+                value={sites?.find(site => site.id === value) || null}
+                onChange={(event, newValue) => {
+                  onChange(newValue ? newValue.id : null)
                 }}
-                fullWidth
-                label='Site *'
-                id='site'
-                error={Boolean(errors.site)}
-                aria-describedby="Tâches d'exploitation"
-                {...(errors.site && { helperText: 'Ce champs est obligatoire' })}
-              >
-                {sites &&
-                  (sites as ISite[]).map(site => (
-                    <MenuItem key={site.id} value={site.id}>
-                      {site.label} {site.siteNbr}
-                    </MenuItem>
-                  ))}
-              </CustomTextField>
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    label='Site *'
+                    error={Boolean(error)}
+                    helperText={error ? 'Ce champs est obligatoire' : ''}
+                  />
+                )}
+              />
             )}
           />
         </Grid>
@@ -121,60 +121,59 @@ export default function OperationForm(props: Props) {
             name='operationTasks'
             control={control}
             rules={{ required: true }}
-            render={({ field: { value, onChange } }) => (
-              <CustomTextField
-                select
-                SelectProps={{
-                  value,
-                  onChange: e => onChange(e.target.value)
+            render={({ field: { value, onChange }, fieldState: { error } }) => (
+              <Autocomplete
+                size='small'
+                options={operationTasks || []}
+                getOptionLabel={option =>
+                  `${option.operationType.label} ${option.operationZone.label} ${option.operationTrans.label}`
+                }
+                value={operationTasks?.find(task => task.id === value) || null}
+                onChange={(event, newValue) => {
+                  onChange(newValue ? newValue.id : null)
                 }}
-                fullWidth
-                label="Tâches d'exploitation *"
-                id='operationTasks'
-                error={Boolean(errors.operationTasks)}
-                aria-describedby='operationTasks'
-                {...(errors.site && { helperText: 'Ce champs est obligatoire' })}
-              >
-                {operationTasks &&
-                  operationTasks.map(operationTasks => (
-                    <MenuItem key={operationTasks.id} value={operationTasks.id}>
-                      {`${operationTasks.operationType.label} ${operationTasks.operationZone.label}
-                        ${operationTasks.operationTrans.label}`}
-                    </MenuItem>
-                  ))}
-              </CustomTextField>
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    label="Tâches d'exploitation *"
+                    error={Boolean(error)}
+                    helperText={error ? 'Ce champs est obligatoire' : ''}
+                  />
+                )}
+              />
             )}
           />
         </Grid>
+
         <Grid item xs={12} sm={12}>
           <Controller
             name='project'
             control={control}
             rules={{ required: true }}
-            render={({ field: { value, onChange } }) => (
-              <CustomTextField
-                select
-                SelectProps={{
-                  value,
-                  onChange: e => onChange(e)
+            render={({ field: { value, onChange }, fieldState: { error } }) => (
+              <Autocomplete
+                size='small'
+                options={(projects as IProject[]) || []}
+                getOptionLabel={option => option.projectCode || ''}
+                value={projects?.find((project: IProject) => project.id === value) || null}
+                onChange={(event, newValue) => {
+                  onChange(newValue ? newValue.id : null)
                 }}
-                fullWidth
-                label='Projet *'
-                id='project'
-                error={Boolean(errors.project)}
-                aria-describedby='projet'
-                {...(errors.project && { helperText: 'Ce champs est obligatoire' })}
-              >
-                {projects &&
-                  (projects as IProject[]).map(projects => (
-                    <MenuItem key={projects.id} value={projects.id}>
-                      {projects.projectCode}
-                    </MenuItem>
-                  ))}
-              </CustomTextField>
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    label='Projet *'
+                    error={Boolean(error)}
+                    helperText={error ? 'Ce champs est obligatoire' : ''}
+                  />
+                )}
+              />
             )}
           />
         </Grid>
+
         <Grid item xs={12} sm={12}>
           <Controller
             name='gabarit'

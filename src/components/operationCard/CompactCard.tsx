@@ -1,5 +1,21 @@
+import { TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@/@core/utils/toast-message'
 import type { IEquipe, IOperation } from '@/@core/utils/types'
-import { Car, CheckSquare, Fuel, MapPin, MessageSquareTextIcon, RouteIcon as Road, Users } from 'lucide-react'
+import { useToastComponante } from '@/components/common/ToastComponante'
+import { useDeleteOperationMutation } from '@/store/features/operation/operationApi'
+import { Icon } from '@iconify/react'
+import { IconButton } from '@mui/material'
+import Tooltip from '@mui/material/Tooltip'
+import {
+  Car,
+  CheckSquare,
+  Fuel,
+  MapPin,
+  MessageSquareTextIcon,
+  RefreshCcw,
+  RouteIcon as Road,
+  Users
+} from 'lucide-react'
+import toast from 'react-hot-toast'
 
 export function CompactCard({
   operation,
@@ -14,6 +30,21 @@ export function CompactCard({
   draggable?: boolean
   [key: string]: any
 }) {
+  const { showDeletToast, showErrorToast, confirmDelete } = useToastComponante()
+  const [deleteOperation] = useDeleteOperationMutation()
+
+  const handleDelete = async (id: string) => {
+    if (!id) return
+    const confirm = await confirmDelete('cette operation')
+    try {
+      if (!confirm) return
+      await deleteOperation({ id }).unwrap()
+      toast.success(toastMessageSuccess(TOAST_COMPONENTS.OPERATION, TOAST_ACTIONS.DELETE))
+      showDeletToast('Operation')
+    } catch (error) {
+      showErrorToast(error)
+    }
+  }
   if (equipe) {
     return (
       <div
@@ -59,57 +90,45 @@ export function CompactCard({
       {...props}
     >
       <div className='p-3'>
-        <h3 className='font-semibold text-sm truncate'>{operation?.project?.projectCode}</h3>
+        <Tooltip title={operation?.project?.projectCode || ''} arrow>
+          <h3 className='font-semibold text-sm truncate'>{operation?.project?.projectCode}</h3>
+        </Tooltip>
 
-        <div className='mt-2 space-y-1 text-xs'>
-          <div className='flex items-center justify-between'>
-            <span className='flex items-center gap-1 text-slate-600'>
+        <div className='mt-2 text-xs'>
+          <div className='flex items-center flex-nowrap gap-3 min-w-0'>
+            <span className='flex items-center gap-1 text-slate-600 min-w-0'>
               <MapPin size={12} />
-              {operation?.site?.siteNbr}
+              <span className='truncate min-w-0'>{operation?.site?.siteNbr}</span>
             </span>
+
             <span className='flex items-center gap-1 text-slate-600'>
               <CheckSquare size={12} />
-              {operation?.operationTasks?.operationTasksIds?.length}
+              {`${operation?.gabarit} jrs`}
             </span>
           </div>
-
-          {/* {operation?.equipe && (
-            <>
-              <div className='flex items-center gap-1 text-slate-600'>
-                <Users size={12} />
-                {operation?.equipe?.members.length} members
-              </div>
-
-              <div className='flex items-center justify-between'>
-                <span className='flex items-center gap-1 text-slate-600'>
-                  <Car size={12} />
-                  {operation?.equipe?.vehicule?.registrationId}
-                </span>
-              </div>
-
-              <div className='flex items-center justify-between'>
-                <span className='flex items-center gap-1 text-slate-600'>
-                  <Fuel size={12} />
-                  {operation?.equipe?.fuelCard?.matricule}
-                </span>
-                <span className='flex items-center gap-1 text-slate-600'>
-                  <Road size={12} />
-                  {operation?.equipe?.highwayCard?.matricule}
-                </span>
-              </div>
-            </>
-          )} */}
-
-          {/* Add borders to  the content */}
-          {operation?.comment && (
-            <div className='flex items-center justify-between border-t border-slate-200 pt-2'>
-              <span className='flex items-center gap-1 text-slate-600'>
-                <MessageSquareTextIcon size={12} />
-                <div dangerouslySetInnerHTML={{ __html: operation?.comment || '' }} />
-              </span>
-            </div>
-          )}
         </div>
+
+        {(operation?.comment || operation?.isRecursive) && (
+          <div className='flex items-center justify-between border-t border-slate-200 pt-2 gap-2'>
+            <span className='flex items-center gap-2 text-slate-600 min-w-0'>
+              {operation?.comment && <MessageSquareTextIcon size={12} />}
+              {operation?.comment ? (
+                <div className='truncate min-w-0' dangerouslySetInnerHTML={{ __html: operation?.comment || '' }} />
+              ) : (
+                <span className='text-xs text-slate-400'>—</span>
+              )}
+            </span>
+
+            <span className='flex items-center gap-2 text-slate-500 shrink-0'>
+              {/* {operation?.isRecursive ? <RefreshCcw size={12} /> : <RefreshCwOff size={12} />} */}
+              {operation?.isRecursive && <RefreshCcw size={12} />}
+
+              <IconButton size='small' color='error' title='Supprimer' onClick={() => handleDelete(operation.id!)}>
+                <Icon icon='tabler:trash-x' />
+              </IconButton>
+            </span>
+          </div>
+        )}
       </div>
     </div>
   )

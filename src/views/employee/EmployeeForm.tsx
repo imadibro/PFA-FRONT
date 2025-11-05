@@ -1,7 +1,7 @@
 import CustomTabList from '@/@core/components/mui/TabList'
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import type { IEmployee, IRole } from '@/@core/utils/types'
-import { useToastComponante } from '@/components/common/DeletedComponante'
+import { useToastComponante } from '@/components/common/ToastComponante'
 import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
 import {
   useCreateEmployeeMutation,
@@ -18,12 +18,11 @@ import {
   IconButton,
   InputAdornment,
   InputLabel,
-  MenuItem,
   OutlinedInput,
-  Select,
   Tab,
   TextField
 } from '@mui/material'
+import Autocomplete from '@mui/material/Autocomplete'
 import Typography from '@mui/material/Typography'
 import React from 'react'
 
@@ -285,24 +284,17 @@ const EmployeeForm = ({
               </div>
             )}
             <div className='mb-4'>
-              <FormControl fullWidth size='small'>
-                <InputLabel id='role-select-label'>Rôle</InputLabel>
-                <Select
-                  labelId='role-select-label'
-                  id='role-select'
-                  name='role'
-                  label='Rôle'
-                  defaultValue={employeeToEdit?.role?.role || ''}
-                  required
-                >
-                  {roles.map(roleItem => (
-                    <MenuItem key={roleItem.id} value={roleItem.role}>
-                      {roleItem.role}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+              <Autocomplete
+                size='small'
+                options={roles}
+                getOptionLabel={option => option.role || ''}
+                defaultValue={roles.find(r => r.role === employeeToEdit?.role?.role) || null}
+                onChange={(event, newValue) => {}}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                renderInput={params => <TextField {...params} label='Rôle' name='role' required />}
+              />
             </div>
+
             <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2, justifyContent: 'space-between', gap: 2 }}>
               <Button
                 type='submit'

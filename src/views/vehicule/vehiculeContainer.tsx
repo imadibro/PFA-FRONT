@@ -1,20 +1,20 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Card, CardContent, Grid } from '@mui/material'
-import toast from 'react-hot-toast'
-import { GENERAL_ERROR, TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@core/utils/toast-message'
-import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@core/utils/constants'
-import type { IVehicule, IVehiculeRequest } from '@core/utils/types'
-import VehiculeView from './vehicule.view'
-import VehiculeForm from './vehicule.Form'
+import { useToastComponante } from '@/components/common/ToastComponante'
 import {
   useCreateVehiculeMutation,
   useDeleteVehiculeMutation,
   useGetVehiculeQuery,
   useUpdateVehiculeMutation
 } from '@/store/features/vehicule/vehiculeApi'
-import { useToastComponante } from '@/components/common/DeletedComponante'
+import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@core/utils/constants'
+import { GENERAL_ERROR, TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@core/utils/toast-message'
+import type { IVehicule, IVehiculeRequest } from '@core/utils/types'
+import { Card, CardContent, Grid } from '@mui/material'
+import React, { useState } from 'react'
+import toast from 'react-hot-toast'
+import VehiculeForm from './vehicule.Form'
+import VehiculeView from './vehicule.view'
 
 export const VehiculeContainer = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)

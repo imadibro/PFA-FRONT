@@ -12,10 +12,6 @@ import { Alert, Box, Button, TextField } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
 import Checkbox from '@mui/material/Checkbox'
 import Chip from '@mui/material/Chip'
-import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
 import { styled } from '@mui/material/styles'
 import Tooltip from '@mui/material/Tooltip'
 import { useState } from 'react'
@@ -48,6 +44,9 @@ const SiteForm = ({
   const [selectedRequirements, setSelectedRequirements] = useState<IRequirement[]>(
     isEditMode ? requirements.filter(req => siteToEdit?.requirements?.some(siteReq => siteReq.id === req.id)) : []
   )
+  const [selectedSiteOwnerId, setSelectedSiteOwnerId] = useState<string | null>(siteToEdit?.siteOwnerId || null)
+  const [selectedSiteTypeId, setSelectedSiteTypeId] = useState<string | null>(siteToEdit?.siteTypeId || null)
+
   const { showAlert, showToast } = useSweetAlert()
   const [updateSite, { isLoading: isUpdating, isError: updateError, error: updateErr }] = useUpdateSiteMutation()
   const [createSite, { isLoading: isCreating, isError: createError, error: createErr }] = useCreateSiteMutation()
@@ -65,10 +64,9 @@ const SiteForm = ({
     const label = formData.get('label') as string
     const siteNbr = formData.get('siteNbr') as string
     const description = formData.get('description') as string
-    const rawSiteOwnerId = formData.get('siteOwnerId')?.toString().trim()
-    const rawSiteTypeId = formData.get('siteTypeId')?.toString().trim()
-    const siteOwnerId = rawSiteOwnerId || defaultSiteOwner?.id
-    const siteTypeId = rawSiteTypeId || defaultSiteType?.id
+    const siteOwnerId = selectedSiteOwnerId || defaultSiteOwner?.id
+    const siteTypeId = selectedSiteTypeId || defaultSiteType?.id
+
     try {
       if (isUpdatingSite) {
         const initialRequirements = siteToEdit?.requirements || []
@@ -141,46 +139,34 @@ const SiteForm = ({
             fullWidth
           />
         </div>
+
         <div className='my-8'>
-          <FormControl fullWidth>
-            <InputLabel id='demo-simple-select-label'>Propriétaire du site</InputLabel>
-            <Select
-              labelId='demo-simple-select-label'
-              id='siteOwnerId'
-              name='siteOwnerId'
-              defaultValue={siteToEdit?.siteOwnerId || ''}
-              // value={siteToEdit?.siteOwnerId}
-              label='Propriétaire'
-            >
-              {siteOwners &&
-                siteOwners.map(siteOwner => (
-                  <MenuItem key={siteOwner.id} value={siteOwner.id}>
-                    {siteOwner.name}
-                  </MenuItem>
-                ))}
-            </Select>
-          </FormControl>
+          <Autocomplete
+            size='small'
+            options={siteOwners || []}
+            getOptionLabel={option => option.name || ''}
+            value={siteOwners?.find(owner => owner.id === selectedSiteOwnerId) || null}
+            onChange={(event, newValue) => {
+              setSelectedSiteOwnerId(newValue ? newValue.id : null)
+            }}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            renderInput={params => <TextField {...params} label='Propriétaire du site' required />}
+          />
         </div>
         <div className='my-8'>
-          <FormControl fullWidth>
-            <InputLabel id='demo-simple-select-label'>Type de site</InputLabel>
-            <Select
-              labelId='demo-simple-select-label'
-              id='siteType'
-              name='siteTypeId'
-              defaultValue={siteToEdit?.siteTypeId || ''}
-              // value={siteToEdit?.siteTypeId}
-              label='Type'
-            >
-              {siteTypes &&
-                siteTypes.map(siteType => (
-                  <MenuItem key={siteType.id} value={siteType.id}>
-                    {siteType.name}
-                  </MenuItem>
-                ))}
-            </Select>
-          </FormControl>
+          <Autocomplete
+            size='small'
+            options={siteTypes || []}
+            getOptionLabel={option => option.name || ''}
+            value={siteTypes?.find(type => type.id === selectedSiteTypeId) || null}
+            onChange={(event, newValue) => {
+              setSelectedSiteTypeId(newValue ? newValue.id : null)
+            }}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            renderInput={params => <TextField {...params} label='Type de site' required />}
+          />
         </div>
+
         <div className='my-8'>
           <Autocomplete
             multiple

@@ -49,7 +49,8 @@ export const operationApi = api.injectEndpoints({
       }),
       invalidatesTags: [
         // { type: 'TasksWithNoOperation', id: 'LIST' },
-        { type: 'Operation', id: 'LIST' }
+        { type: 'Operation', id: 'LIST' },
+        { type: 'Operation', id: 'ALL-LIST' }
       ]
     }),
     updateOperation: builder.mutation<IOperation, { id: string; operation: IOperationRequest }>({

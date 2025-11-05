@@ -1,10 +1,10 @@
+import { useToastComponante } from '@/components/common/ToastComponante'
 import QuickSearchToolbar from '@core/components/quicksearch/QuickSearchToolbar'
 import type { IActionColumnsProps, ICellType, IEquipe, IEquipeRequest } from '@core/utils/types'
 import { Icon } from '@iconify/react'
 import { Box, Card, IconButton, Typography } from '@mui/material'
 import type { GridColDef, GridPaginationModel } from '@mui/x-data-grid'
 import { DataGrid } from '@mui/x-data-grid'
-import { useToastComponante } from '@/components/common/DeletedComponante'
 
 const RowOptions = ({ row, toggleEditMode, deleteObject }: IActionColumnsProps<IEquipe>) => {
   const { confirmDelete } = useToastComponante()

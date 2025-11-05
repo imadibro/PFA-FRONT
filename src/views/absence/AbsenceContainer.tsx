@@ -1,6 +1,7 @@
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import { stringToDate } from '@/@core/utils/format'
 import type { IAbsence } from '@/@core/utils/types'
+import { useToastComponante } from '@/components/common/ToastComponante'
 import {
   useCreateAbsenceMutation,
   useDeleteAbsenceMutation,
@@ -11,9 +12,8 @@ import { getAbsencesFromDB, removeAbsenceFromDB } from '@/utils/idbUtils'
 import type { SystemMode } from '@core/types'
 import { Alert } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
-import AbsenceForm from './AbsenceForm'
 import AbsenceView from './Absence.view'
-import { useToastComponante } from '@/components/common/DeletedComponante'
+import AbsenceForm from './AbsenceForm'
 
 const AbsencesContainer = ({ mode }: { mode: SystemMode }) => {
   const [searchText, setSearchText] = useState<string>('')

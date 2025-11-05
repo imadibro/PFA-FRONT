@@ -1,8 +1,8 @@
 'use client'
 
+import { useTheme } from '@mui/material/styles'
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
-import { useTheme } from '@mui/material/styles'
 
 const MySwal = withReactContent(Swal)
 
@@ -54,5 +54,29 @@ export default function useSweetAlert() {
     })
   }
 
-  return { showAlert, showConfirm, showToast }
+  const showConfirmWithCheckbox = async (
+    title: string,
+    checkboxLabel: string,
+    confirmText = 'Supprimer',
+    cancelText = 'Annuler'
+  ) => {
+    const result = await Swal.fire({
+      title,
+      icon: 'warning',
+      input: 'checkbox',
+      inputValue: 0,
+      inputPlaceholder: checkboxLabel,
+      showCancelButton: true,
+      confirmButtonText: confirmText,
+      cancelButtonText: cancelText,
+      ...customStyles
+    })
+
+    return {
+      isConfirmed: result.isConfirmed,
+      checkboxChecked: result.value === 1
+    }
+  }
+
+  return { showAlert, showConfirm, showToast, showConfirmWithCheckbox }
 }

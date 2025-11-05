@@ -1,10 +1,30 @@
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 
 export const useToastComponante = () => {
-  const { showConfirm, showToast } = useSweetAlert()
+  const { showConfirm, showToast, showConfirmWithCheckbox } = useSweetAlert()
 
   const confirmDelete = async (label: string): Promise<boolean> => {
     return await showConfirm('', `Êtes-vous sûr de vouloir supprimer ${label} ?`, 'Supprimer', 'Annuler')
+  }
+
+  const confirmDeleteWithCheckbox = async (
+    label: string,
+    checkboxLabel: string
+  ): Promise<{
+    isConfirmed: boolean
+    checkboxChecked: boolean
+  }> => {
+    const result = await showConfirmWithCheckbox(
+      `Êtes-vous sûr de vouloir supprimer ${label} ?`,
+      checkboxLabel,
+      'Supprimer',
+      'Annuler'
+    )
+
+    return {
+      isConfirmed: result.isConfirmed,
+      checkboxChecked: result.checkboxChecked
+    }
   }
 
   const confirmUpdate = async (label: string): Promise<boolean> => {
@@ -43,5 +63,13 @@ export const useToastComponante = () => {
     await showToast(message, 'error')
   }
 
-  return { confirmDelete, confirmUpdate, confirmAdd, showDeletToast, confirmSave, showErrorToast }
+  return {
+    confirmDelete,
+    confirmUpdate,
+    confirmAdd,
+    showDeletToast,
+    confirmSave,
+    showErrorToast,
+    confirmDeleteWithCheckbox
+  }
 }
