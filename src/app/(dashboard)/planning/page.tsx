@@ -103,10 +103,21 @@ function Page() {
       const endISO = p.endDate
       const startTime = p.startDate.split('T')[1]?.slice(0, 8) || '09:00:00'
       const endTime = p.endDate.split('T')[1]?.slice(0, 8) || '10:00:00'
+      const apiColor =
+        p.colorCode || p.operation?.color || p.operation?.project?.clientAgency?.client?.color || '#408eceff'
+
+      const apiClientName =
+        p.clientName || p.operation?.clientName || p.operation?.project?.clientAgency?.client?.clientName || ''
+
+      const operationWithFlatColor = {
+        ...p.operation,
+        color: apiColor,
+        clientName: apiClientName
+      }
 
       return {
         ...makeCalendarEvent({
-          operation: p.operation,
+          operation: operationWithFlatColor,
           dateISO,
           endISO,
           resourceId: p.equipe?.id,
@@ -601,6 +612,9 @@ function makeCalendarEvent(params: {
     endTime = '10:00:00',
     planningId
   } = params
+
+  const colors = operation?.project?.clientAgency?.client?.color
+  console.log(colors)
 
   // Si dateISO contient déjà un "T", c'est une date complète
   const start = dateISO.includes('T') ? dateISO : `${dateISO}T${startTime}`

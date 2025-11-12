@@ -1,10 +1,9 @@
-import type { ChangeEvent } from 'react'
-import React from 'react'
-import Box from '@mui/material/Box'
-import IconButton from '@mui/material/IconButton'
-import { Button } from '@mui/material'
 import Icon from '@core/components/icon/index'
 import CustomTextField from '@core/components/mui/TextField'
+import { Button } from '@mui/material'
+import Box from '@mui/material/Box'
+import IconButton from '@mui/material/IconButton'
+import type { ChangeEvent } from 'react'
 
 interface Props {
   value: string
@@ -14,10 +13,13 @@ interface Props {
   title: string
   data: any
   showAddButton?: boolean
+  savedButton?: boolean
+  handleSave?: () => void
 }
 
 const QuickSearchToolbar = (props: Props) => {
   const { showAddButton = true } = props
+  const { savedButton = false } = props
   return (
     <Box
       sx={{
@@ -60,6 +62,14 @@ const QuickSearchToolbar = (props: Props) => {
           }}
         />
       </div>
+      {savedButton && (
+        <div>
+          <Button variant='contained' color='primary' onClick={props.handleSave} sx={{ minWidth: 140 }}>
+            Sauvegarder
+          </Button>
+        </div>
+      )}
+
       {showAddButton && (
         <div>
           <Button

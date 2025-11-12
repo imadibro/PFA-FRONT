@@ -31,6 +31,7 @@ const schema = yup
     site: yup.string().required('Site est requis'),
     operationTasks: yup.string().required('Les operations est requis'),
     project: yup.string().required('Le projet est requis'),
+    clientName: yup.string().nullable().notRequired(),
     equipe: yup.string().nullable().notRequired(),
     gabarit: yup.number().nullable().notRequired()
   })
@@ -48,6 +49,7 @@ export default function OperationForm(props: Props) {
     site: string
     operationTasks: string
     project: string
+    clientName: string
     comment: EditorState
     gabarit?: number | null
     isPlanified: boolean
@@ -58,6 +60,7 @@ export default function OperationForm(props: Props) {
     operationTasks:
       isEditMode && operationToEdit && operationToEdit.operationTasks ? operationToEdit.operationTasks.id || '' : '',
     project: isEditMode && operationToEdit && operationToEdit?.project?.id ? operationToEdit.project.id || '' : '',
+    clientName: isEditMode && operationToEdit && operationToEdit?.clientName ? operationToEdit.clientName : '',
     comment: isEditMode ? getEditorStateFromHtml(operationToEdit?.comment || '') : EditorState.createEmpty(),
     gabarit: isEditMode && operationToEdit && operationToEdit?.gabarit ? (operationToEdit.gabarit ?? null) : null,
     isPlanified: isEditMode && operationToEdit ? (operationToEdit.isPlanified ?? false) : false,
@@ -174,6 +177,23 @@ export default function OperationForm(props: Props) {
           />
         </Grid>
 
+        <Grid item xs={12} sm={12}>
+          <Controller
+            name='clientName'
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <CustomTextField
+                type='text'
+                fullWidth
+                label='Client'
+                id='clientName'
+                value={value ?? ''}
+                onChange={e => onChange(e.target.value)}
+                aria-describedby='clientName'
+              />
+            )}
+          />
+        </Grid>
         <Grid item xs={12} sm={12}>
           <Controller
             name='gabarit'

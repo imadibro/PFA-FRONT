@@ -94,9 +94,6 @@ const LoginV2 = (/*{ mode }: { mode: SystemMode }*/) => {
               <Typography variant='h4' sx={{ mb: 1.5, textAlign: 'center' }}>
                 {themeConfig.templateName.toUpperCase()}
               </Typography>
-              <Typography variant='h6' sx={{ mb: -5.5, textAlign: 'center' }} color={'primary'}>
-                planning
-              </Typography>
             </Box>
             <Box sx={{ mb: 6, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Typography variant='h5' sx={{ mb: 1.5 }}>

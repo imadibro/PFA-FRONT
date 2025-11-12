@@ -194,6 +194,7 @@ export interface IZoneActivity extends IActivity {}
 export interface IClientAgency {
   id: string
   label: string
+  client?: IClient
 }
 
 export interface IQuotation {
@@ -216,6 +217,7 @@ export interface IClient {
   clientAlias: string
   phone: string
   createdAt?: string
+  color?: string
 }
 
 export interface IClientOrder {
@@ -267,10 +269,13 @@ export interface IOperation extends ICommonProps {
   site: ISite
   operationTasks: IOperationTask
   project: IProject
+  clientName: string
   comment?: string
   gabarit?: number
   isPlanified: boolean
   isRecursive: boolean
+  color?: string
+  clientName?: string
 }
 
 export interface IOperationRequest {
@@ -278,6 +283,7 @@ export interface IOperationRequest {
   site: string
   operationTasks: string
   project: string
+  clientName: string
   comment?: string | EditorState
   gabarit?: number | null
   isPlanified: boolean
@@ -294,7 +300,6 @@ export interface IEquipe extends ICommonProps {
 
 export interface IEquipeRequest {
   id?: string
-  name?: string
   members: { id: string; name: string; role: string }[]
   fuelCard: string | null
   highwayCard: string | null
@@ -311,6 +316,8 @@ export interface IPlanning extends ICommonProps {
   equipe: IEquipe
   equipeChangedAt?: Date | null
   equipeChanged?: boolean
+  colorCode?: string
+  clientName?: string
 }
 export interface IPlanningRequest {
   id?: string
@@ -326,4 +333,10 @@ export interface IEquipeData {
   fuelCard: ICardRequest | null
   highwayCard: ICardRequest | null
   vehicule: { id: string; registrationId: string } | null
+}
+
+export interface IFactoClient {
+  id: string
+  clientName: string
+  colorCode?: string
 }

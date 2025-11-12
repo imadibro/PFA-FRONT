@@ -37,7 +37,8 @@ export const api = createApi({
     'Vehicule',
     'vehicule-model',
     'Equipe',
-    'Planing'
+    'Planing',
+    'FactoClient'
   ],
   endpoints: _builder => ({})
 })

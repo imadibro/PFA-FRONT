@@ -43,12 +43,32 @@ const RowOptions = ({ row, toggleEditMode, deleteObject }: IActionColumnsProps<I
 const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IOperation>): GridColDef[] => {
   return [
     {
+      field: 'projet',
+      headerName: 'Le projet',
+      flex: 1,
+      renderCell: ({ row }: ICellType<IOperation>) => (
+        <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }} title={row.project?.projectCode}>
+          {row.project?.projectCode ? row.project?.projectCode : '-'}
+        </Typography>
+      )
+    },
+    {
+      field: 'clientName',
+      headerName: 'Client',
+      flex: 1,
+      renderCell: ({ row }: ICellType<IOperation>) => (
+        <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }} title={row.clientName}>
+          {row.clientName ? row.clientName : '-'}
+        </Typography>
+      )
+    },
+    {
       field: 'site',
       headerName: 'Site',
       flex: 1,
       renderCell: ({ row }: ICellType<IOperation>) => (
         <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
-          {row.site ? `${row.site.label} - ${row.site.siteNbr}` : 'N/A'}
+          {row.site ? `${row.site.label} - ${row.site.siteNbr}` : '-'}
         </Typography>
       )
     },
@@ -64,23 +84,14 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IOperatio
         </Typography>
       )
     },
-    {
-      field: 'projet',
-      headerName: 'Le projet',
-      flex: 1,
-      renderCell: ({ row }: ICellType<IOperation>) => (
-        <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
-          {row.project?.projectCode ? row.project?.projectCode : 'N/A'}
-        </Typography>
-      )
-    },
+
     {
       field: 'gabarit',
       headerName: 'Gabarit',
       flex: 1,
       renderCell: ({ row }: ICellType<IOperation>) => (
         <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
-          {row.gabarit ? row.gabarit : 'N/A'}
+          {row.gabarit ? row.gabarit : '-'}
         </Typography>
       )
     },

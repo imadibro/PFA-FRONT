@@ -43,7 +43,6 @@ const schema = yup
       .of(
         yup.object({
           id: yup.string().required('Employé requis'),
-          name: yup.string().required('Employé requis'),
           role: yup.string().required('Rôle requis')
         })
       )
@@ -74,7 +73,6 @@ export default function EquipeForm(props: Props) {
   const roles = roleEmployees ?? []
 
   const defaultValues: IEquipeRequest = {
-    name: isEditMode && equipeToEdit ? equipeToEdit.name : '',
     members:
       isEditMode && equipeToEdit
         ? equipeToEdit.members.map(member => ({
@@ -107,7 +105,6 @@ export default function EquipeForm(props: Props) {
 
   const onSubmit: SubmitHandler<IEquipeRequest> = data => {
     const payload = {
-      name: data.name,
       members: data.members,
       fuelCardId: data.fuelCard || null,
       highwayCardId: data.highwayCard || null,
@@ -140,25 +137,6 @@ export default function EquipeForm(props: Props) {
     >
       <form onSubmit={handleSubmit(onSubmit as any)}>
         <Grid container spacing={5}>
-          <Grid item xs={12} sm={12}>
-            <Controller
-              name='name'
-              control={control}
-              rules={{ required: true }}
-              render={({ field }) => (
-                <CustomTextField
-                  {...field}
-                  fullWidth
-                  label='Nom Equipe'
-                  id='name'
-                  error={Boolean(errors.name)}
-                  aria-describedby='name'
-                  {...(errors.name && { helperText: 'Ce champs est obligatoire' })}
-                />
-              )}
-            />
-          </Grid>
-
           <Grid item xs={12}>
             <Box display='flex' justifyContent='space-between' alignItems='center'>
               <Typography variant='h6' gutterBottom>

@@ -4,7 +4,7 @@ import { useToastComponante } from '@/components/common/ToastComponante'
 import { useDeleteOperationMutation } from '@/store/features/operation/operationApi'
 import { useDeletePlaningMutation } from '@/store/features/planing/planingApi'
 import Tooltip from '@mui/material/Tooltip'
-import { Car, Fuel, InfoIcon, MessageSquareTextIcon, RouteIcon as Road, Users } from 'lucide-react'
+import { InfoIcon, MessageSquareTextIcon } from 'lucide-react'
 import React, { useState } from 'react'
 import { useDrop } from 'react-dnd'
 import toast from 'react-hot-toast'
@@ -37,6 +37,8 @@ export function CalendarCard({
   handleMembersChange?: (eventId: string, newMembers: { id: string; name: string; role: string }[]) => void
   equipeChangedAt?: Date | null | undefined
 }) {
+  const divRef = React.useRef<HTMLDivElement>(null)
+
   // State for action menu visibility
   const [showMenu, setShowMenu] = useState(false)
 
@@ -64,7 +66,6 @@ export function CalendarCard({
   )
 
   // Always call useRef and useEffect
-  const divRef = React.useRef<HTMLDivElement>(null)
   React.useEffect(() => {
     if (onEquipeDrop && divRef.current) {
       drop(divRef)
@@ -240,15 +241,39 @@ export function CalendarCard({
     handleMembersChange?.(operation.eventId, members)
   }
 
+  const handleOpenCommentModal = () => {
+    alert(1)
+  }
+
+  const getTextClassFromHex = (hex?: string) => {
+    if (!hex) return 'text-white'
+    try {
+      const c = hex.replace('#', '')
+      const r = parseInt(c.substring(0, 2), 16)
+      const g = parseInt(c.substring(2, 4), 16)
+      const b = parseInt(c.substring(4, 6), 16)
+      const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+      return luminance > 0.6 ? 'text-black' : 'text-white'
+    } catch {
+      return 'text-white'
+    }
+  }
+
+  const textColorClass = getTextClassFromHex(operation?.color)
+
   return (
     <div
       ref={divRef}
       className={`w-full rounded-md shadow hover:shadow-md transition-shadow overflow-hidden ${
         isOver && canDrop ? 'ring-2 ring-blue-400' : ''
       }`}
-      style={{ position: 'relative' }}
+      style={{
+        position: 'relative',
+        backgroundColor: operation?.color ? operation.color : undefined
+      }}
     >
-      <div className='p-2 sm:p-3 leading-tight text-white'>
+      {/* <div className='p-2 sm:p-3 leading-tight text-white'> */}
+      <div className={`p-2 sm:p-3 leading-tight ${textColorClass}`}>
         {/* Titre + menu (tu gardes ton OperationHeader tel quel) */}
         <OperationHeader
           operation={operation}
@@ -258,7 +283,7 @@ export function CalendarCard({
         />
 
         {/* Membres — puces fines, sur une seule ligne scrollable */}
-        {equipe?.members?.length ? (
+        {/* {equipe?.members?.length ? (
           <div className='mt-1 pr-1 flex flex-wrap'>
             {equipe.members.map(m => (
               <span
@@ -272,11 +297,11 @@ export function CalendarCard({
               </span>
             ))}
           </div>
-        ) : null}
+        ) : null} */}
 
         {/* LIGNE COMPACTE: véhicule • carte carburant • télépéage */}
 
-        {(equipe?.vehicule?.registrationId || equipe?.fuelCard?.matricule || equipe?.highwayCard?.matricule) && (
+        {/* {(equipe?.vehicule?.registrationId || equipe?.fuelCard?.matricule || equipe?.highwayCard?.matricule) && (
           <div className='mt-2 text-[12px] flex items-center flex-wrap gap-x-3 gap-y-1'>
             {equipe?.vehicule?.registrationId && (
               <span className='inline-flex items-center gap-1 min-w-0'>
@@ -299,12 +324,12 @@ export function CalendarCard({
               </span>
             )}
           </div>
-        )}
+        )} */}
 
         {operation?.comment && (
           <div className='border-t border-white/10 mt-2 pt-2'>
             <div className='flex items-center gap-2 text-[12px]'>
-              <div className='flex items-start gap-1'>
+              <div className='flex items-start gap-1' onClick={handleOpenCommentModal}>
                 <MessageSquareTextIcon size={14} className='mt-[1px] opacity-90' />
                 <div className='truncate opacity-95' dangerouslySetInnerHTML={{ __html: operation.comment || '' }} />
               </div>

@@ -8,6 +8,7 @@ import { Tab } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 import { useState } from 'react'
 import { ClientContainer } from '../client/Client.Container'
+import FactoClient from '../facto-client/FactoClient'
 import OperationList from './List'
 
 const Tabs = ({ mode }: { mode: SystemMode }) => {
@@ -25,6 +26,7 @@ const Tabs = ({ mode }: { mode: SystemMode }) => {
         <Tab label='Clients' value='1' />
         <Tab label='Type opération' value='2' />
         <Tab label='Tâches' value='3' />
+        <Tab label='Facto-Clients' value='4' />
       </CustomTabList>
       <TabPanel value='1' style={{ paddingBlockStart: 0 }}>
         <ClientContainer />
@@ -34,6 +36,9 @@ const Tabs = ({ mode }: { mode: SystemMode }) => {
       </TabPanel>
       <TabPanel value='3' style={{ paddingBlockStart: 0 }}>
         <TaskList mode={mode} />
+      </TabPanel>
+      <TabPanel value='4' style={{ paddingBlockStart: 0 }}>
+        <FactoClient />
       </TabPanel>
     </TabContext>
   )
