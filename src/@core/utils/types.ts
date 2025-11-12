@@ -269,7 +269,7 @@ export interface IOperation extends ICommonProps {
   site: ISite
   operationTasks: IOperationTask
   project: IProject
-  clientName: string
+  clientAbri: string
   comment?: string
   gabarit?: number
   isPlanified: boolean
@@ -283,7 +283,7 @@ export interface IOperationRequest {
   site: string
   operationTasks: string
   project: string
-  clientName: string
+  clientAbri: string
   comment?: string | EditorState
   gabarit?: number | null
   isPlanified: boolean
