@@ -63,16 +63,6 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IOperatio
       )
     },
     {
-      field: 'clientName',
-      headerName: 'Client',
-      flex: 1,
-      renderCell: ({ row }: ICellType<IOperation>) => (
-        <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }} title={row.clientName}>
-          {row.clientName ? row.clientName : '-'}
-        </Typography>
-      )
-    },
-    {
       field: 'site',
       headerName: 'Site',
       flex: 1,

@@ -1,14 +1,21 @@
 import { TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@/@core/utils/toast-message'
 import type { IEquipe, IOperation } from '@/@core/utils/types'
 import { useToastComponante } from '@/components/common/ToastComponante'
-import { useDeleteOperationMutation } from '@/store/features/operation/operationApi'
+import { useDeleteOperationMutation, useUpdateOperationMutation } from '@/store/features/operation/operationApi'
 import { useDeletePlaningMutation } from '@/store/features/planing/planingApi'
+import getEditorStateFromHtml from '@/views/operation/getEditorStateFromHtml'
+import { Box, Button, Dialog, DialogContent, DialogTitle } from '@mui/material'
 import Tooltip from '@mui/material/Tooltip'
-import { InfoIcon, MessageSquareTextIcon } from 'lucide-react'
+import { EditorState, convertToRaw } from 'draft-js'
+import draftToHtml from 'draftjs-to-html'
+import { MessageSquareTextIcon } from 'lucide-react'
+import dynamic from 'next/dynamic'
 import React, { useState } from 'react'
 import { useDrop } from 'react-dnd'
 import toast from 'react-hot-toast'
 import OperationHeader from './OperationHeader'
+
+const RichTextEditor = dynamic(() => import('@/views/operation/RichTextEditor'), { ssr: false })
 
 // Define ExternalEvent type if not already imported
 type ExternalEvent = {
@@ -37,6 +44,67 @@ export function CalendarCard({
   handleMembersChange?: (eventId: string, newMembers: { id: string; name: string; role: string }[]) => void
   equipeChangedAt?: Date | null | undefined
 }) {
+  const [openCommentDialog, setOpenCommentDialog] = useState(false)
+  const [editorState, setEditorState] = useState<EditorState>(EditorState.createEmpty())
+  const [isSavingComment, setIsSavingComment] = useState(false)
+  const [updateOperation] = useUpdateOperationMutation()
+  const { confirmUpdate } = useToastComponante()
+
+  const handleOpenCommentEditor = () => {
+    if (operation?.comment) {
+      setEditorState(getEditorStateFromHtml(operation.comment))
+    } else {
+      setEditorState(EditorState.createEmpty())
+    }
+    setOpenCommentDialog(true)
+  }
+
+  const handleSaveComment = async () => {
+    if (!operation?.id) return
+
+    setIsSavingComment(true)
+    try {
+      const commentHtml = draftToHtml(convertToRaw(editorState.getCurrentContent()))
+
+      await updateOperation({
+        id: operation.id,
+        operation: {
+          comment: commentHtml,
+          site: operation.site?.id || '',
+          operationTasks: operation?.operationTasks?.id || '',
+          project: operation.project?.id || '',
+          clientAbri: operation.clientAbri || '',
+          gabarit: operation.gabarit ?? null,
+          isPlanified: Boolean(operation.isPlanified),
+          isRecursive: Boolean(operation.isRecursive)
+        }
+      }).unwrap()
+
+      setEvents(prev =>
+        prev.map(ev =>
+          ev.id === operation.eventId
+            ? {
+                ...ev,
+                extendedProps: {
+                  ...ev.extendedProps,
+                  operation: { ...ev.extendedProps?.operation, comment: commentHtml }
+                }
+              }
+            : ev
+        )
+      )
+      confirmUpdate('Commentaire')
+      setOperations(prev => prev.map(op => (op.id === operation.id ? { ...op, comment: commentHtml } : op)))
+
+      setOpenCommentDialog(false)
+    } catch (err) {
+      console.error('Erreur lors de la sauvegarde du commentaire', err)
+      showErrorToast(err)
+    } finally {
+      setIsSavingComment(false)
+    }
+  }
+
   const divRef = React.useRef<HTMLDivElement>(null)
 
   // State for action menu visibility
@@ -86,67 +154,6 @@ export function CalendarCard({
   }, [showMenu])
 
   if (!operation) return null
-
-  // const handleDeleteOperation = async (eventId: string, operationId: string) => {
-  //   const ok = await confirmDeleteWithCheckbox(
-  //     'cette opération',
-  //     'Je comprends que cette action est irréversible et je souhaite supprimer cette opération.'
-  //   )
-  //   if (!ok) return
-
-  //   const api = calendarRef.current?.getApi()
-  //   const fullEvent = api?.getEventById?.(eventId)
-  //   if (!fullEvent) {
-  //     console.error("Événement non trouvé pour l'ID:", eventId)
-  //     return
-  //   }
-
-  //   // lire l'op avant remove()
-  //   const raw = fullEvent.extendedProps?.operation
-  //   const op: IOperation | null = typeof raw === 'string' ? JSON.parse(raw) : raw
-
-  //   const planningId = fullEvent.extendedProps?.planningId
-
-  //   if (planningId) {
-  //     try {
-  //       const ok = await deletePlanning({ id: planningId }).unwrap()
-  //       if (ok) {
-  //         showDeletToast('Planning')
-  //       }
-  //     } catch (err) {
-  //       //toast.error(err)
-  //       // optionnel: resync UI si tu veux rollback visuel
-  //       // refetchPlaning?.(); refetchOperations?.();
-  //       return
-  //     }
-  //   }
-
-  //   // 1) supprimer UNIQUEMENT l'event courant
-  //   fullEvent.remove()
-  //   setEvents(prev => prev.filter(ev => ev.id !== eventId))
-
-  //   // y a-t-il d'autres events de la même opération encore présents ?
-  //   const hasOtherInstances = api
-  //     ?.getEvents()
-  //     ?.some((e: any) => e.extendedProps?.operation?.id === operationId && e.id !== eventId)
-
-  //   // 2) ne l’enlever de placedOperationIds que s’il n’en reste plus
-  //   setPlacedOperationIds(prev => {
-  //     if (hasOtherInstances) return prev
-  //     const next = new Set(prev)
-  //     next.delete(operationId)
-  //     return next
-  //   })
-
-  //   // 3) réinjecter à gauche (une seule fois), marqué isPlanified=false
-  //   if (!hasOtherInstances && op) {
-  //     const opBack = { ...op, isPlanified: false }
-  //     setOperations(prev => {
-  //       if (prev.some(o => o.id === operationId)) return prev
-  //       return [opBack, ...prev]
-  //     })
-  //   }
-  // }
 
   const handleDeleteOperation = async (eventId: string, operationId: string) => {
     // Destructurer le résultat pour obtenir isConfirmed et checkboxChecked
@@ -241,8 +248,8 @@ export function CalendarCard({
     handleMembersChange?.(operation.eventId, members)
   }
 
-  const handleOpenCommentModal = () => {
-    alert(1)
+  const handleCloseDialog = () => {
+    setOpenCommentDialog(false)
   }
 
   const getTextClassFromHex = (hex?: string) => {
@@ -327,28 +334,73 @@ export function CalendarCard({
         )} */}
 
         {operation?.comment && (
-          <div className='border-t border-white/10 mt-2 pt-2'>
-            <div className='flex items-center gap-2 text-[12px]'>
-              <div className='flex items-start gap-1' onClick={handleOpenCommentModal}>
-                <MessageSquareTextIcon size={14} className='mt-[1px] opacity-90' />
-                <div className='truncate opacity-95' dangerouslySetInnerHTML={{ __html: operation.comment || '' }} />
-              </div>
-
-              {equipeChangedAt && (
-                <Tooltip
-                  title={`Équipe modifiée le ${new Date(equipeChangedAt).toLocaleString('fr-FR')}`}
-                  arrow
-                  placement='top'
-                >
-                  <div className='flex items-center gap-1 text-yellow-200 cursor-help'>
-                    <InfoIcon size={16} className='text-yellow-400' />
-                    {/* <span className='truncate'>Équipe modifiée</span> */}
-                  </div>
-                </Tooltip>
-              )}
+          <div
+            className='border-t border-white/10 mt-2 pt-2 cursor-pointer hover:opacity-80'
+            onClick={handleOpenCommentEditor}
+          >
+            <div className='flex items-start gap-2 text-[12px]'>
+              <MessageSquareTextIcon size={14} className='mt-[1px] opacity-90 flex-shrink-0' />
+              <Tooltip
+                title={
+                  <div
+                    style={{
+                      maxWidth: '300px',
+                      whiteSpace: 'normal',
+                      wordWrap: 'break-word',
+                      lineHeight: 1.5
+                    }}
+                    dangerouslySetInnerHTML={{ __html: operation.comment || '' }}
+                  />
+                }
+                arrow
+                placement='top'
+                slotProps={{
+                  popper: {
+                    modifiers: [
+                      {
+                        name: 'offset',
+                        options: {
+                          offset: [0, 10]
+                        }
+                      }
+                    ]
+                  },
+                  tooltip: {
+                    sx: {
+                      backgroundColor: '#333',
+                      color: '#fff',
+                      fontSize: '12px',
+                      padding: '8px 12px',
+                      maxWidth: '350px',
+                      wordWrap: 'break-word',
+                      whiteSpace: 'normal',
+                      lineHeight: 1.4
+                    }
+                  }
+                }}
+              >
+                <div className='flex-1 line-clamp-2 opacity-95'>
+                  <div dangerouslySetInnerHTML={{ __html: operation.comment || '' }} />
+                </div>
+              </Tooltip>
             </div>
           </div>
         )}
+
+        <Dialog open={openCommentDialog} onClose={handleCloseDialog} maxWidth='sm' fullWidth>
+          <DialogTitle>Éditer le commentaire</DialogTitle>
+          <DialogContent sx={{ pt: 2 }}>
+            <RichTextEditor editorState={editorState} setEditorState={setEditorState} />
+            <Box sx={{ marginTop: 2, display: 'flex', gap: 1 }}>
+              <Button variant='contained' color='primary' onClick={handleSaveComment} disabled={isSavingComment}>
+                {isSavingComment ? 'Sauvegarde...' : 'Sauvegarder'}
+              </Button>
+              <Button variant='outlined' color='error' onClick={handleCloseDialog} disabled={isSavingComment}>
+                Annuler
+              </Button>
+            </Box>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )
