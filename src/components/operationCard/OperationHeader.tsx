@@ -66,12 +66,12 @@ export default function OperationHeader({
         {/* Gauche : Projet + site */}
         <Box sx={{ minWidth: 0 }}>
           <Typography className='text-white' variant='subtitle1' fontWeight={600} noWrap>
-            {operation?.project?.projectCode}
+            {operation.clientAbri || operation?.project?.projectCode}
           </Typography>
           <Stack direction='row' spacing={0.5} alignItems='center'>
             <MapPin className='text-white' size={14} />
             <Typography className='text-white' variant='body2' noWrap>
-              {operation?.site?.siteNbr}
+              {operation?.site?.map(s => s.siteNbr).join(', ')}
             </Typography>
           </Stack>
         </Box>
@@ -133,7 +133,7 @@ export default function OperationHeader({
 
             <Stack direction='row' spacing={0.5} alignItems='center'>
               <MapPin size={16} />
-              <Typography variant='body2'>Site : {operation?.site?.siteNbr}</Typography>
+              <Typography variant='body2'>Site : {operation?.site?.map(s => s.siteNbr).join(', ')}</Typography>
             </Stack>
 
             <Divider sx={{ my: 1 }} />

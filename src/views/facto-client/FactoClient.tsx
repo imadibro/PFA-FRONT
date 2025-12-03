@@ -47,7 +47,7 @@ const FactoClient = () => {
           updateClientColor({ id: clientId, colorCode: color }).unwrap()
         )
       )
-      setColorChange({}) // Vide le state après succès
+      setColorChange({})
       confirmSave('Les couleurs')
     } catch (err) {
       showErrorToast(err)

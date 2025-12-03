@@ -90,15 +90,15 @@ export function CompactCard({
       {...props}
     >
       <div className='p-3'>
-        <Tooltip title={operation?.project?.projectCode || ''} arrow>
-          <h3 className='font-semibold text-sm truncate'>{operation?.project?.projectCode}</h3>
+        <Tooltip title={operation?.project?.projectCode} arrow>
+          <h3 className='font-semibold text-sm truncate'>{operation?.clientAbri || operation?.project?.projectCode}</h3>
         </Tooltip>
 
         <div className='mt-2 text-xs'>
           <div className='flex items-center flex-nowrap gap-3 min-w-0'>
             <span className='flex items-center gap-1 text-slate-600 min-w-0'>
               <MapPin size={12} />
-              <span className='truncate min-w-0'>{operation?.site?.siteNbr}</span>
+              <span className='truncate min-w-0'>{operation?.site?.map(s => s.siteNbr)}</span>
             </span>
 
             <span className='flex items-center gap-1 text-slate-600'>

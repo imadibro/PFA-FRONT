@@ -49,8 +49,8 @@ export default function DetailedCard({ operation }: { operation: IOperation }) {
                 <MapPin size={18} className='text-slate-500' />
                 <span>Site</span>
               </div>
-              <p className='text-sm pl-6'>{operation.site.siteNbr}</p>
-              <p className='text-xs text-slate-500 pl-6'>{operation.site.label}</p>
+              <p className='text-sm pl-6'>{operation.site.map(s => s.siteNbr)}</p>
+              <p className='text-xs text-slate-500 pl-6'>{operation.site.map(s => s.label)}</p>
             </div>
 
             {/* <div className='space-y-1'>

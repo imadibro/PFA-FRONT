@@ -48,7 +48,7 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IOperatio
       flex: 1,
       renderCell: ({ row }: ICellType<IOperation>) => (
         <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }} title={row.project?.projectCode}>
-          {row.project?.projectCode ? row.project?.projectCode : '-'}
+          {row.clientAbri ? row.clientAbri : row.project?.projectCode ? row.project?.projectCode : '-'}
         </Typography>
       )
     },
@@ -68,7 +68,7 @@ const columns = ({ toggleEditMode, deleteObject }: IActionColumnsProps<IOperatio
       flex: 1,
       renderCell: ({ row }: ICellType<IOperation>) => (
         <Typography noWrap sx={{ fontWeight: 500, color: 'text.secondary' }}>
-          {row.site ? `${row.site.label} - ${row.site.siteNbr}` : '-'}
+          {row.site ? `${row.site.map(s => s.label)} - ${row.site.map(s => s.siteNbr)}` : '-'}
         </Typography>
       )
     },

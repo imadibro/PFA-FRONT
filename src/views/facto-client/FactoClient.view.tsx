@@ -3,6 +3,41 @@ import type { ICellType, IFactoClient } from '@core/utils/types'
 import { Card, Typography } from '@mui/material'
 import type { GridColDef, GridPaginationModel } from '@mui/x-data-grid'
 import { DataGrid } from '@mui/x-data-grid'
+import React from 'react'
+
+const ColorCell = ({ row, handleColorChange, colorChange }: any) => {
+  const initial = colorChange[row.id] ?? row.colorCode
+  const [tempColor, setTempColor] = React.useState(initial)
+
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTempColor(e.target.value)
+  }
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    handleColorChange(row.id, e.target.value)
+  }
+
+  return (
+    <input
+      type='color'
+      value={tempColor}
+      onInput={handleInput}
+      onBlur={handleBlur}
+      style={{
+        width: 50,
+        height: 30,
+        border: 'none',
+        borderRadius: 4,
+        background: 'none',
+        cursor: 'pointer',
+        verticalAlign: 'middle'
+      }}
+      title={row.colorCode}
+    />
+  )
+}
+
+// ensuite seulement: const FactoClientview = (props: Props) => { ... }
 
 const columns = ({ handleColorChange, colorChange }: any): GridColDef[] => {
   return [
@@ -21,23 +56,31 @@ const columns = ({ handleColorChange, colorChange }: any): GridColDef[] => {
       headerName: 'Couleur',
       flex: 1,
       renderCell: ({ row }: ICellType<IFactoClient>) => (
-        <input
-          type='color'
-          value={colorChange[row.id] ?? row.colorCode}
-          style={{
-            width: 50,
-            height: 30,
-            border: 'none',
-            borderRadius: 4,
-            background: 'none',
-            cursor: 'pointer',
-            verticalAlign: 'middle'
-          }}
-          onChange={e => handleColorChange(row.id, e.target.value)}
-          title={row.colorCode}
-        />
+        <ColorCell row={row} handleColorChange={handleColorChange} colorChange={colorChange} />
       )
     }
+    // {
+    //   field: 'colorCode',
+    //   headerName: 'Couleur',
+    //   flex: 1,
+    //   renderCell: ({ row }: ICellType<IFactoClient>) => (
+    //     <input
+    //       type='color'
+    //       value={colorChange[row.id] ?? row.colorCode}
+    //       style={{
+    //         width: 50,
+    //         height: 30,
+    //         border: 'none',
+    //         borderRadius: 4,
+    //         background: 'none',
+    //         cursor: 'pointer',
+    //         verticalAlign: 'middle'
+    //       }}
+    //       onChange={e => handleColorChange(row.id, e.target.value)}
+    //       title={row.colorCode}
+    //     />
+    //   )
+    // }
   ]
 }
 
@@ -52,7 +95,7 @@ type Props = {
   clearSearch: () => void
   handleColorChange: (clientId: string, color: string) => void
   handleSave: () => void
-  colorChange: Record<string, string> // <-- Ajoute ceci
+  colorChange: Record<string, string>
 }
 
 const FactoClientview = (props: Props) => {
@@ -78,7 +121,7 @@ const FactoClientview = (props: Props) => {
         value={searchValue}
         onChange={handleSearchChange}
         clearSearch={clearSearch}
-        title='Operation'
+        title='Facto-clients'
         data={factoClients}
         savedButton={true}
         handleSave={handleSave}

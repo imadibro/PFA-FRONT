@@ -264,9 +264,15 @@ export interface ITeamMember {
   role: string
 }
 
+export interface ISiteBrief {
+  id: string
+  label: string
+  siteNbr: string
+}
+
 export interface IOperation extends ICommonProps {
   // team: ITeamMember[]
-  site: ISite
+  site: ISiteBrief[]
   operationTasks: IOperationTask
   project: IProject
   clientAbri: string
@@ -280,7 +286,13 @@ export interface IOperation extends ICommonProps {
 
 export interface IOperationRequest {
   id?: string
-  site: string
+  sites: {
+    siteIds: string[]
+    toCreate: {
+      siteNbr: string
+      label: string
+    }[]
+  }
   operationTasks: string
   project: string
   clientAbri: string

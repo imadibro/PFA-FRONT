@@ -624,7 +624,7 @@ function makeCalendarEvent(params: {
     id: `${operation.id}-${start.split('T')[0]}`,
     planningId,
     originalId: operation.id,
-    title: operation.site?.label ?? '',
+    title: operation.site?.map(s => s.label).join(', ') ?? '',
     start,
     end,
     date: start.split('T')[0],

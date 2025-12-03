@@ -72,6 +72,7 @@ const OperationContainer = () => {
   }
 
   const handleAdd = async (newOperation: IOperationRequest) => {
+    console.log(newOperation)
     if (!newOperation) {
       toast.error(GENERAL_ERROR)
       return
