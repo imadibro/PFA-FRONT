@@ -28,7 +28,7 @@ export const equipeApi = api.injectEndpoints({
 
     getEquipes: builder.query<IEquipe[], void>({
       query: () => ({
-        url: `equipe/all`
+        url: `equipe/allEquipes`
       }),
       // transformResponse: (response: any) => {
       //   console.log('response ===>', response)

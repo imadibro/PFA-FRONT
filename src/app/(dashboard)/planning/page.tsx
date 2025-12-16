@@ -21,7 +21,7 @@ import { useCreatePlaningMutation, useLazyGetPlaningQuery } from '@/store/featur
 import { Icon } from '@iconify/react'
 import { Car, ChevronLeft, Fuel, List, RouteIcon as Road, Users } from 'lucide-react'
 
-interface CalendarEvent {
+export interface CalendarEvent {
   id: string
   title: string
   resourceId?: string
@@ -37,6 +37,8 @@ interface CalendarEvent {
   originalId?: string
   planningId?: string
   create?: boolean
+  isSiteDone?: boolean
+  siteId?: string
 }
 
 interface CalendarResource {
@@ -188,6 +190,8 @@ function Page() {
       endTime: '10:00:00'
     })
     info.event.remove()
+    // mark as unsaved (local change)
+    setHasUnsavedChanges(true)
     setEvents(prev => [...prev, { ...newEvent, id }])
     setPlacedOperationIds(prev => new Set(prev).add(operation.id))
   }
@@ -243,6 +247,7 @@ function Page() {
           : ev
       )
     )
+    setHasUnsavedChanges(true)
   }
 
   const handleAddOperation = async (op: IOperationRequest) => {
@@ -276,6 +281,8 @@ function Page() {
     } catch (err) {
       console.error('Erreur création:', err)
     }
+    // adding operation to calendar is an unsaved local change
+    setHasUnsavedChanges(true)
   }
 
   const handleSavePlanning = async () => {
@@ -303,10 +310,43 @@ function Page() {
           }
         }
       })
-      return setEvents(mappedEvents)
+      setEvents(mappedEvents)
+      // after save, clear unsaved flag
+      setHasUnsavedChanges(false)
+      return
     } catch (err) {
       console.error('Erreur lors de la sauvegarde du planning', err)
     }
+  }
+
+  const savePlanningAndUpdateSiteStatus = async (event: CalendarEvent) => {
+    const planningRequest: IPlanningRequest = {
+      ...mapEventToPlanningRequest(event)
+    }
+    const [savedPlanning] = await createPlanning({ plannings: [planningRequest] }).unwrap()
+    const dateOnly = toYmdLocal(new Date(savedPlanning.startDate))
+
+    const mapped: CalendarEvent = {
+      id: `${savedPlanning.operation.id}-${dateOnly}`,
+      planningId: savedPlanning.id,
+      title: '',
+      start: savedPlanning.startDate,
+      end: savedPlanning.endDate,
+      resourceId: savedPlanning.equipe.id,
+      date: dateOnly,
+      originalId: savedPlanning.operation.id,
+      extendedProps: {
+        operation: { ...savedPlanning.operation },
+        equipe: savedPlanning.equipe
+      },
+      siteId: event.siteId,
+      isSiteDone: event.isSiteDone || false
+    }
+    setEvents(prev => prev.map(ev => (ev.id === mapped.id ? mapped : ev)))
+
+    setHasUnsavedChanges(false)
+
+    return mapped
   }
 
   const handleMembersChange = async (eventId: string, newMembers: { id: string; name: string; role: string }[]) => {
@@ -330,13 +370,57 @@ function Page() {
 
   const lastRangeRef = useRef<string>('')
 
+  // Unsaved changes tracking for calendar edits
+  const prevRangeRef = useRef<string>('')
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [unsavedDialogOpen, setUnsavedDialogOpen] = useState(false)
+  const pendingDatesRef = useRef<{ startDate: string; endDate: string; key: string } | null>(null)
+
   const handelDataSet = (arg: any) => {
     const { startDate, endDate } = getCurrentWeek(arg.view)
     const key = `${startDate}|${endDate}`
     if (key === lastRangeRef.current) return
+
+    if (hasUnsavedChanges) {
+      // store pending navigation and show dialog
+      pendingDatesRef.current = { startDate, endDate, key }
+      prevRangeRef.current = lastRangeRef.current
+      setUnsavedDialogOpen(true)
+      return
+    }
+
     lastRangeRef.current = key
     setWeek({ startDate, endDate })
     getPlannings({ startDate, endDate })
+  }
+
+  const proceedToPendingDates = async (doSave: boolean) => {
+    const pending = pendingDatesRef.current
+    if (!pending) return
+
+    if (doSave) await handleSavePlanning()
+
+    lastRangeRef.current = pending.key
+    setWeek({ startDate: pending.startDate, endDate: pending.endDate })
+    getPlannings({ startDate: pending.startDate, endDate: pending.endDate })
+    setUnsavedDialogOpen(false)
+    pendingDatesRef.current = null
+    setHasUnsavedChanges(false)
+  }
+
+  const cancelPendingNavigation = () => {
+    // go back to previous range
+    try {
+      const api = calendarRef.current?.getApi()
+      if (prevRangeRef.current) {
+        const prevStart = prevRangeRef.current.split('|')[0]
+        api?.gotoDate(prevStart)
+      }
+    } catch (err) {
+      console.error('Failed to revert calendar date', err)
+    }
+    pendingDatesRef.current = null
+    setUnsavedDialogOpen(false)
   }
 
   return (
@@ -457,7 +541,8 @@ function Page() {
                 setOperationsList,
                 setPlacedOperationIds,
                 handleMembersChange,
-                plannings
+                plannings,
+                savePlanningAndUpdateSiteStatus
               )}
               resourceAreaHeaderContent=''
               resourceAreaWidth='220px'
@@ -503,6 +588,38 @@ function Page() {
           />
         </DialogContent>
       </Dialog>
+
+      <Dialog open={unsavedDialogOpen} onClose={() => setUnsavedDialogOpen(false)} maxWidth='sm' fullWidth>
+        <DialogTitle>Modifications non sauvegardées</DialogTitle>
+        <DialogContent>
+          <div>
+            Vous avez des modifications non sauvegardées dans le planning. Si vous changez de semaine, ces modifications
+            seront perdues.
+          </div>
+          <div className='mt-4'>Voulez-vous sauvegarder avant de changer de semaine ?</div>
+          <div className='mt-4 flex gap-2 justify-end'>
+            <button
+              className='px-3 py-1 rounded bg-blue-600 text-white'
+              onClick={async () => {
+                await proceedToPendingDates(true)
+              }}
+            >
+              Sauvegarder
+            </button>
+            <button
+              className='px-3 py-1 rounded bg-red-600 text-white'
+              onClick={async () => {
+                await proceedToPendingDates(false)
+              }}
+            >
+              Quitter (perdre)
+            </button>
+            <button className='px-3 py-1 rounded border' onClick={cancelPendingNavigation}>
+              Annuler
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
@@ -514,7 +631,8 @@ function renderEventContentWithDrop(
   setOperations: React.Dispatch<React.SetStateAction<IOperation[]>>,
   setPlacedOperationIds: React.Dispatch<React.SetStateAction<Set<string>>>,
   handleMembersChange: (eventId: string, newMembers: { id: string; name: string; role: string }[]) => void,
-  planings: IPlanning[] | undefined
+  planings: IPlanning[] | undefined,
+  savePlanningAndUpdateSiteStatus: (event: CalendarEvent) => Promise<CalendarEvent>
 ) {
   return (eventInfo: { event: any }) => {
     const ext = eventInfo.event.extendedProps || {}
@@ -530,13 +648,15 @@ function renderEventContentWithDrop(
     const equipeFromResource = resourceId ? equipes?.find(e => e.id === resourceId) : undefined
     const equipe = ext.equipe ?? equipeFromResource
 
-    const operationForUI = { ...operation, eventId: eventInfo.event.id, equipe }
+    const operationForUI = { ...operation, eventId: eventInfo.event.id, equipe, planningId: ext.planningId }
 
     const operationId = eventInfo.event.extendedProps?.operation?.id
 
     const planningForOperation = planings?.find(p => p.operation?.id === operationId)
 
     const equipeChangedAt = planningForOperation?.equipeChangedAt
+
+    const planningId = ext.planningId as string | undefined
 
     return (
       <CalendarCard
@@ -557,6 +677,9 @@ function renderEventContentWithDrop(
         setPlacedOperationIds={setPlacedOperationIds}
         handleMembersChange={handleMembersChange}
         equipeChangedAt={equipeChangedAt}
+        savePlanningAndUpdateSiteStatus={savePlanningAndUpdateSiteStatus}
+        planningId={planningId}
+        event={eventInfo.event}
       />
     )
   }
@@ -575,6 +698,8 @@ function mapEventToPlanningRequest(event: CalendarEvent): IPlanningRequest {
     startDate: event.start ?? `${event.date}`,
     endDate: event.end ?? `${event.date}`,
     operationId: rawOp.id,
+    isSiteDone: event.isSiteDone,
+    siteId: event.siteId,
     equipe: {
       id: eq?.id ?? '',
       members: eq?.members.map((m: any) => ({ id: m.id, name: m.name, role: m.role })) ?? [],
@@ -612,9 +737,6 @@ function makeCalendarEvent(params: {
     endTime = '10:00:00',
     planningId
   } = params
-
-  const colors = operation?.project?.clientAgency?.client?.color
-  console.log(colors)
 
   // Si dateISO contient déjà un "T", c'est une date complète
   const start = dateISO.includes('T') ? dateISO : `${dateISO}T${startTime}`

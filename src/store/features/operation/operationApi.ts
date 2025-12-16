@@ -11,13 +11,14 @@ export const operationApi = api.injectEndpoints({
       }),
       invalidatesTags: (_result, _error) => [
         { type: 'Operation', id: 'LIST' },
-        { type: 'Operation', id: 'ALL-LIST' }
+        { type: 'Operation', id: 'ALL-LIST' },
+        { type: 'Project', id: 'LIST' }
       ]
     }),
 
     getAllOperations: builder.query<IOperation[], void>({
       query: () => ({
-        url: 'operation/all',
+        url: 'operation/allOperations',
         method: 'GET'
       }),
       providesTags: [{ type: 'Operation', id: 'ALL-LIST' }]

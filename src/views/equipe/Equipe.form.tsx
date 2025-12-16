@@ -4,7 +4,6 @@ import { useGetAllCardsQuery } from '@/store/features/card/cardApi'
 import { useGetAllEmployeesQuery } from '@/store/features/employee/employeeApi'
 import { useGetRolesQuery } from '@/store/features/role/roleApi'
 import { useGetAllVehiculeQuery } from '@/store/features/vehicule/vehiculeApi'
-import CustomTextField from '@core/components/mui/TextField'
 import type { IEquipe, IEquipeRequest } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
 import {

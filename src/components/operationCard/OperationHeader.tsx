@@ -1,7 +1,11 @@
-import type { IEquipe, IEquipeRequest, IOperation } from '@/@core/utils/types'
+import useSweetAlert from '@/@core/hooks/useSweetAlert'
+import type { IEquipe, IEquipeRequest, IOperation, ISiteBrief } from '@/@core/utils/types'
+import type { CalendarEvent } from '@/app/(dashboard)/planning/page'
+import { useUpdateSiteStatusMutation } from '@/store/features/planing/planingApi'
 import {
   Box,
   Button,
+  Checkbox,
   Chip,
   Dialog,
   DialogActions,
@@ -23,13 +27,28 @@ export default function OperationHeader({
   operation,
   onDelete,
   equipe,
-  onMembersSave
+  onMembersSave,
+  savePlanningAndUpdateSiteStatus,
+  planningId,
+  event
 }: {
   operation: IOperation & { eventId?: string }
   onDelete: (eventId: string, operationId: string) => void
   equipe?: IEquipe
   onMembersSave?: (members: { id: string; name: string; role: string }[]) => void
+  savePlanningAndUpdateSiteStatus: (event: CalendarEvent) => Promise<CalendarEvent>
+  planningId?: string
+  event: CalendarEvent
 }) {
+  const [updateSiteStatus] = useUpdateSiteStatusMutation()
+
+  const [isSiteDone, setIsSiteDone] = React.useState(operation.site ?? [])
+
+  React.useEffect(() => {
+    setIsSiteDone(operation.site ?? [])
+  }, [operation.site])
+
+  const { showConfirm } = useSweetAlert()
   /* ---------------------------- MENU ---------------------------- */
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const menuOpen = Boolean(anchorEl)
@@ -42,8 +61,8 @@ export default function OperationHeader({
   const [showEquipeDialog, setShowEquipeDialog] = React.useState(false)
 
   const openDetails = () => {
-    setDetailsOpen(true) // ouvre le Dialog
-    handleMenuClose() // ferme le menu
+    setDetailsOpen(true)
+    handleMenuClose()
   }
   const closeDetails = () => setDetailsOpen(false)
 
@@ -58,6 +77,48 @@ export default function OperationHeader({
     handleMenuClose()
   }
 
+  const handleToggleSiteDone = async (site: ISiteBrief) => {
+    const current = Boolean(site.isSiteDone)
+    const next = !current
+
+    // 1) Demander confirmation AVANT tout appel API
+    const confirmed = await showConfirm(
+      '',
+      next ? 'Êtes-vous sûr que ce site est terminé ?' : "Êtes-vous sûr que ce site n'est pas encore terminé ?",
+      'Confirmer',
+      'Annuler'
+    )
+
+    if (!confirmed) return
+
+    // 2) S’assurer que le planning existe
+    let effectivePlanningId = planningId
+
+    if (!effectivePlanningId) {
+      event.isSiteDone = true
+      event.siteId = site.id
+      const savedEvent = await savePlanningAndUpdateSiteStatus(event)
+      effectivePlanningId = savedEvent.planningId
+    } else {
+      try {
+        await updateSiteStatus({
+          planningId: effectivePlanningId,
+          siteId: site.id,
+          isSiteDone: next
+        }).unwrap()
+      } catch (err) {
+        console.error('Error:', err)
+        // rollback en cas d’erreur API
+        setIsSiteDone(prev => prev.map(s => (s.id === site.id ? { ...s, isSiteDone: current } : s)))
+      }
+    }
+
+    if (!effectivePlanningId) return
+
+    // 3) Optimistic UI
+    setIsSiteDone(prev => prev.map(s => (s.id === site.id ? { ...s, isSiteDone: next } : s)))
+  }
+
   /* ---------------------------- UI ------------------------------ */
   return (
     <>
@@ -68,11 +129,17 @@ export default function OperationHeader({
           <Typography className='text-white' variant='subtitle1' fontWeight={600} noWrap>
             {operation.clientAbri || operation?.project?.projectCode}
           </Typography>
-          <Stack direction='row' spacing={0.5} alignItems='center'>
-            <MapPin className='text-white' size={14} />
-            <Typography className='text-white' variant='body2' noWrap>
-              {operation?.site?.map(s => s.siteNbr).join(', ')}
-            </Typography>
+
+          <Stack direction='column' spacing={0.5}>
+            {isSiteDone.map(s => (
+              <Stack key={s.id} direction='row' spacing={0.5} alignItems='center'>
+                <MapPin className='text-white' size={14} />
+                <Typography className='text-white' variant='body2' noWrap>
+                  {s.siteNbr}
+                </Typography>
+                <Checkbox size='small' checked={Boolean(s.isSiteDone)} onChange={() => handleToggleSiteDone(s)} />
+              </Stack>
+            ))}
           </Stack>
         </Box>
 

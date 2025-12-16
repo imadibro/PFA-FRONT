@@ -1,5 +1,6 @@
 import { TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@/@core/utils/toast-message'
 import type { IEquipe, IOperation } from '@/@core/utils/types'
+import type { CalendarEvent } from '@/app/(dashboard)/planning/page'
 import { useToastComponante } from '@/components/common/ToastComponante'
 import { useDeleteOperationMutation, useUpdateOperationMutation } from '@/store/features/operation/operationApi'
 import { useDeletePlaningMutation } from '@/store/features/planing/planingApi'
@@ -32,7 +33,9 @@ export function CalendarCard({
   setOperations,
   setPlacedOperationIds,
   handleMembersChange,
-  equipeChangedAt
+  savePlanningAndUpdateSiteStatus,
+  planningId,
+  event
 }: {
   operation: IOperation & { eventId?: string }
   equipe?: IEquipe
@@ -43,6 +46,9 @@ export function CalendarCard({
   setPlacedOperationIds: React.Dispatch<React.SetStateAction<Set<string>>>
   handleMembersChange?: (eventId: string, newMembers: { id: string; name: string; role: string }[]) => void
   equipeChangedAt?: Date | null | undefined
+  savePlanningAndUpdateSiteStatus: (event: CalendarEvent) => Promise<CalendarEvent>
+  planningId?: string
+  event: CalendarEvent
 }) {
   const [openCommentDialog, setOpenCommentDialog] = useState(false)
   const [editorState, setEditorState] = useState<EditorState>(EditorState.createEmpty())
@@ -70,7 +76,10 @@ export function CalendarCard({
         id: operation.id,
         operation: {
           comment: commentHtml,
-          site: operation.site?.id || '',
+          sites: {
+            siteIds: operation.site?.map(s => s.id) || '',
+            toCreate: []
+          },
           operationTasks: operation?.operationTasks?.id || '',
           project: operation.project?.id || '',
           clientAbri: operation.clientAbri || '',
@@ -287,6 +296,9 @@ export function CalendarCard({
           equipe={equipe}
           onDelete={handleDeleteOperation}
           onMembersSave={handleMembersSave}
+          savePlanningAndUpdateSiteStatus={savePlanningAndUpdateSiteStatus}
+          planningId={planningId}
+          event={event}
         />
 
         {/* Membres — puces fines, sur une seule ligne scrollable */}

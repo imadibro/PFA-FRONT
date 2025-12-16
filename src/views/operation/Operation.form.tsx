@@ -54,7 +54,11 @@ const schema = yup
     project: yup.string().required('Le projet est requis'),
     clientAbri: yup.string().nullable().notRequired(),
     equipe: yup.string().nullable().notRequired(),
-    gabarit: yup.number().nullable().notRequired()
+    gabarit: yup
+      .number()
+      .typeError('Gabarit doit être un nombre')
+      .required('Gabarit est requis')
+      .min(1, 'Gabarit doit être au minimum 1')
   })
   .required()
 
@@ -236,9 +240,11 @@ export default function OperationForm(props: Props) {
                   size='small'
                   options={(projects as IProject[]) || []}
                   getOptionLabel={option => option.projectCode || ''}
-                  value={projects?.find((project: IProject) => project.id === value) || null}
-                  onChange={(event, newValue) => {
-                    onChange(newValue ? newValue.id : null)
+                  value={projects.find((project: IProject) => project.id === value) || null}
+                  onChange={(_event, newValue) => {
+                    const projectId = newValue ? newValue.id : ''
+                    onChange(projectId)
+                    setValue('clientAbri', newValue?.projectAbrieviation || newValue?.clientAgencyLabel || '')
                   }}
                   isOptionEqualToValue={(option, value) => option.id === value.id}
                   renderInput={params => (
@@ -275,8 +281,42 @@ export default function OperationForm(props: Props) {
             <Controller
               name='gabarit'
               control={control}
+              render={({ field: { value, onChange, onBlur }, fieldState: { error } }) => (
+                <CustomTextField
+                  type='number'
+                  fullWidth
+                  label='Gabarit'
+                  id='gabarit'
+                  value={value ?? ''}
+                  // empêche l'envoi de chaîne vide -> keep null/'' if you want optional
+                  onChange={e => {
+                    const raw = e.target.value
+                    // allow empty string so user can erase, otherwise convert to number
+                    const next = raw === '' ? '' : Number(raw)
+                    onChange(next)
+                  }}
+                  onKeyDown={e => {
+                    // Bloque la saisie de caractères indésirables
+                    if (['-', 'e', 'E', '+'].includes(e.key)) e.preventDefault()
+                  }}
+                  onBlur={() => {
+                    // clamp à 1 si valeur fournie mais < 1
+                    if (value != null && Number(value) < 1) {
+                      onChange(1) // forcera la valeur à 1 et déclenchera la validation
+                    }
+                    onBlur?.() // déclenche validation RHF si présent
+                  }}
+                  inputProps={{ min: 1, step: 1 }}
+                  error={Boolean(error)}
+                  helperText={error?.message || ''}
+                  aria-describedby='gabarit'
+                />
+              )}
+            />
+            {/* <Controller
+              name='gabarit'
+              control={control}
               render={({ field: { value, onChange } }) => (
-                // Assuming gabarits is a number input, adjust as necessary
                 <CustomTextField
                   type='number'
                   fullWidth
@@ -286,17 +326,22 @@ export default function OperationForm(props: Props) {
                   onChange={e => onChange(e.target.value === '' ? null : Number(e.target.value))}
                   error={Boolean(errors.gabarit)}
                   aria-describedby='gabarit'
-                  {...(errors.gabarit && { helperText: 'Ce champs est obligatoire' })}
+                  helperText={errors.gabarit?.message || (value && value <= 0 ? 'Gabarit doit être positif' : '')}
+                  sx={{
+                    '& .MuiFormHelperText-root': {
+                      color: errors.gabarit ? 'error.main' : 'text.secondary'
+                    }
+                  }}
                 />
               )}
-            />
+            /> */}
           </Grid>
 
           <Grid item xs={12} sm={12}>
             <Controller
               name='isRecursive'
               control={control}
-              defaultValue={false} // par défaut false
+              defaultValue={false}
               render={({ field: { value, onChange } }) => (
                 <FormControlLabel
                   control={<Checkbox checked={!!value} onChange={e => onChange(e.target.checked)} />}
@@ -306,35 +351,6 @@ export default function OperationForm(props: Props) {
             />
           </Grid>
 
-          {/* <Grid item xs={12} sm={12}>
-             <Controller
-               name='equipe'
-               control={control}
-               rules={{ required: true }}
-               render={({ field: { value, onChange } }) => (
-                 <CustomTextField
-                   select
-                   SelectProps={{
-                     value,
-                     onChange: e => onChange(e.target.value)
-                   }}
-                   fullWidth
-                   label='Equipe'
-                   id='equipe'
-                   error={Boolean(errors.equipe)}
-                   aria-describedby='Equipe'
-                   {...(errors.equipe && { helperText: 'Ce champs est obligatoire' })}
-                 >
-                   {equipes &&
-                     equipes.map(equipe => (
-                       <MenuItem key={equipe.id} value={equipe.id}>
-                         {equipe.name}
-                       </MenuItem>
-                     ))}
-                 </CustomTextField>
-               )}
-             />
-           </Grid> */}
           <Grid item xs={12} sm={12}>
             <Controller
               name='comment'

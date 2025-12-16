@@ -268,6 +268,7 @@ export interface ISiteBrief {
   id: string
   label: string
   siteNbr: string
+  isSiteDone?: boolean
 }
 
 export interface IOperation extends ICommonProps {
@@ -282,6 +283,7 @@ export interface IOperation extends ICommonProps {
   isRecursive: boolean
   color?: string
   clientName?: string
+  planningId?: string
 }
 
 export interface IOperationRequest {
@@ -337,6 +339,8 @@ export interface IPlanningRequest {
   endDate: string
   operationId: string
   equipe: IEquipeData
+  isSiteDone?: boolean
+  siteId?: string
 }
 
 export interface IEquipeData {

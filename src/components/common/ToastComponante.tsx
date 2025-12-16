@@ -28,21 +28,21 @@ export const useToastComponante = () => {
   }
 
   const confirmUpdate = async (label: string): Promise<boolean> => {
-    await showToast(`${label} a été mis à jour avec succès !`, 'success')
+    showToast(`${label} a été mis à jour avec succès !`, 'success')
     return true
   }
 
   const confirmAdd = async (label: string): Promise<boolean> => {
-    await showToast(`${label} créé avec succès!`, 'success')
+    showToast(`${label} créé avec succès!`, 'success')
     return true
   }
   const confirmSave = async (label: string): Promise<boolean> => {
-    await showToast(`${label} sauvgader avec succès!`, 'success')
+    showToast(`${label} sauvgader avec succès!`, 'success')
     return true
   }
 
   const showDeletToast = async (label: string): Promise<boolean> => {
-    await showToast(`${label} Supprimé avec succès !`, 'success')
+    showToast(`${label} Supprimé avec succès !`, 'success')
     return true
   }
 
@@ -60,7 +60,7 @@ export const useToastComponante = () => {
 
   const showErrorToast = async (err: any) => {
     const message = getApiMessage(err)
-    await showToast(message, 'error')
+    showToast(message, 'error')
   }
 
   return {

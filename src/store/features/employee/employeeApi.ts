@@ -4,7 +4,7 @@ import { api } from '@/store/api'
 export const employeeApi = api.injectEndpoints({
   endpoints: builder => ({
     getAllEmployees: builder.query<IEmployee[], void>({
-      query: () => `employee/all`,
+      query: () => `employee/allEmployees`,
       providesTags: [{ type: 'Employee', id: 'LIST' }]
     }),
 
