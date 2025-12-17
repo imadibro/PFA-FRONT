@@ -91,8 +91,8 @@ export default function OperationForm(props: Props) {
     control,
     handleSubmit,
     getValues,
-    setValue,
-    formState: { errors }
+    setValue
+    // formState: { errors }
   } = useForm<IOperationRequest>({
     defaultValues,
     resolver: yupResolver(schema) as any

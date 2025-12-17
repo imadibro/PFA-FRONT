@@ -169,3 +169,25 @@ code {
   background-color: transparent !important;
   border: 0 !important;
 }
+.fc-absence-event {
+  background-color: #1619c5 !important;
+  border: 1px solid #ef4444 !important;
+  color: #991b1b !important;
+  font-weight: 600;
+}
+
+.fc-absence-event .fc-event-main {
+  height: 100%;
+  display: flex;
+  align-items: center; /* centrage vertical */
+  justify-content: center; /* centrage horizontal */
+  padding: 0 8px;
+}
+
+.fc-absence-content {
+  font-size: 12px;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

@@ -10,16 +10,18 @@ import frLocale from '@fullcalendar/core/locales/fr'
 import interactionPlugin, { Draggable } from '@fullcalendar/interaction'
 import FullCalendar from '@fullcalendar/react'
 import resourceTimelinePlugin from '@fullcalendar/resource-timeline'
-import { Button, CircularProgress, Dialog, DialogContent, DialogTitle } from '@mui/material'
+import { Button, CircularProgress, Dialog, DialogContent, DialogTitle, Tooltip } from '@mui/material'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 // import ExcelComponent, { prepareCalendarExportData } from '@/@core/components/excel/ExcelComponent'
 import { ExportPlanningButton } from '@/@core/components/excel/ExcelBack'
+import { formatToFrDate } from '@/@core/utils/format'
 import { useToastComponante } from '@/components/common/ToastComponante'
+import { useGetAllAbsencesQuery } from '@/store/features/absence/absenceApi'
 import { useCreatePlaningMutation, useLazyGetPlaningQuery } from '@/store/features/planing/planingApi'
 import { Icon } from '@iconify/react'
-import { Car, ChevronLeft, Fuel, List, RouteIcon as Road, Users } from 'lucide-react'
+import { Car, ChevronLeft, Fuel, List, RouteIcon as Road, Users, UserX } from 'lucide-react'
 
 export interface CalendarEvent {
   id: string
@@ -67,6 +69,35 @@ const getCurrentWeek = (view: any) => {
   }
 }
 
+// les absences des membres d'une équipe pour la semaine courante
+function getAbsencesForEquipe(equipe: IEquipe, absences: any[] | undefined): Record<string, string[]> {
+  if (!absences || !equipe.members) return {}
+
+  const absencesMap: Record<string, string[]> = {}
+
+  equipe.members.forEach(member => {
+    const memberAbsences = absences.filter(abs => abs.employee?.id === member.id)
+
+    if (memberAbsences.length > 0) {
+      absencesMap[member.id] = memberAbsences
+        .map(abs => {
+          console.log(abs)
+          const start = formatToFrDate(abs.startDate?.split('T')[0]) ?? ''
+          const end = formatToFrDate(abs.endDate?.split('T')[0]) ?? start
+
+          if (!start) return ''
+          if (start === end) {
+            return `${abs.absence} le ${start}`
+          }
+          return `${abs.absence} du ${start} au ${end}`
+        })
+        .filter(Boolean)
+    }
+  })
+
+  return absencesMap
+}
+
 function Page() {
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const externalEventsRef = useRef<HTMLDivElement>(null)
@@ -84,9 +115,43 @@ function Page() {
   const { data: equipes } = useGetEquipesQuery()
   const [createPlanning] = useCreatePlaningMutation()
   const [getPlannings, { data: plannings, isLoading: isFetchingPlanning }] = useLazyGetPlaningQuery()
+  const { data: abssences } = useGetAllAbsencesQuery({ startDate: week.startDate, endDate: week.endDate })
+
   const { confirmSave } = useToastComponante()
 
   const isLoading = isFetchingOperations || isFetchingPlanning
+
+  const absenceEvents = useMemo(() => {
+    if (!abssences || !equipes) return []
+
+    return abssences.flatMap((abs: any) => {
+      const equipe = equipes.find(eq => eq.members?.some(m => m.id === abs.employee.id))
+      if (!equipe) return []
+
+      const startDay = abs.startDate.slice(0, 10)
+      const endDay = abs.endDate.slice(0, 10)
+
+      // end EXCLUSIF → +1 jour MAIS en string
+      const endPlusOne = new Date(`${endDay}T00:00:00`)
+      endPlusOne.setDate(endPlusOne.getDate())
+
+      return {
+        id: `absence-${abs.id}`,
+        title: `${abs.employee.firstName} ${abs.employee.lastName} – ${abs.absence !== '' ? abs.absence : abs.autre} - ${abs.notes || ''}`,
+        start: `${startDay}T09:00:00`,
+        end: `${toYmdLocal(endPlusOne)}T10:00:00`,
+        resourceId: equipe.id,
+        editable: false,
+        display: 'auto',
+        classNames: ['fc-absence-event'],
+        extendedProps: {
+          type: 'absence',
+          employee: abs.employee,
+          absenceType: abs.absence
+        }
+      }
+    })
+  }, [abssences, equipes])
 
   useEffect(() => {
     if (operations) {
@@ -197,16 +262,25 @@ function Page() {
   }
 
   const resources: CalendarResource[] = useMemo(() => {
-    return (equipes ?? []).map((e, i) => ({
-      id: e.id,
-      title: e.members.map(m => `${m.name} ${m.role}`).join('\n'),
-      day: '',
-      row: i + 1,
-      extendedProps: {
-        equipe: e
+    return (equipes ?? []).map((e, i) => {
+      const absencesThisWeek = getAbsencesForEquipe(e, abssences)
+      const hasAbsenceInEquipe = Object.values(absencesThisWeek).some(
+        (memberAbs: any) => (memberAbs as any[]).length > 0
+      )
+
+      return {
+        id: e.id,
+        title: e.members.map(m => `${m.name} ${m.role}`).join('\n'),
+        day: '',
+        row: i + 1,
+        extendedProps: {
+          equipe: e,
+          absencesThisWeek,
+          hasAbsenceInEquipe
+        }
       }
-    }))
-  }, [equipes])
+    })
+  }, [equipes, abssences])
 
   const handleDateClick = (arg: any) => {
     setSelectedDate(arg.dateStr)
@@ -394,6 +468,21 @@ function Page() {
     getPlannings({ startDate, endDate })
   }
 
+  const allEvents = useMemo(() => {
+    return events.map(ev => ({
+      ...ev,
+      extendedProps: {
+        ...ev.extendedProps,
+        eventId: ev.id
+      },
+      id: ev.id
+    }))
+  }, [events])
+
+  const calendarEvents = useMemo(() => {
+    return [...allEvents, ...absenceEvents]
+  }, [allEvents, absenceEvents])
+
   const proceedToPendingDates = async (doSave: boolean) => {
     const pending = pendingDatesRef.current
     if (!pending) return
@@ -519,14 +608,7 @@ function Page() {
               resources={resources}
               // resourceLabelContent={arg => <span style={{ whiteSpace: 'pre-line' }}>{arg.resource.title}</span>}
               resourceLabelContent={renderTeam}
-              events={events.map(ev => ({
-                ...ev,
-                extendedProps: {
-                  ...ev.extendedProps,
-                  eventId: ev.id
-                },
-                id: ev.id
-              }))}
+              events={calendarEvents}
               editable={true}
               droppable={true}
               // drop={handleEventReceive}
@@ -534,16 +616,31 @@ function Page() {
               // eventDrop={handleEventDrop}
               // eventClick={handleEventClick}
               eventChange={handleEventChange}
-              eventContent={renderEventContentWithDrop(
-                setEvents,
-                calendarRef,
-                equipes,
-                setOperationsList,
-                setPlacedOperationIds,
-                handleMembersChange,
-                plannings,
-                savePlanningAndUpdateSiteStatus
-              )}
+              // eventContent={renderEventContentWithDrop(
+              //   setEvents,
+              //   calendarRef,
+              //   equipes,
+              //   setOperationsList,
+              //   setPlacedOperationIds,
+              //   handleMembersChange,
+              //   plannings
+              // )}
+              eventContent={arg => {
+                if (arg.event.extendedProps?.type === 'absence') {
+                  return <div className='fc-absence-content'>{arg.event.title}</div>
+                }
+
+                return renderEventContentWithDrop(
+                  setEvents,
+                  calendarRef,
+                  equipes,
+                  setOperationsList,
+                  setPlacedOperationIds,
+                  handleMembersChange,
+                  plannings,
+                  savePlanningAndUpdateSiteStatus
+                )(arg)
+              }}
               resourceAreaHeaderContent=''
               resourceAreaWidth='220px'
               slotMinWidth={200}
@@ -624,6 +721,61 @@ function Page() {
   )
 }
 
+// function renderEventContentWithDrop(
+//   setEvents: any,
+//   calendarRef: React.RefObject<any>,
+//   equipes: IEquipe[] | undefined,
+//   setOperations: React.Dispatch<React.SetStateAction<IOperation[]>>,
+//   setPlacedOperationIds: React.Dispatch<React.SetStateAction<Set<string>>>,
+//   handleMembersChange: (eventId: string, newMembers: { id: string; name: string; role: string }[]) => void,
+//   planings: IPlanning[] | undefined
+// ) {
+//   return (eventInfo: { event: any }) => {
+//     const ext = eventInfo.event.extendedProps || {}
+//     const rawOperation = ext.operation
+//     const operation: IOperation | null = typeof rawOperation === 'string' ? JSON.parse(rawOperation) : rawOperation
+
+//     if (!operation) {
+//       console.warn('Operation manquante pour l’événement', eventInfo)
+//       return null
+//     }
+
+//     const resourceId: string | undefined = eventInfo.event._def.resourceIds?.[0]
+//     const equipeFromResource = resourceId ? equipes?.find(e => e.id === resourceId) : undefined
+//     const equipe = ext.equipe ?? equipeFromResource
+
+//     const operationForUI = { ...operation, eventId: eventInfo.event.id, equipe }
+
+//     const operationId = eventInfo.event.extendedProps?.operation?.id
+
+//     const planningForOperation = planings?.find(p => p.operation?.id === operationId)
+
+//     const equipeChangedAt = planningForOperation?.equipeChangedAt
+
+//     return (
+//       <CalendarCard
+//         operation={operationForUI}
+//         equipe={equipe}
+//         calendarRef={calendarRef}
+//         onEquipeDrop={(droppedEquipe: IEquipe) => {
+//           setEvents((prev: any[]) =>
+//             prev.map(ev =>
+//               ev.id === eventInfo.event.id
+//                 ? { ...ev, extendedProps: { ...ev.extendedProps, equipe: droppedEquipe } }
+//                 : ev
+//             )
+//           )
+//         }}
+//         setEvents={setEvents}
+//         setOperations={setOperations}
+//         setPlacedOperationIds={setPlacedOperationIds}
+//         handleMembersChange={handleMembersChange}
+//         equipeChangedAt={equipeChangedAt}
+//       />
+//     )
+//   }
+// }
+
 function renderEventContentWithDrop(
   setEvents: any,
   calendarRef: React.RefObject<any>,
@@ -645,15 +797,25 @@ function renderEventContentWithDrop(
     }
 
     const resourceId: string | undefined = eventInfo.event._def.resourceIds?.[0]
+    const resource = resourceId ? eventInfo.event.getResources?.().find((r: any) => r.id === resourceId) : null
+
     const equipeFromResource = resourceId ? equipes?.find(e => e.id === resourceId) : undefined
     const equipe = ext.equipe ?? equipeFromResource
 
-    const operationForUI = { ...operation, eventId: eventInfo.event.id, equipe, planningId: ext.planningId }
+    const hasAbsenceInEquipe = resource?.extendedProps?.hasAbsenceInEquipe ?? ext.hasAbsenceInEquipe ?? false
 
-    const operationId = eventInfo.event.extendedProps?.operation?.id
+    const absencesThisWeek = resource?.extendedProps?.absencesThisWeek ?? {}
 
+    const operationForUI = {
+      ...operation,
+      eventId: eventInfo.event.id,
+      equipe,
+      hasAbsenceInEquipe,
+      absencesThisWeek
+    }
+
+    const operationId = ext?.operation?.id
     const planningForOperation = planings?.find(p => p.operation?.id === operationId)
-
     const equipeChangedAt = planningForOperation?.equipeChangedAt
 
     const planningId = ext.planningId as string | undefined
@@ -738,7 +900,7 @@ function makeCalendarEvent(params: {
     planningId
   } = params
 
-  // Si dateISO contient déjà un "T", c'est une date complète
+  // const colors = operation?.project?.clientAgency?.client?.color
   const start = dateISO.includes('T') ? dateISO : `${dateISO}T${startTime}`
   const end = endISO ? (endISO.includes('T') ? endISO : `${endISO}T${endTime}`) : `${dateISO}T${endTime}`
 
@@ -760,24 +922,37 @@ function makeCalendarEvent(params: {
 
 function renderTeam(arg: any) {
   const equipe = arg.resource.extendedProps?.equipe
+  const absencesThisWeek = arg.resource.extendedProps?.absencesThisWeek || {}
+
   return (
     <>
       {equipe?.members?.length ? (
         <div className='mt-1 -ml-1 pr-1 whitespace-nowrap flex flex-wrap'>
-          {equipe.members.map((m: any) => (
-            <span
-              key={m.id}
-              className='inline-flex items-center mx-1 my-0.5 rounded-full border border-white/20 py-[2px] text-[13px]'
-              title={`${m.name} (${m.role})`}
-            >
-              <Users size={12} className='mr-1 flex-shrink-0 opacity-90' />
-              <span className='truncate'>{m.name}</span>
-              <span className='truncate ml-1 opacity-90'>({m.role})</span>
-            </span>
-          ))}
+          {equipe.members.map((m: any) => {
+            const memberAbsences = absencesThisWeek[m.id] || []
+            const hasAbsence = memberAbsences.length > 0
+
+            return (
+              <span
+                key={m.id}
+                className='inline-flex items-center mx-1 my-0.5 rounded-full border border-white/20 py-[2px] text-[13px]'
+                // title={`${m.name} (${m.role})${hasAbsence ? ` - Absent: ${memberAbsences.join(', ')}` : ''}`}
+              >
+                <Users size={12} className='mr-1 flex-shrink-0 opacity-90' />
+                <span className='truncate'>{m.name}</span>
+                <span className='truncate ml-1 opacity-90'>({m.role})</span>
+                {hasAbsence && (
+                  <Tooltip title={memberAbsences.join(' ; ')} arrow placement='top'>
+                    <span className='ml-1 text-red-500 font-bold inline-flex'>
+                      <UserX size={12} />
+                    </span>
+                  </Tooltip>
+                )}
+              </span>
+            )
+          })}
         </div>
       ) : null}
-
       {/* LIGNE COMPACTE: véhicule • carte carburant • télépéage */}
 
       {(equipe?.vehicule?.registrationId || equipe?.fuelCard?.matricule || equipe?.highwayCard?.matricule) && (

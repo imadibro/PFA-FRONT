@@ -1,5 +1,5 @@
-import { api } from '@/store/api'
 import type { IAbsenceReasons, IEmployee } from '@/@core/utils/types'
+import { api } from '@/store/api'
 
 export const absenceApi = api.injectEndpoints({
   endpoints: builder => ({
@@ -16,6 +16,16 @@ export const absenceApi = api.injectEndpoints({
         { type: 'Absence', id: 'LIST' },
         { type: 'Absence', id: `PAGE-${page}` }
       ]
+    }),
+    getAllAbsences: builder.query<any, { startDate?: string; endDate?: string }>({
+      query: ({ startDate, endDate }) => ({
+        url: 'absence/for-planning',
+        params: {
+          startDate,
+          endDate
+        }
+      }),
+      providesTags: (_result, _error) => [{ type: 'Absence', id: 'LIST' }]
     }),
     createAbsence: builder.mutation<
       any,
@@ -64,5 +74,10 @@ export const absenceApi = api.injectEndpoints({
   })
 })
 
-export const { useGetAbsencesQuery, useCreateAbsenceMutation, useDeleteAbsenceMutation, useUpdateAbsenceMutation } =
-  absenceApi
+export const {
+  useGetAbsencesQuery,
+  useCreateAbsenceMutation,
+  useDeleteAbsenceMutation,
+  useUpdateAbsenceMutation,
+  useGetAllAbsencesQuery
+} = absenceApi

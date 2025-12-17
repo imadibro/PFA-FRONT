@@ -9,7 +9,7 @@ import { Box, Button, Dialog, DialogContent, DialogTitle } from '@mui/material'
 import Tooltip from '@mui/material/Tooltip'
 import { EditorState, convertToRaw } from 'draft-js'
 import draftToHtml from 'draftjs-to-html'
-import { MessageSquareTextIcon } from 'lucide-react'
+import { MessageSquareTextIcon, UserX } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import React, { useState } from 'react'
 import { useDrop } from 'react-dnd'
@@ -37,7 +37,11 @@ export function CalendarCard({
   planningId,
   event
 }: {
-  operation: IOperation & { eventId?: string }
+  operation: IOperation & {
+    eventId?: string
+    hasAbsenceInEquipe?: boolean
+    absencesThisWeek?: Record<string, string[]>
+  }
   equipe?: IEquipe
   onEquipeDrop?: (equipe: IEquipe) => void
   calendarRef: React.RefObject<any>
@@ -55,6 +59,17 @@ export function CalendarCard({
   const [isSavingComment, setIsSavingComment] = useState(false)
   const [updateOperation] = useUpdateOperationMutation()
   const { confirmUpdate } = useToastComponante()
+  const hasAbsenceInEquipe = !!operation.hasAbsenceInEquipe
+  const absencesThisWeek = operation.absencesThisWeek ?? {}
+
+  const absenceTooltip = Object.entries(absencesThisWeek)
+    .filter(([, abs]) => Array.isArray(abs) && abs.length > 0)
+    .map(([memberId, abs]) => {
+      const member = equipe?.members?.find(m => m.id === memberId)
+      const name = member ? member.name : 'Employé'
+      return `${name} : ${abs.join(' ; ')}`
+    })
+    .join('\n')
 
   const handleOpenCommentEditor = () => {
     if (operation?.comment) {
@@ -77,7 +92,7 @@ export function CalendarCard({
         operation: {
           comment: commentHtml,
           sites: {
-            siteIds: operation.site?.map(s => s.id) || '',
+            siteIds: operation.site?.map(site => site.id) || [],
             toCreate: []
           },
           operationTasks: operation?.operationTasks?.id || '',
@@ -300,9 +315,75 @@ export function CalendarCard({
           planningId={planningId}
           event={event}
         />
+        <div className='border-t border-white/10 mt-2 pt-2 flex items-center gap-2 text-[12px]'>
+          {/* Commentaire */}
+          {operation?.comment && (
+            <div
+              className='flex items-start gap-2 cursor-pointer hover:opacity-80 flex-1'
+              onClick={handleOpenCommentEditor}
+            >
+              <MessageSquareTextIcon size={14} className='mt-[1px] opacity-90 flex-shrink-0' />
 
-        {/* Membres — puces fines, sur une seule ligne scrollable */}
-        {/* {equipe?.members?.length ? (
+              <Tooltip
+                title={
+                  <div
+                    style={{
+                      maxWidth: '300px',
+                      whiteSpace: 'normal',
+                      wordWrap: 'break-word',
+                      lineHeight: 1.5
+                    }}
+                    dangerouslySetInnerHTML={{ __html: operation.comment }}
+                  />
+                }
+                arrow
+                placement='top'
+              >
+                <div className='line-clamp-2 opacity-95'>
+                  <div dangerouslySetInnerHTML={{ __html: operation.comment }} />
+                </div>
+              </Tooltip>
+            </div>
+          )}
+
+          {/* Icône absence — TOUT À DROITE */}
+          {hasAbsenceInEquipe && (
+            <Tooltip
+              title={<div style={{ whiteSpace: 'pre-line' }}>{absenceTooltip || 'Absence dans cette équipe'}</div>}
+              arrow
+              placement='top'
+            >
+              <span className='inline-flex items-center text-red-500 flex-shrink-0 mt-[1px]'>
+                <UserX size={14} />
+              </span>
+            </Tooltip>
+          )}
+        </div>
+
+        <Dialog open={openCommentDialog} onClose={handleCloseDialog} maxWidth='sm' fullWidth>
+          <DialogTitle>Éditer le commentaire</DialogTitle>
+          <DialogContent sx={{ pt: 2 }}>
+            <RichTextEditor editorState={editorState} setEditorState={setEditorState} />
+            <Box sx={{ marginTop: 2, display: 'flex', gap: 1 }}>
+              <Button variant='contained' color='primary' onClick={handleSaveComment} disabled={isSavingComment}>
+                {isSavingComment ? 'Sauvegarde...' : 'Sauvegarder'}
+              </Button>
+              <Button variant='outlined' color='error' onClick={handleCloseDialog} disabled={isSavingComment}>
+                Annuler
+              </Button>
+            </Box>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </div>
+  )
+}
+
+{
+  /* Membres — puces fines, sur une seule ligne scrollable */
+}
+{
+  /* {equipe?.members?.length ? (
           <div className='mt-1 pr-1 flex flex-wrap'>
             {equipe.members.map(m => (
               <span
@@ -316,11 +397,15 @@ export function CalendarCard({
               </span>
             ))}
           </div>
-        ) : null} */}
+        ) : null} */
+}
 
-        {/* LIGNE COMPACTE: véhicule • carte carburant • télépéage */}
+{
+  /* LIGNE COMPACTE: véhicule • carte carburant • télépéage */
+}
 
-        {/* {(equipe?.vehicule?.registrationId || equipe?.fuelCard?.matricule || equipe?.highwayCard?.matricule) && (
+{
+  /* {(equipe?.vehicule?.registrationId || equipe?.fuelCard?.matricule || equipe?.highwayCard?.matricule) && (
           <div className='mt-2 text-[12px] flex items-center flex-wrap gap-x-3 gap-y-1'>
             {equipe?.vehicule?.registrationId && (
               <span className='inline-flex items-center gap-1 min-w-0'>
@@ -343,77 +428,5 @@ export function CalendarCard({
               </span>
             )}
           </div>
-        )} */}
-
-        {operation?.comment && (
-          <div
-            className='border-t border-white/10 mt-2 pt-2 cursor-pointer hover:opacity-80'
-            onClick={handleOpenCommentEditor}
-          >
-            <div className='flex items-start gap-2 text-[12px]'>
-              <MessageSquareTextIcon size={14} className='mt-[1px] opacity-90 flex-shrink-0' />
-              <Tooltip
-                title={
-                  <div
-                    style={{
-                      maxWidth: '300px',
-                      whiteSpace: 'normal',
-                      wordWrap: 'break-word',
-                      lineHeight: 1.5
-                    }}
-                    dangerouslySetInnerHTML={{ __html: operation.comment || '' }}
-                  />
-                }
-                arrow
-                placement='top'
-                slotProps={{
-                  popper: {
-                    modifiers: [
-                      {
-                        name: 'offset',
-                        options: {
-                          offset: [0, 10]
-                        }
-                      }
-                    ]
-                  },
-                  tooltip: {
-                    sx: {
-                      backgroundColor: '#333',
-                      color: '#fff',
-                      fontSize: '12px',
-                      padding: '8px 12px',
-                      maxWidth: '350px',
-                      wordWrap: 'break-word',
-                      whiteSpace: 'normal',
-                      lineHeight: 1.4
-                    }
-                  }
-                }}
-              >
-                <div className='flex-1 line-clamp-2 opacity-95'>
-                  <div dangerouslySetInnerHTML={{ __html: operation.comment || '' }} />
-                </div>
-              </Tooltip>
-            </div>
-          </div>
-        )}
-
-        <Dialog open={openCommentDialog} onClose={handleCloseDialog} maxWidth='sm' fullWidth>
-          <DialogTitle>Éditer le commentaire</DialogTitle>
-          <DialogContent sx={{ pt: 2 }}>
-            <RichTextEditor editorState={editorState} setEditorState={setEditorState} />
-            <Box sx={{ marginTop: 2, display: 'flex', gap: 1 }}>
-              <Button variant='contained' color='primary' onClick={handleSaveComment} disabled={isSavingComment}>
-                {isSavingComment ? 'Sauvegarde...' : 'Sauvegarder'}
-              </Button>
-              <Button variant='outlined' color='error' onClick={handleCloseDialog} disabled={isSavingComment}>
-                Annuler
-              </Button>
-            </Box>
-          </DialogContent>
-        </Dialog>
-      </div>
-    </div>
-  )
+        )} */
 }

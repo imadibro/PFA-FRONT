@@ -36,7 +36,7 @@ interface Props {
 
 const schema = yup
   .object({
-    name: yup.string().required('Le nom est requis'),
+    // name: yup.string().required('Le nom est requis'),
     members: yup
       .array()
       .of(
@@ -92,8 +92,8 @@ export default function EquipeForm(props: Props) {
     control,
     handleSubmit,
     setValue,
-    watch,
-    formState: { errors }
+    watch
+    // formState: { errors }
   } = useForm<IEquipeRequest>({
     defaultValues,
     resolver: yupResolver(schema as any)
@@ -103,16 +103,16 @@ export default function EquipeForm(props: Props) {
   const members = watch('members')
 
   const onSubmit: SubmitHandler<IEquipeRequest> = data => {
-    const payload = {
+    const payload: IEquipeRequest = {
       members: data.members,
-      fuelCardId: data.fuelCard || null,
-      highwayCardId: data.highwayCard || null,
-      vehiculeId: data.vehicule || null
+      fuelCard: data.fuelCard || null,
+      highwayCard: data.highwayCard || null,
+      vehicule: data.vehicule || null
     }
     if (isEditMode && equipeToEdit) {
-      handleEdit({ ...payload, id: equipeToEdit.id } as any)
+      handleEdit({ ...payload, id: equipeToEdit.id })
     } else {
-      handleAdd(payload as any)
+      handleAdd(payload)
     }
 
     reset()
