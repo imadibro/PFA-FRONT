@@ -16,7 +16,7 @@ import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 // import ExcelComponent, { prepareCalendarExportData } from '@/@core/components/excel/ExcelComponent'
 import { ExportPlanningButton } from '@/@core/components/excel/ExcelBack'
-import { formatToFrDate } from '@/@core/utils/format'
+import { formatToFrDate, parseLocalYmd } from '@/@core/utils/format'
 import { useToastComponante } from '@/components/common/ToastComponante'
 import { useGetAllAbsencesQuery } from '@/store/features/absence/absenceApi'
 import { useCreatePlaningMutation, useLazyGetPlaningQuery } from '@/store/features/planing/planingApi'
@@ -55,6 +55,11 @@ const toYmdLocal = (d: Date) => {
   const m = String(d.getMonth() + 1).padStart(2, '0')
   const day = String(d.getDate()).padStart(2, '0')
   return `${y}-${m}-${day}`
+}
+
+const toLocalYmdFromApi = (iso: string) => {
+  const d = new Date(iso)
+  return toYmdLocal(d)
 }
 
 const getCurrentWeek = (view: any) => {
@@ -121,23 +126,60 @@ function Page() {
 
   const isLoading = isFetchingOperations || isFetchingPlanning
 
+  //   const absenceEvents = useMemo(() => {
+  //     if (!abssences || !equipes) return []
+
+  //     return abssences.flatMap((abs: any) => {
+  //       const equipe = equipes.find(eq => eq.members?.some(m => m.id === abs.employee.id))
+  //       if (!equipe) return []
+
+  //      const startDay = toLocalYmdFromApi(abs.startDate)
+  // const endDay = toLocalYmdFromApi(abs.endDate)
+
+  //       // end EXCLUSIF → +1 jour MAIS en string
+  //       // const endPlusOne = new Date(`${endDay}T00:00:00`)
+  //       // endPlusOne.setDate(endPlusOne.getDate())
+
+  //       const endPlusOne = parseLocalYmd(endDay)
+  //       endPlusOne.setDate(endPlusOne.getDate() + 1)
+
+  //       return {
+  //         id: `absence-${abs.id}`,
+  //         title: `${abs.employee.firstName} ${abs.employee.lastName} – ${abs.absence !== '' ? abs.absence : abs.autre} - ${abs.notes || ''}`,
+  //         start: `${startDay}T09:00:00`,
+  //         end: `${toYmdLocal(endPlusOne)}T10:00:00`,
+  //         resourceId: equipe.id,
+  //         editable: false,
+  //         display: 'auto',
+  //         classNames: ['fc-absence-event'],
+  //         extendedProps: {
+  //           type: 'absence',
+  //           employee: abs.employee,
+  //           absenceType: abs.absence
+  //         }
+  //       }
+  //     })
+  //   }, [abssences, equipes])
+
   const absenceEvents = useMemo(() => {
     if (!abssences || !equipes) return []
 
     return abssences.flatMap((abs: any) => {
-      const equipe = equipes.find(eq => eq.members?.some(m => m.id === abs.employee.id))
-      if (!equipe) return []
+      const equipesConcernées = equipes.filter(eq => eq.members?.some(m => m.id === abs.employee.id))
 
-      const startDay = abs.startDate.slice(0, 10)
-      const endDay = abs.endDate.slice(0, 10)
+      if (!equipesConcernées.length) return []
 
-      // end EXCLUSIF → +1 jour MAIS en string
-      const endPlusOne = new Date(`${endDay}T00:00:00`)
-      endPlusOne.setDate(endPlusOne.getDate())
+      const startDay = toLocalYmdFromApi(abs.startDate)
+      const endDay = toLocalYmdFromApi(abs.endDate)
 
-      return {
-        id: `absence-${abs.id}`,
-        title: `${abs.employee.firstName} ${abs.employee.lastName} – ${abs.absence !== '' ? abs.absence : abs.autre} - ${abs.notes || ''}`,
+      const endPlusOne = parseLocalYmd(endDay)
+      endPlusOne.setDate(endPlusOne.getDate() + 1)
+
+      return equipesConcernées.map(equipe => ({
+        id: `absence-${abs.id}-${equipe.id}`,
+        title: `${abs.employee.firstName} ${abs.employee.lastName} – ${
+          abs.absence || abs.autre
+        }${abs.notes ? ` - ${abs.notes}` : ''}`,
         start: `${startDay}T09:00:00`,
         end: `${toYmdLocal(endPlusOne)}T10:00:00`,
         resourceId: equipe.id,
@@ -149,7 +191,7 @@ function Page() {
           employee: abs.employee,
           absenceType: abs.absence
         }
-      }
+      }))
     })
   }, [abssences, equipes])
 
@@ -234,7 +276,9 @@ function Page() {
     }
     const gabarit = Math.max(1, Number(operation.gabarit) || 1)
 
-    const endDate = addDays(new Date(dateStr), gabarit - 1)
+    // const endDate = addDays(new Date(dateStr), gabarit - 1)
+    const endDate = addDays(parseLocalYmd(dateStr), gabarit - 1)
+
     const endISO = `${toYmdLocal(endDate)}T10:00:00`
     const id = `${operation.id}-${dateStr}-${Date.now()}`
 
@@ -721,61 +765,6 @@ function Page() {
   )
 }
 
-// function renderEventContentWithDrop(
-//   setEvents: any,
-//   calendarRef: React.RefObject<any>,
-//   equipes: IEquipe[] | undefined,
-//   setOperations: React.Dispatch<React.SetStateAction<IOperation[]>>,
-//   setPlacedOperationIds: React.Dispatch<React.SetStateAction<Set<string>>>,
-//   handleMembersChange: (eventId: string, newMembers: { id: string; name: string; role: string }[]) => void,
-//   planings: IPlanning[] | undefined
-// ) {
-//   return (eventInfo: { event: any }) => {
-//     const ext = eventInfo.event.extendedProps || {}
-//     const rawOperation = ext.operation
-//     const operation: IOperation | null = typeof rawOperation === 'string' ? JSON.parse(rawOperation) : rawOperation
-
-//     if (!operation) {
-//       console.warn('Operation manquante pour l’événement', eventInfo)
-//       return null
-//     }
-
-//     const resourceId: string | undefined = eventInfo.event._def.resourceIds?.[0]
-//     const equipeFromResource = resourceId ? equipes?.find(e => e.id === resourceId) : undefined
-//     const equipe = ext.equipe ?? equipeFromResource
-
-//     const operationForUI = { ...operation, eventId: eventInfo.event.id, equipe }
-
-//     const operationId = eventInfo.event.extendedProps?.operation?.id
-
-//     const planningForOperation = planings?.find(p => p.operation?.id === operationId)
-
-//     const equipeChangedAt = planningForOperation?.equipeChangedAt
-
-//     return (
-//       <CalendarCard
-//         operation={operationForUI}
-//         equipe={equipe}
-//         calendarRef={calendarRef}
-//         onEquipeDrop={(droppedEquipe: IEquipe) => {
-//           setEvents((prev: any[]) =>
-//             prev.map(ev =>
-//               ev.id === eventInfo.event.id
-//                 ? { ...ev, extendedProps: { ...ev.extendedProps, equipe: droppedEquipe } }
-//                 : ev
-//             )
-//           )
-//         }}
-//         setEvents={setEvents}
-//         setOperations={setOperations}
-//         setPlacedOperationIds={setPlacedOperationIds}
-//         handleMembersChange={handleMembersChange}
-//         equipeChangedAt={equipeChangedAt}
-//       />
-//     )
-//   }
-// }
-
 function renderEventContentWithDrop(
   setEvents: any,
   calendarRef: React.RefObject<any>,
@@ -984,3 +973,58 @@ function renderTeam(arg: any) {
 }
 
 export default Page
+
+// function renderEventContentWithDrop(
+//   setEvents: any,
+//   calendarRef: React.RefObject<any>,
+//   equipes: IEquipe[] | undefined,
+//   setOperations: React.Dispatch<React.SetStateAction<IOperation[]>>,
+//   setPlacedOperationIds: React.Dispatch<React.SetStateAction<Set<string>>>,
+//   handleMembersChange: (eventId: string, newMembers: { id: string; name: string; role: string }[]) => void,
+//   planings: IPlanning[] | undefined
+// ) {
+//   return (eventInfo: { event: any }) => {
+//     const ext = eventInfo.event.extendedProps || {}
+//     const rawOperation = ext.operation
+//     const operation: IOperation | null = typeof rawOperation === 'string' ? JSON.parse(rawOperation) : rawOperation
+
+//     if (!operation) {
+//       console.warn('Operation manquante pour l’événement', eventInfo)
+//       return null
+//     }
+
+//     const resourceId: string | undefined = eventInfo.event._def.resourceIds?.[0]
+//     const equipeFromResource = resourceId ? equipes?.find(e => e.id === resourceId) : undefined
+//     const equipe = ext.equipe ?? equipeFromResource
+
+//     const operationForUI = { ...operation, eventId: eventInfo.event.id, equipe }
+
+//     const operationId = eventInfo.event.extendedProps?.operation?.id
+
+//     const planningForOperation = planings?.find(p => p.operation?.id === operationId)
+
+//     const equipeChangedAt = planningForOperation?.equipeChangedAt
+
+//     return (
+//       <CalendarCard
+//         operation={operationForUI}
+//         equipe={equipe}
+//         calendarRef={calendarRef}
+//         onEquipeDrop={(droppedEquipe: IEquipe) => {
+//           setEvents((prev: any[]) =>
+//             prev.map(ev =>
+//               ev.id === eventInfo.event.id
+//                 ? { ...ev, extendedProps: { ...ev.extendedProps, equipe: droppedEquipe } }
+//                 : ev
+//             )
+//           )
+//         }}
+//         setEvents={setEvents}
+//         setOperations={setOperations}
+//         setPlacedOperationIds={setPlacedOperationIds}
+//         handleMembersChange={handleMembersChange}
+//         equipeChangedAt={equipeChangedAt}
+//       />
+//     )
+//   }
+// }

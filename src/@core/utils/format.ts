@@ -54,3 +54,8 @@ export const stringToDate = (date: string) => {
   // Ensure the date is valid
   return isNaN(parsedDate.getTime()) ? null : parsedDate
 }
+
+export const parseLocalYmd = (ymd: string) => {
+  const [y, m, d] = ymd.split('-').map(Number)
+  return new Date(y, m - 1, d)
+}
