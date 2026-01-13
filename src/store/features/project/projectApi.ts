@@ -7,8 +7,12 @@ export const projectApi = api.injectEndpoints({
     getProjects: builder.query<any, FetchBaseQueryError | SerializedError | void>({
       query: () => `project/all`,
       providesTags: [{ type: 'Project', id: 'LIST' }]
+    }),
+    getAllProjectForClients: builder.query<any, { page: number; limit: number; search: string }>({
+      query: ({ page, limit, search }) => `project/clients/projects?page=${page}&limit=${limit}&search=${search}`,
+      providesTags: [{ type: 'Project', id: 'LIST' }]
     })
   })
 })
 
-export const { useGetProjectsQuery } = projectApi
+export const { useGetProjectsQuery, useGetAllProjectForClientsQuery } = projectApi

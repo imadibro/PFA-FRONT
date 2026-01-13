@@ -10,6 +10,7 @@ import {
   useGetOperationsTasksQuery
 } from '@/store/features/operation/operationTasksApi'
 import { useGetTasksQuery } from '@/store/features/task/taskApi'
+import { isRTKQueryError } from '@/utils/functions'
 import type { SystemMode } from '@core/types'
 import { Alert, Drawer } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
@@ -58,7 +59,7 @@ const OperationTasksList = ({} /*mode*/ : { mode: SystemMode }) => {
   const [, /*isEditMode*/ setIsEditMode] = useState<boolean>(false)
 
   const { showAlert } = useSweetAlert()
-  const { confirmDelete, showDeletToast } = useToastComponante()
+  const { confirmDelete, showDeletToast, showUnauthorizedToast } = useToastComponante()
   const [deleteOperation, { isLoading: deleteOperationIsLoading }] = useDeleteOperationTasksMutation()
 
   const { data, error, isLoading } = useGetOperationsTasksQuery()
@@ -121,8 +122,12 @@ const OperationTasksList = ({} /*mode*/ : { mode: SystemMode }) => {
       try {
         await deleteOperation({ operationId: id }).unwrap()
         await showDeletToast('Contraint')
-      } catch (error) {
-        showAlert('Erreur', "Une erreur s'est produite lors de la tentative de suppression de l'opération", 'error')
+      } catch (err) {
+        if (isRTKQueryError(err) && err.status === 403) {
+          await showUnauthorizedToast()
+        } else {
+          showAlert('Erreur', "Une erreur s'est produite lors de la tentative de suppression de l'opération", 'error')
+        }
       }
     }
   }

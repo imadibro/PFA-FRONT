@@ -25,6 +25,17 @@ export const employeeApi = api.injectEndpoints({
         { type: 'Employee', id: `PAGE-${page}` }
       ]
     }),
+    getCurrentEmployee: builder.query<IEmployee, void>({
+      query: () => `employee/currentEmployee`
+    }),
+    logOutEmployee: builder.mutation<void, void>({
+      query: () => ({
+        url: 'employee/auth/logout',
+        method: 'POST',
+        credentials: 'include'
+      })
+    }),
+
     createEmployee: builder.mutation<
       any,
       { username: string; email: string; firstName: string; lastName: string; password: string; role: string }
@@ -96,5 +107,7 @@ export const {
   useUpdateEmployeeMutation,
   useUpdateEmployeePasswordMutation,
   useGetEmployeesByUsernamesQuery,
-  useLazyGetEmployeesByUsernamesQuery
+  useLazyGetEmployeesByUsernamesQuery,
+  useGetCurrentEmployeeQuery,
+  useLogOutEmployeeMutation
 } = employeeApi

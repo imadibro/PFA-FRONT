@@ -52,7 +52,7 @@ export const planningApi = api.injectEndpoints({
         return {
           url: `/planning/export${params.toString() ? `?${params.toString()}` : ''}`,
           method: 'GET',
-          responseHandler: response => response.blob()
+          responseHandler: (response: any) => response.blob()
         }
       }
     }),

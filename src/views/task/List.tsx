@@ -2,16 +2,19 @@ import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import type { SystemMode } from '@/@core/types'
 import exportData from '@/@core/utils/exportData'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
+import { TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@/@core/utils/toast-message'
 import type { ITask } from '@/@core/utils/types'
 import { GetColumns, renderTypographyCell } from '@/components/common/GridColumns'
 import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import { useToastComponante } from '@/components/common/ToastComponante'
 import { useDeleteTaskMutation, useGetTasksQuery } from '@/store/features/task/taskApi'
+import { isRTKQueryError } from '@/utils/functions'
 import { Alert, Drawer } from '@mui/material'
 import { DataGrid } from '@mui/x-data-grid'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import type { ChangeEvent } from 'react'
 import { useState } from 'react'
+import toast from 'react-hot-toast'
 import TaskForm from './TaskForm'
 
 const customColumns = () => [
@@ -40,10 +43,10 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
   const [taskToEdit, setTaskToEdit] = useState<ITask | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
-  const { showAlert, showToast } = useSweetAlert()
-  const { confirmDelete } = useToastComponante()
+  const { showAlert } = useSweetAlert()
+  const { confirmDelete, showDeletToast, showUnauthorizedToast } = useToastComponante()
 
-  const { data, error, isLoading } = useGetTasksQuery()
+  const { data, error, isLoading, refetch } = useGetTasksQuery()
 
   const [deleteTask, { isLoading: deleteTaskIsLoading }] = useDeleteTaskMutation()
 
@@ -99,10 +102,16 @@ const TaskList = ({ mode }: { mode: SystemMode }) => {
 
     if (confirmed) {
       try {
-        await deleteTask({ taskId: id })
-        showToast('Supprimé avec succès!', 'success')
-      } catch (error) {
-        showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression de la tâche", 'error')
+        await deleteTask({ taskId: id }).unwrap()
+        toast.success(toastMessageSuccess(TOAST_COMPONENTS.TASK, TOAST_ACTIONS.DELETE))
+        showDeletToast('Carte')
+        refetch()
+      } catch (err) {
+        if (isRTKQueryError(err) && err.status === 403) {
+          await showUnauthorizedToast()
+        } else {
+          showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression de la tâche", 'error')
+        }
       }
     }
   }

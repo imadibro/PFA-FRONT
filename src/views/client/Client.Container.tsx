@@ -1,20 +1,15 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
-import { Card, CardContent, Grid } from '@mui/material'
-import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@core/utils/constants'
-import type { IClients } from '@core/utils/types'
 import QuickSearchToolbar from '@core/components/quicksearch/QuickSearchToolbar'
+import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@core/utils/constants'
+import { Card, CardContent, Grid } from '@mui/material'
+import React, { useState } from 'react'
 
+import { useGetAllProjectForClientsQuery } from '@/store/features/project/projectApi'
 import type { GridColDef, GridPaginationModel } from '@mui/x-data-grid'
 import { DataGrid } from '@mui/x-data-grid'
-import { clientService } from '@/@core/services/client.service'
 
 export const ClientContainer = () => {
-  const [clients, setClients] = useState<IClients[]>([])
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-  const [totalItems, setTotalItems] = useState<number>(0)
-
   const [paginationModel, setPaginationModel] = React.useState({
     pageSize: DEFAULT_SIZE_PER_PAGE,
     page: DEFAULT_PAGE
@@ -22,14 +17,14 @@ export const ClientContainer = () => {
 
   const [searchValue, setSearchValue] = useState<string>('')
 
-  useEffect(() => {
-    setIsLoading(true)
-    clientService.getClient(paginationModel.page + 1, paginationModel.pageSize, searchValue).then(data => {
-      setClients(data.items)
-      setTotalItems(data.totalItems)
-      setIsLoading(false)
-    })
-  }, [paginationModel, searchValue])
+  const { data, isLoading } = useGetAllProjectForClientsQuery({
+    page: paginationModel.page + 1,
+    limit: paginationModel.pageSize,
+    search: searchValue
+  })
+
+  const clients = data?.projects ?? []
+  const totalItems = data?.total ?? 0
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value)

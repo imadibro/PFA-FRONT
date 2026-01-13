@@ -57,9 +57,12 @@ const toYmdLocal = (d: Date) => {
   return `${y}-${m}-${day}`
 }
 
-const toLocalYmdFromApi = (iso: string) => {
+const utcIsoToLocalYmd = (iso: string) => {
   const d = new Date(iso)
-  return toYmdLocal(d)
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
 }
 
 const getCurrentWeek = (view: any) => {
@@ -86,7 +89,6 @@ function getAbsencesForEquipe(equipe: IEquipe, absences: any[] | undefined): Rec
     if (memberAbsences.length > 0) {
       absencesMap[member.id] = memberAbsences
         .map(abs => {
-          console.log(abs)
           const start = formatToFrDate(abs.startDate?.split('T')[0]) ?? ''
           const end = formatToFrDate(abs.endDate?.split('T')[0]) ?? start
 
@@ -126,64 +128,29 @@ function Page() {
 
   const isLoading = isFetchingOperations || isFetchingPlanning
 
-  //   const absenceEvents = useMemo(() => {
-  //     if (!abssences || !equipes) return []
-
-  //     return abssences.flatMap((abs: any) => {
-  //       const equipe = equipes.find(eq => eq.members?.some(m => m.id === abs.employee.id))
-  //       if (!equipe) return []
-
-  //      const startDay = toLocalYmdFromApi(abs.startDate)
-  // const endDay = toLocalYmdFromApi(abs.endDate)
-
-  //       // end EXCLUSIF → +1 jour MAIS en string
-  //       // const endPlusOne = new Date(`${endDay}T00:00:00`)
-  //       // endPlusOne.setDate(endPlusOne.getDate())
-
-  //       const endPlusOne = parseLocalYmd(endDay)
-  //       endPlusOne.setDate(endPlusOne.getDate() + 1)
-
-  //       return {
-  //         id: `absence-${abs.id}`,
-  //         title: `${abs.employee.firstName} ${abs.employee.lastName} – ${abs.absence !== '' ? abs.absence : abs.autre} - ${abs.notes || ''}`,
-  //         start: `${startDay}T09:00:00`,
-  //         end: `${toYmdLocal(endPlusOne)}T10:00:00`,
-  //         resourceId: equipe.id,
-  //         editable: false,
-  //         display: 'auto',
-  //         classNames: ['fc-absence-event'],
-  //         extendedProps: {
-  //           type: 'absence',
-  //           employee: abs.employee,
-  //           absenceType: abs.absence
-  //         }
-  //       }
-  //     })
-  //   }, [abssences, equipes])
-
   const absenceEvents = useMemo(() => {
     if (!abssences || !equipes) return []
 
     return abssences.flatMap((abs: any) => {
-      const equipesConcernées = equipes.filter(eq => eq.members?.some(m => m.id === abs.employee.id))
+      const equipe = equipes.find(eq => eq.members?.some(m => m.id === abs.employee.id))
+      if (!equipe) return []
 
-      if (!equipesConcernées.length) return []
-
-      const startDay = toLocalYmdFromApi(abs.startDate)
-      const endDay = toLocalYmdFromApi(abs.endDate)
+      // const startDay = toLocalYmdFromApi(abs.startDate)
+      // const endDay = toLocalYmdFromApi(abs.endDate)
+      const startDay = utcIsoToLocalYmd(abs.startDate)
+      const endDay = utcIsoToLocalYmd(abs.endDate)
 
       const endPlusOne = parseLocalYmd(endDay)
       endPlusOne.setDate(endPlusOne.getDate() + 1)
 
-      return equipesConcernées.map(equipe => ({
-        id: `absence-${abs.id}-${equipe.id}`,
-        title: `${abs.employee.firstName} ${abs.employee.lastName} – ${
-          abs.absence || abs.autre
-        }${abs.notes ? ` - ${abs.notes}` : ''}`,
+      return {
+        id: `absence-${abs.id}`,
+        title: `${abs.employee.firstName} ${abs.employee.lastName} – ${abs.absence !== '' ? abs.absence : abs.autre} - ${abs.notes || ''}`,
         start: `${startDay}T09:00:00`,
         end: `${toYmdLocal(endPlusOne)}T10:00:00`,
         resourceId: equipe.id,
         editable: false,
+        allDay: true,
         display: 'auto',
         classNames: ['fc-absence-event'],
         extendedProps: {
@@ -191,9 +158,43 @@ function Page() {
           employee: abs.employee,
           absenceType: abs.absence
         }
-      }))
+      }
     })
   }, [abssences, equipes])
+
+  // const absenceEvents = useMemo(() => {
+  //   if (!abssences || !equipes) return []
+
+  //   return abssences.flatMap((abs: any) => {
+  //     const equipesConcernées = equipes.filter(eq => eq.members?.some(m => m.id === abs.employee.id))
+
+  //     if (!equipesConcernées.length) return []
+
+  //     const startDay = toLocalYmdFromApi(abs.startDate)
+  //     const endDay = toLocalYmdFromApi(abs.endDate)
+
+  //     const endPlusOne = parseLocalYmd(endDay)
+  //     endPlusOne.setDate(endPlusOne.getDate() + 1)
+
+  //     return equipesConcernées.map(equipe => ({
+  //       id: `absence-${abs.id}-${equipe.id}`,
+  //       title: `${abs.employee.firstName} ${abs.employee.lastName} – ${
+  //         abs.absence || abs.autre
+  //       }${abs.notes ? ` - ${abs.notes}` : ''}`,
+  //       start: `${startDay}T09:00:00`,
+  //       end: `${toYmdLocal(endPlusOne)}T10:00:00`,
+  //       resourceId: equipe.id,
+  //       editable: false,
+  //       display: 'auto',
+  //       classNames: ['fc-absence-event'],
+  //       extendedProps: {
+  //         type: 'absence',
+  //         employee: abs.employee,
+  //         absenceType: abs.absence
+  //       }
+  //     }))
+  //   })
+  // }, [abssences, equipes])
 
   useEffect(() => {
     if (operations) {

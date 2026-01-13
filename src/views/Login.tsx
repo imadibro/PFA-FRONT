@@ -4,7 +4,6 @@
 import { useState } from 'react'
 
 // Next Imports
-import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
 // MUI Imports
@@ -29,6 +28,8 @@ import themeConfig from '@configs/themeConfig'
 
 // Hook Imports
 import AuthIllustrationV1Wrapper from '@/@layouts/components/auth/AuthIllustrationV1Wrapper'
+import { invalidateSessionCache } from '@/store/api'
+import { signIn } from 'next-auth/react'
 
 type FormData = {
   username: string
@@ -50,36 +51,36 @@ const LoginV2 = (/*{ mode }: { mode: SystemMode }*/) => {
   } = useForm<FormData>()
 
   const submitForm: SubmitHandler<FormData> = async data => {
-    const { username, password } = data
     try {
-      if (!username || !password) {
-        setError('root', {
-          type: 'manual',
-          message: 'Tous les champs sont obligatoires'
-        })
-        return
+      // 1️⃣ LOGIN BACKEND (browser)
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/employee/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+        credentials: 'include'
+      })
+
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.message || 'Login failed')
       }
 
-      const result = await signIn('credentials', {
-        username: username,
-        password: password,
-        redirect: false,
-        callbackUrl: '/planning'
+      const { accessToken } = await res.json()
+
+      // 2️⃣ STORE accessToken IN NEXTAUTH
+      await signIn('credentials', {
+        accessToken,
+        redirect: false
       })
-      if (result?.error) {
-        setError('root', {
-          type: 'manual',
-          message: result?.error || 'Invalid username or password'
-        })
-        return
-      }
-      if (result?.ok) {
-        router.push('/')
-      }
-    } catch (error) {
+
+      //  INVALIDATE CACHE (force reload next time)
+      invalidateSessionCache()
+
+      router.push('/')
+    } catch (e: any) {
       setError('root', {
         type: 'manual',
-        message: 'Service not available at the moment. Please contact support.'
+        message: e.message
       })
     }
   }

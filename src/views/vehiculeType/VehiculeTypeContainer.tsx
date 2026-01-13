@@ -1,27 +1,24 @@
 'use client'
 
-import { vehiculeTypeService } from '@/@core/services'
 import { useToastComponante } from '@/components/common/ToastComponante'
-import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@core/utils/constants'
 import {
-  CAR_CONSTRAINT_ERROR,
-  GENERAL_ERROR,
-  TOAST_ACTIONS,
-  TOAST_COMPONENTS,
-  toastMessageSuccess
-} from '@core/utils/toast-message'
+  useCreateVehiculeTypeMutation,
+  useDeleteVehiculeTypeMutation,
+  useGetVehiculeTypeQuery,
+  useUpdateVehiculeTypeMutation
+} from '@/store/features/vehicule-type/vehiculeTypeApi'
+import { isRTKQueryError } from '@/utils/functions'
+import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@core/utils/constants'
+import { GENERAL_ERROR, TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@core/utils/toast-message'
 import type { IVehiculeType, IVehiculeTypeRequest } from '@core/utils/types'
 import { Card, CardContent, Grid } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import toast from 'react-hot-toast'
 import VehiculeTypeForm from './VehiculeType.Form'
 import VehiculeTypeView from './VehiculeType.view'
 
 export const VehiculeTypeContainer = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
-  const [vehiculeType, setVehiculeType] = useState<IVehiculeType[]>([])
-  const [totalItems, setTotalItems] = useState<number>(0)
-  const [isLoading, setIsLoading] = useState<boolean>(true)
   const [vehiculeTypeToEdit, setVehiculeTypeToEdit] = useState<IVehiculeType | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
@@ -29,19 +26,22 @@ export const VehiculeTypeContainer = () => {
     pageSize: DEFAULT_SIZE_PER_PAGE,
     page: DEFAULT_PAGE
   })
-
-  const { confirmUpdate, confirmAdd, showDeletToast } = useToastComponante()
+  const { confirmUpdate, confirmAdd, showDeletToast, showUnauthorizedToast } = useToastComponante()
 
   const [searchValue, setSearchValue] = useState<string>('')
 
-  useEffect(() => {
-    setIsLoading(true)
-    vehiculeTypeService.getVehiculeType(paginationModel.page + 1, paginationModel.pageSize, searchValue).then(data => {
-      setVehiculeType(data.items)
-      setTotalItems(data.totalItems)
-      setIsLoading(false)
-    })
-  }, [paginationModel, searchValue])
+  const { data, isLoading, refetch } = useGetVehiculeTypeQuery({
+    page: paginationModel.page + 1,
+    limit: paginationModel.pageSize,
+    search: searchValue
+  })
+  const [createVehiculeType, { isLoading: isCreateLoading }] = useCreateVehiculeTypeMutation()
+  const [updateVehiculeType, { isLoading: isUpdateLoading }] = useUpdateVehiculeTypeMutation()
+  const [deleteVehiculeType, { isLoading: isDeleteLoading }] = useDeleteVehiculeTypeMutation()
+  const isAnyLoading = isLoading || isCreateLoading || isDeleteLoading || isUpdateLoading
+
+  const vehiculeType = data?.data || []
+  const totalItems = data?.total || 0
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchValue(e.target.value)
@@ -71,67 +71,58 @@ export const VehiculeTypeContainer = () => {
   }
 
   const handleAdd = async (newType: IVehiculeTypeRequest) => {
-    if (!newType) return
-
+    if (!newType) {
+      toast.error(GENERAL_ERROR)
+      return
+    }
     try {
-      setIsLoading(true)
-      const type = await vehiculeTypeService.postVehiculeType(newType)
-
-      setVehiculeType(prevType => [type, ...prevType])
+      await createVehiculeType(newType).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL_TYPE, TOAST_ACTIONS.ADD))
 
       toggleForm()
       await confirmAdd('Type de vehicule')
-    } catch (error) {
-      console.error('Error adding type:', error)
-      toast.error('Failed to add type')
-    } finally {
-      setIsLoading(false)
+      refetch()
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        toast.error('Failed to add vehicule type')
+      }
     }
   }
 
-  const handleEdit = (editedType: IVehiculeTypeRequest) => {
-    if (editedType) {
-      setIsLoading(true)
-      vehiculeTypeService.patchVehiculeType(editedType.id!, editedType).then(async result => {
-        const newType = vehiculeType.map(type => {
-          if (result.id === type.id) return result
-
-          return type
-        })
-
-        setVehiculeType(newType)
+  const handleEdit = async (editedType: IVehiculeTypeRequest) => {
+    try {
+      if (editedType) {
+        await updateVehiculeType({ id: editedType.id!, vehicule: editedType }).unwrap()
         toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL_TYPE, TOAST_ACTIONS.EDIT))
-        setIsLoading(false)
+        refetch()
         handleCancelEditMode()
         await confirmUpdate('Type de vehicule')
-      })
+      }
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        toast.error('Failed to update vehicule type')
+      }
     }
   }
 
-  const handleDelete = (id: string) => {
-    if (id) {
-      setIsLoading(true)
-      vehiculeTypeService
-        .deleteVehiculeType(id)
-        .then(async result => {
-          if (result === 1) {
-            const newOwners = vehiculeType.filter(owner => owner.id !== id)
-
-            setVehiculeType(newOwners)
-            toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL_TYPE, TOAST_ACTIONS.DELETE))
-            await showDeletToast('Type de vehicule')
-          } else {
-            toast.error(result === -1 ? CAR_CONSTRAINT_ERROR : GENERAL_ERROR)
-          }
-
-          setIsLoading(false)
-        })
-        .catch(err => {
-          console.log(err)
-          toast.error(CAR_CONSTRAINT_ERROR)
-          setIsLoading(false)
-        })
+  const handleDelete = async (id: string) => {
+    try {
+      if (id) {
+        await deleteVehiculeType({ id }).unwrap()
+        toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL_TYPE, TOAST_ACTIONS.DELETE))
+        refetch()
+        await showDeletToast('Type de vehicule')
+      }
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        toast.error('Failed to delete propriétaire')
+      }
     }
   }
 
@@ -144,7 +135,7 @@ export const VehiculeTypeContainer = () => {
               <VehiculeTypeView
                 totalItems={totalItems}
                 vehiculeType={vehiculeType}
-                isLoading={isLoading}
+                isLoading={isAnyLoading}
                 toggleEditMode={toggleEditMode}
                 handleDelete={handleDelete}
                 toggleForm={toggleForm}

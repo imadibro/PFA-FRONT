@@ -2,6 +2,7 @@
 
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import type { IOperationTask, IOperationTrans, IOperationType, IOperationZone, ITask } from '@/@core/utils/types'
+import { useToastComponante } from '@/components/common/ToastComponante'
 import {
   useCreateOperationTasksMutation,
   useGetOperationsTransQuery,
@@ -9,6 +10,7 @@ import {
   useGetOperationsZonesQuery
 } from '@/store/features/operation/operationTasksApi'
 import { useGetTasksQuery } from '@/store/features/task/taskApi'
+import { isRTKQueryError } from '@/utils/functions'
 import { Button, Grid, IconButton, TextField } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
 import Box from '@mui/material/Box'
@@ -40,6 +42,7 @@ const CreateOperation = ({ close }: { close: () => void }) => {
   // const [durationMode, setDurationMode] = React.useState(false)
 
   const { showAlert, showToast } = useSweetAlert()
+  const { showUnauthorizedToast } = useToastComponante()
 
   const { data: tasks /* error: taskError, isLoading: isLoadingTasks */ } = useGetTasksQuery()
   const {
@@ -96,7 +99,15 @@ const CreateOperation = ({ close }: { close: () => void }) => {
       showToast('Opération créée avec succès!', 'success')
       close()
     } catch (err) {
-      showAlert('Error', "Une erreur s'est produite lors de la tentative de création d'une nouvelle opération", 'error')
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        showAlert(
+          'Error',
+          "Une erreur s'est produite lors de la tentative de création d'une nouvelle opération",
+          'error'
+        )
+      }
     }
   }
 

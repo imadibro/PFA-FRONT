@@ -7,6 +7,7 @@ import {
   useGetVehiculeQuery,
   useUpdateVehiculeMutation
 } from '@/store/features/vehicule/vehiculeApi'
+import { isRTKQueryError } from '@/utils/functions'
 import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@core/utils/constants'
 import { GENERAL_ERROR, TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@core/utils/toast-message'
 import type { IVehicule, IVehiculeRequest } from '@core/utils/types'
@@ -26,11 +27,11 @@ export const VehiculeContainer = () => {
     page: DEFAULT_PAGE
   })
 
-  const { confirmUpdate, confirmAdd, showDeletToast } = useToastComponante()
+  const { confirmUpdate, confirmAdd, showDeletToast, showUnauthorizedToast } = useToastComponante()
 
   const [searchValue, setSearchValue] = useState<string>('')
 
-  const { data, isLoading } = useGetVehiculeQuery({
+  const { data, isLoading, refetch } = useGetVehiculeQuery({
     page: paginationModel.page + 1,
     limit: paginationModel.pageSize,
     search: searchValue
@@ -82,9 +83,12 @@ export const VehiculeContainer = () => {
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL, TOAST_ACTIONS.ADD))
       toggleForm()
       await confirmAdd('Véhicule')
-    } catch (error) {
-      console.error('Error adding vehicule:', error)
-      toast.error('Failed to add vehicule')
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        toast.error('Failed to add vehicule')
+      }
     }
   }
 
@@ -98,9 +102,12 @@ export const VehiculeContainer = () => {
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL, TOAST_ACTIONS.EDIT))
       handleCancelEditMode()
       await confirmUpdate('Véhicule')
-    } catch (error) {
-      console.error('Error updating vehicule:', error)
-      toast.error('Failed to update vehicule')
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        toast.error('Failed to update vehicule')
+      }
     }
   }
 
@@ -110,9 +117,13 @@ export const VehiculeContainer = () => {
       await deleteVehicule({ id }).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.VEHICUL, TOAST_ACTIONS.DELETE))
       await showDeletToast('Véhicule')
-    } catch (error) {
-      console.error(error)
-      toast.error('Failed to delete vehicule')
+      refetch()
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        toast.error('Failed to delete vehicule')
+      }
     }
   }
 

@@ -1,5 +1,6 @@
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import type { IRequirement, ISite } from '@/@core/utils/types'
+import { useToastComponante } from '@/components/common/ToastComponante'
 import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
 import {
   useCreateSiteMutation,
@@ -7,6 +8,7 @@ import {
   useGetSiteTypesQuery,
   useUpdateSiteMutation
 } from '@/store/features/site/siteApi'
+import { isRTKQueryError } from '@/utils/functions'
 import type { SystemMode } from '@core/types'
 import { Alert, Box, Button, TextField } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
@@ -48,6 +50,7 @@ const SiteForm = ({
   const [selectedSiteTypeId, setSelectedSiteTypeId] = useState<string | null>(siteToEdit?.siteTypeId || null)
 
   const { showAlert, showToast } = useSweetAlert()
+  const { showUnauthorizedToast } = useToastComponante()
   const [updateSite, { isLoading: isUpdating, isError: updateError, error: updateErr }] = useUpdateSiteMutation()
   const [createSite, { isLoading: isCreating, isError: createError, error: createErr }] = useCreateSiteMutation()
   const { data: siteOwners } = useGetSiteOwnersQuery()
@@ -99,12 +102,15 @@ const SiteForm = ({
         showToast('Site créé avec succès!', 'success')
       }
     } catch (err) {
-      console.error('Erreur site submit:', err)
-      showAlert(
-        'Erreur',
-        `Une erreur est survenue lors de la ${isUpdatingSite ? 'mise à jour' : 'création'} du site`,
-        'error'
-      )
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        showAlert(
+          'Erreur',
+          `Une erreur est survenue lors de la ${isUpdatingSite ? 'mise à jour' : 'création'} du site`,
+          'error'
+        )
+      }
     } finally {
       onClose()
     }

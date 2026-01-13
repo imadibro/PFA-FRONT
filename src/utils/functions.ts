@@ -24,3 +24,7 @@ export function generateColor(code: number): string {
 
   return `hsl(${hue}, ${sat}%, ${light}%)`
 }
+
+export function isRTKQueryError(err: unknown): err is { status: number } {
+  return typeof err === 'object' && err !== null && 'status' in err
+}

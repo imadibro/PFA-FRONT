@@ -1,14 +1,14 @@
 'use client'
 
-import { vehiculeOwnerService, vehiculeTypeService } from '@/@core/services'
 import SidebarDrawerForm from '@/components/layout/shared/DrawerForm'
+import { useGetAllVehiculeOwnerQuery } from '@/store/features/vehicule-owner/vehiculeOwnerApi'
+import { useGetAllVehiculeTypeQuery } from '@/store/features/vehicule-type/vehiculeTypeApi'
 import { useGetVehiculeModelQuery } from '@/store/features/vehicule/vehiculeApi'
 import CustomTextField from '@core/components/mui/TextField'
-import type { IVehicule, IVehiculeOwner, IVehiculeRequest, IVehiculeType } from '@core/utils/types'
+import type { IVehicule, IVehiculeRequest } from '@core/utils/types'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Button, Grid, TextField } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
-import { useEffect, useState } from 'react'
 import type { SubmitHandler } from 'react-hook-form'
 import { Controller, useForm } from 'react-hook-form'
 import * as yup from 'yup'
@@ -35,24 +35,10 @@ const schema = yup
 export default function VehiculeForm(props: Props) {
   const { isOpen, toggleForm, vehiculeToEdit, isEditMode, handleAdd, cancleEditMode, handleEdit } = props
 
-  const [owners, setOwners] = useState<IVehiculeOwner[]>([])
-  const [types, setTypes] = useState<IVehiculeType[]>([])
-
-  const { data } = useGetVehiculeModelQuery()
-
-  const vehiculeModels = data ?? []
-
-  useEffect(() => {
-    vehiculeOwnerService.getAllOwners().then(data => {
-      setOwners(data)
-    })
-  }, [])
-
-  useEffect(() => {
-    vehiculeTypeService.getAllType().then(data => {
-      setTypes(data)
-    })
-  }, [])
+  const { data: vehiculeModel } = useGetVehiculeModelQuery()
+  const vehiculeModels = vehiculeModel ?? []
+  const { data: vehiculeOwners = [] } = useGetAllVehiculeOwnerQuery()
+  const { data: vehiculeTypes = [] } = useGetAllVehiculeTypeQuery()
 
   const defaultValues: IVehiculeRequest = {
     registrationId: isEditMode && vehiculeToEdit ? vehiculeToEdit.registrationId : '',
@@ -145,9 +131,9 @@ export default function VehiculeForm(props: Props) {
               render={({ field: { value, onChange }, fieldState: { error } }) => (
                 <Autocomplete
                   size='small'
-                  options={owners || []}
+                  options={vehiculeOwners || []}
                   getOptionLabel={option => option.name || ''}
-                  value={owners?.find(owner => owner.id === value) || null}
+                  value={vehiculeOwners?.find(owner => owner.id === value) || null}
                   onChange={(event, newValue) => {
                     onChange(newValue ? newValue.id : null)
                   }}
@@ -172,9 +158,9 @@ export default function VehiculeForm(props: Props) {
               render={({ field: { value, onChange }, fieldState: { error } }) => (
                 <Autocomplete
                   size='small'
-                  options={types || []}
+                  options={vehiculeTypes || []}
                   getOptionLabel={option => option.vehicule_type || ''}
-                  value={types?.find(type => type.id === value) || null}
+                  value={vehiculeTypes?.find(type => type.id === value) || null}
                   onChange={(event, newValue) => {
                     onChange(newValue ? newValue.id : null)
                   }}

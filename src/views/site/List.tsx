@@ -11,6 +11,7 @@ import {
   useLazyGetRequirementsByLabelsQuery
 } from '@/store/features/requirement/requirementApi'
 import { useCreateSiteMutation, useDeleteSiteMutation, useGetSiteQuery } from '@/store/features/site/siteApi'
+import { isRTKQueryError } from '@/utils/functions'
 import { getSitesFromDB, removeSiteFromDB } from '@/utils/idbUtils'
 import type { SystemMode } from '@core/types'
 import { Alert, Drawer } from '@mui/material'
@@ -68,7 +69,7 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
   const workerRef = useRef<Worker>()
 
   const { showAlert, showToast } = useSweetAlert()
-  const { confirmDelete, showDeletToast } = useToastComponante()
+  const { confirmDelete, showDeletToast, showUnauthorizedToast } = useToastComponante()
 
   const [deleteSite, { isLoading: deleteSiteIsLoading /* isError, error: deleteSiteError, isSuccess */ }] =
     useDeleteSiteMutation()
@@ -214,8 +215,12 @@ const SiteList = ({ mode }: { mode: SystemMode }) => {
       try {
         await deleteSite({ siteId: id }).unwrap()
         showDeletToast('Site')
-      } catch (error) {
-        showAlert(`Vous ne pouvez pas supprimer ce site`, `Site lie a une operation`, 'error')
+      } catch (err) {
+        if (isRTKQueryError(err) && err.status === 403) {
+          await showUnauthorizedToast()
+        } else {
+          showAlert(`Vous ne pouvez pas supprimer ce site`, `Site lie a une operation`, 'error')
+        }
       }
     }
   }

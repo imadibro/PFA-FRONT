@@ -8,6 +8,7 @@ import {
   useUpdateEmployeeMutation,
   useUpdateEmployeePasswordMutation
 } from '@/store/features/employee/employeeApi'
+import { isRTKQueryError } from '@/utils/functions'
 import type { SystemMode } from '@core/types'
 import { TabContext, TabPanel } from '@mui/lab'
 import {
@@ -41,7 +42,7 @@ const EmployeeForm = ({
   isOpen: boolean
 }) => {
   const { showAlert, showToast } = useSweetAlert()
-  const { confirmUpdate } = useToastComponante()
+  const { confirmUpdate, showUnauthorizedToast } = useToastComponante()
   const [tabValue, setTabValue] = React.useState('1')
 
   const [showPassword, setShowPassword] = React.useState(false)
@@ -135,11 +136,15 @@ const EmployeeForm = ({
       }
       onClose()
     } catch (err) {
-      showAlert(
-        'Erreur',
-        `Une erreur est survenue lors de la ${isUpdatingEmployee ? 'mise à jour' : 'création'} de l'employé`,
-        'error'
-      )
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        showAlert(
+          'Erreur',
+          `Une erreur est survenue lors de la ${isUpdatingEmployee ? 'mise à jour' : 'création'} de l'employé`,
+          'error'
+        )
+      }
     }
   }
 

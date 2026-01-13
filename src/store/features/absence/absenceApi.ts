@@ -19,7 +19,7 @@ export const absenceApi = api.injectEndpoints({
     }),
     getAllAbsences: builder.query<any, { startDate?: string; endDate?: string }>({
       query: ({ startDate, endDate }) => ({
-        url: 'absence/for-planning',
+        url: 'absence/Absence-for-planning',
         params: {
           startDate,
           endDate

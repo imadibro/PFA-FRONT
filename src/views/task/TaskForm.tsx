@@ -2,6 +2,7 @@ import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import type { ITask } from '@/@core/utils/types'
 import { useToastComponante } from '@/components/common/ToastComponante'
 import { useCreateTaskMutation, useUpdateTaskMutation } from '@/store/features/task/taskApi'
+import { isRTKQueryError } from '@/utils/functions'
 import type { SystemMode } from '@core/types'
 import { Alert, Box, Button, Grid, IconButton, TextField } from '@mui/material'
 import Typography from '@mui/material/Typography'
@@ -19,7 +20,7 @@ const TaskForm = ({
   const [updateTask, { isLoading: isUpdating, isError: updateError, error: updateErr }] = useUpdateTaskMutation()
   const [createTask, { isLoading: isCreating, isError: createError, error: createErr }] = useCreateTaskMutation()
   const { showAlert, showToast } = useSweetAlert()
-  const { confirmUpdate } = useToastComponante()
+  const { confirmUpdate, showUnauthorizedToast } = useToastComponante()
 
   const isUpdatingTask = isEditMode && taskToEdit?.id
   const isLoading = isEditMode ? isUpdating : isCreating
@@ -42,11 +43,15 @@ const TaskForm = ({
       }
       onClose()
     } catch (err) {
-      showAlert(
-        'Erreur',
-        `Une erreur est survenue lors de la ${isUpdatingTask ? 'mise à jour' : 'création'} de la tâche`,
-        'error'
-      )
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        showAlert(
+          'Erreur',
+          `Une erreur est survenue lors de la ${isUpdatingTask ? 'mise à jour' : 'création'} de la tâche`,
+          'error'
+        )
+      }
     }
   }
 

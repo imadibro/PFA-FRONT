@@ -1,7 +1,13 @@
-import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@/@core/utils/constants'
 import exportData from '@/@core/utils/exportData'
 import { formatDateFR, stringToDate } from '@/@core/utils/format'
+// eslint-disable-next-line import/named
+import {
+  EMPLOYEE_CONSTRAINT_ERROR,
+  TOAST_ACTIONS,
+  TOAST_COMPONENTS,
+  toastMessageSuccess
+} from '@/@core/utils/toast-message'
 import type { IEmployee } from '@/@core/utils/types'
 import {
   GetColumns,
@@ -13,6 +19,7 @@ import QuickSearchToolbar from '@/components/common/QuickSearchToolbar'
 import { useToastComponante } from '@/components/common/ToastComponante'
 import { useDeleteEmployeeMutation, useGetEmployeesQuery } from '@/store/features/employee/employeeApi'
 import { useGetRolesQuery } from '@/store/features/role/roleApi'
+import { isRTKQueryError } from '@/utils/functions'
 import type { SystemMode } from '@core/types'
 import { Alert } from '@mui/material'
 import Chip from '@mui/material/Chip'
@@ -21,6 +28,7 @@ import { DataGrid } from '@mui/x-data-grid'
 import { escapeRegExp } from '@mui/x-data-grid/internals'
 import type { ChangeEvent } from 'react'
 import React, { useState } from 'react'
+import toast from 'react-hot-toast'
 import EmployeeForm from './EmployeeForm'
 
 const customColumns = () => [
@@ -98,8 +106,7 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
   const [employeeToEdit, setEmployeeToEdit] = useState<IEmployee | null>(null)
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
 
-  const { showAlert, showToast } = useSweetAlert()
-  const { confirmDelete } = useToastComponante()
+  const { confirmDelete, showDeletToast, showUnauthorizedToast } = useToastComponante()
   const [deleteEmployee, { isLoading: deleteEmployeeIsLoading }] = useDeleteEmployeeMutation()
 
   const handleSearch = (searchValue: string) => {
@@ -121,7 +128,7 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
     }
   }
 
-  const { data, error, isLoading } = useGetEmployeesQuery({
+  const { data, error, isLoading, refetch } = useGetEmployeesQuery({
     page: paginationModel.page + 1,
     limit: paginationModel.pageSize
   })
@@ -163,10 +170,16 @@ const EmployeesList = ({ mode }: { mode: SystemMode }) => {
 
     if (confirmed) {
       try {
-        await deleteEmployee({ employeeId: id })
-        showToast('Supprimé avec succès !', 'success')
-      } catch (error) {
-        showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression de l'employé", 'error')
+        await deleteEmployee({ employeeId: id }).unwrap()
+        toast.success(toastMessageSuccess(TOAST_COMPONENTS.EMPLOYEE, TOAST_ACTIONS.DELETE))
+        showDeletToast('Employé')
+        refetch()
+      } catch (err) {
+        if (isRTKQueryError(err) && err.status === 403) {
+          await showUnauthorizedToast()
+        } else {
+          toast.error(EMPLOYEE_CONSTRAINT_ERROR)
+        }
       }
     }
   }

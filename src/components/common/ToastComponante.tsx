@@ -63,6 +63,10 @@ export const useToastComponante = () => {
     showToast(message, 'error')
   }
 
+  const showUnauthorizedToast = async () => {
+    showToast("Vous n'êtes pas autorisé à effectuer cette action", 'error')
+  }
+
   return {
     confirmDelete,
     confirmUpdate,
@@ -70,6 +74,7 @@ export const useToastComponante = () => {
     showDeletToast,
     confirmSave,
     showErrorToast,
-    confirmDeleteWithCheckbox
+    confirmDeleteWithCheckbox,
+    showUnauthorizedToast
   }
 }

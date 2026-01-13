@@ -1,5 +1,12 @@
 import useSweetAlert from '@/@core/hooks/useSweetAlert'
 import { stringToDate } from '@/@core/utils/format'
+// eslint-disable-next-line import/named
+import {
+  ABSENCE_CONSTRAINT_ERROR,
+  TOAST_ACTIONS,
+  TOAST_COMPONENTS,
+  toastMessageSuccess
+} from '@/@core/utils/toast-message'
 import type { IAbsence } from '@/@core/utils/types'
 import { useToastComponante } from '@/components/common/ToastComponante'
 import {
@@ -8,10 +15,12 @@ import {
   useGetAbsencesQuery
 } from '@/store/features/absence/absenceApi'
 import { useGetAllEmployeesQuery, useLazyGetEmployeesByUsernamesQuery } from '@/store/features/employee/employeeApi'
+import { isRTKQueryError } from '@/utils/functions'
 import { getAbsencesFromDB, removeAbsenceFromDB } from '@/utils/idbUtils'
 import type { SystemMode } from '@core/types'
 import { Alert } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
+import toast from 'react-hot-toast'
 import AbsenceView from './Absence.view'
 import AbsenceForm from './AbsenceForm'
 
@@ -25,8 +34,8 @@ const AbsencesContainer = ({ mode }: { mode: SystemMode }) => {
   const [isEditMode, setIsEditMode] = useState<boolean>(false)
   const [isProcessing, setIDBIsProcessing] = useState(false)
   const workerRef = useRef<Worker>()
-  const { showAlert, showToast } = useSweetAlert()
-  const { confirmDelete } = useToastComponante()
+  const { showToast } = useSweetAlert()
+  const { confirmDelete, showDeletToast, showUnauthorizedToast } = useToastComponante()
 
   const { data, error, isLoading } = useGetAbsencesQuery(
     {
@@ -161,9 +170,14 @@ const AbsencesContainer = ({ mode }: { mode: SystemMode }) => {
     if (confirmed) {
       try {
         await deleteAbsence({ absenceId: id })
-        showToast('Supprimé avec succès!', 'success')
-      } catch (error) {
-        showAlert('Error', "Une erreur s'est produite lors de la tentative de suppression de l'absence", 'error')
+        toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.DELETE))
+        showDeletToast('Absence')
+      } catch (err) {
+        if (isRTKQueryError(err) && err.status === 403) {
+          await showUnauthorizedToast()
+        } else {
+          toast.error(ABSENCE_CONSTRAINT_ERROR)
+        }
       }
     }
   }

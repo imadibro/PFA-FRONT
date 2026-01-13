@@ -20,8 +20,9 @@ import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 // import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
-import { signOut, useSession } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
 // Hook Imports
+import { useGetCurrentEmployeeQuery, useLogOutEmployeeMutation } from '@/store/features/employee/employeeApi'
 import { useSettings } from '@core/hooks/useSettings'
 
 // Styled component for badge content
@@ -44,7 +45,8 @@ const UserDropdown = () => {
 
   // Hooks
   const router = useRouter()
-  const session = useSession()
+  const { data: currentEmployee } = useGetCurrentEmployeeQuery()
+  const [logOutEmployee] = useLogOutEmployeeMutation()
 
   const { settings } = useSettings()
 
@@ -64,13 +66,27 @@ const UserDropdown = () => {
     setOpen(false)
   }
 
+  // const handleUserLogout = async (e: any) => {
+  //   setIsLoading(true)
+  //   e.preventDefault()
+  //   await signOut({ callbackUrl: '/login', redirect: false }).finally(() => {
+  //     setIsLoading(false)
+  //     router.push('/login')
+  //   })
+  // }
+
   const handleUserLogout = async (e: any) => {
-    setIsLoading(true)
-    e.preventDefault()
-    await signOut({ callbackUrl: '/login', redirect: false }).finally(() => {
-      setIsLoading(false)
-      router.push('/login')
-    })
+    try {
+      setIsLoading(true)
+      e.preventDefault()
+      // logout and remove refreshToken from cookies cote back
+      await logOutEmployee().unwrap()
+
+      // remove session from brawser next auth
+      await signOut({ callbackUrl: '/login' })
+    } catch (e) {
+      console.error('Backend logout failed', e)
+    }
   }
 
   return (
@@ -112,9 +128,9 @@ const UserDropdown = () => {
                     <Avatar alt='Admin' src='' />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
-                        {session?.data?.user?.firstName} {session?.data?.user?.lastName}
+                        {currentEmployee?.firstName} {currentEmployee?.lastName}
                       </Typography>
-                      <Typography variant='caption'>{session?.data?.user?.email}</Typography>
+                      <Typography variant='caption'>{currentEmployee?.email}</Typography>
                     </div>
                   </div>
                   <Divider className='mlb-1' />

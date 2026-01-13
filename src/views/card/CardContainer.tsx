@@ -7,9 +7,11 @@ import {
   useGetCardQuery,
   useUpdateCardMutation
 } from '@/store/features/card/cardApi'
+import { isRTKQueryError } from '@/utils/functions'
 import { DEFAULT_PAGE, DEFAULT_SIZE_PER_PAGE } from '@core/utils/constants'
 import {
-  CAR_CONSTRAINT_ERROR,
+  // eslint-disable-next-line import/named
+  CARD_CONSTRAINT_ERROR,
   GENERAL_ERROR,
   TOAST_ACTIONS,
   TOAST_COMPONENTS,
@@ -33,7 +35,7 @@ export const CardCont = ({ type }: { type: string }) => {
     page: DEFAULT_PAGE
   })
 
-  const { confirmUpdate, confirmAdd, showDeletToast } = useToastComponante()
+  const { confirmUpdate, confirmAdd, showDeletToast, showUnauthorizedToast } = useToastComponante()
 
   const [searchValue, setSearchValue] = useState<string>('')
 
@@ -91,9 +93,12 @@ export const CardCont = ({ type }: { type: string }) => {
       toggleForm()
       await confirmAdd('Carte')
       refetch()
-    } catch (error) {
-      console.error('Error adding card:', error)
-      toast.error('Failed to add card')
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        toast.error('Failed to create card')
+      }
     }
   }
 
@@ -104,9 +109,12 @@ export const CardCont = ({ type }: { type: string }) => {
       refetch()
       handleCancelEditMode()
       await confirmUpdate('Carte')
-    } catch (error) {
-      console.error('Error updating card:', error)
-      toast.error('Failed to update card')
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        toast.error('Failed to update card')
+      }
     }
   }
 
@@ -118,9 +126,12 @@ export const CardCont = ({ type }: { type: string }) => {
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.CARD, TOAST_ACTIONS.DELETE))
       showDeletToast('Carte')
       refetch() // Recharge seulement la page courante
-    } catch (error) {
-      console.error(error)
-      toast.error(CAR_CONSTRAINT_ERROR)
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        toast.error(CARD_CONSTRAINT_ERROR)
+      }
     }
   }
 

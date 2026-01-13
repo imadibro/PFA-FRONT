@@ -8,7 +8,14 @@ import {
   useGetEquipeQuery,
   useUpdateEquipeMutation
 } from '@/store/features/equipe/equipeApi'
-import { GENERAL_ERROR, TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@core/utils/toast-message'
+import { isRTKQueryError } from '@/utils/functions'
+import {
+  EQUIPE_CONSTRAINT_ERROR,
+  GENERAL_ERROR,
+  TOAST_ACTIONS,
+  TOAST_COMPONENTS,
+  toastMessageSuccess
+} from '@core/utils/toast-message'
 import type { IEquipe, IEquipeRequest } from '@core/utils/types'
 import { Card, CardContent, Grid } from '@mui/material'
 import React, { useState } from 'react'
@@ -25,11 +32,11 @@ const EquipeContainer = () => {
     page: DEFAULT_PAGE
   })
 
-  const { confirmUpdate, confirmAdd, showDeletToast } = useToastComponante()
+  const { confirmUpdate, confirmAdd, showDeletToast, showUnauthorizedToast } = useToastComponante()
 
   const [searchValue, setSearchValue] = useState<string>('')
 
-  const { data, isLoading } = useGetEquipeQuery({
+  const { data, isLoading, refetch } = useGetEquipeQuery({
     page: paginationModel.page + 1,
     limit: paginationModel.pageSize,
     search: searchValue
@@ -81,9 +88,13 @@ const EquipeContainer = () => {
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.EQUIPE, TOAST_ACTIONS.ADD))
       toggleForm()
       await confirmAdd('Equipe')
-    } catch (error) {
-      console.error('Error adding vehicule:', error)
-      toast.error('Failed to add vehicule')
+      refetch()
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        toast.error('Failed to create equipe')
+      }
     }
   }
 
@@ -97,9 +108,12 @@ const EquipeContainer = () => {
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.EQUIPE, TOAST_ACTIONS.EDIT))
       handleCancelEditMode()
       await confirmUpdate('Equipe')
-    } catch (error) {
-      console.error('Error updating vehicule:', error)
-      toast.error('Failed to update vehicule')
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        toast.error('Failed to update equipe')
+      }
     }
   }
 
@@ -109,9 +123,13 @@ const EquipeContainer = () => {
       await deleteEquipe({ id }).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.EQUIPE, TOAST_ACTIONS.DELETE))
       await showDeletToast('Equipe')
-    } catch (error) {
-      console.error(error)
-      toast.error('Failed to delete vehicule')
+      refetch()
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        toast.error(EQUIPE_CONSTRAINT_ERROR)
+      }
     }
   }
 

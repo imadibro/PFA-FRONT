@@ -9,6 +9,7 @@ import {
   useGetOperationsQuery,
   useUpdateOperationMutation
 } from '@/store/features/operation/operationApi'
+import { isRTKQueryError } from '@/utils/functions'
 import { GENERAL_ERROR, TOAST_ACTIONS, TOAST_COMPONENTS, toastMessageSuccess } from '@core/utils/toast-message'
 import type { IOperation, IOperationRequest } from '@core/utils/types'
 import { Card, CardContent, Grid } from '@mui/material'
@@ -26,11 +27,11 @@ const OperationContainer = () => {
     page: DEFAULT_PAGE
   })
 
-  const { confirmUpdate, confirmAdd, showDeletToast, showErrorToast } = useToastComponante()
+  const { confirmUpdate, confirmAdd, showDeletToast, showErrorToast, showUnauthorizedToast } = useToastComponante()
 
   const [searchValue, setSearchValue] = useState<string>('')
 
-  const { data, isLoading } = useGetOperationsQuery({
+  const { data, isLoading, refetch } = useGetOperationsQuery({
     page: paginationModel.page + 1,
     limit: paginationModel.pageSize,
     search: searchValue
@@ -80,11 +81,15 @@ const OperationContainer = () => {
     try {
       await createOperation(newOperation).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.OPERATION, TOAST_ACTIONS.ADD))
-      confirmAdd('Operation')
       toggleForm()
-    } catch (error) {
-      console.error('Error adding operation:', error)
-      toast.error('Failed to add operation')
+      confirmAdd('Operation')
+      refetch()
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        toast.error('Failed to create operation')
+      }
     }
   }
 
@@ -98,9 +103,12 @@ const OperationContainer = () => {
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.OPERATION, TOAST_ACTIONS.EDIT))
       handleCancelEditMode()
       confirmUpdate('Operation')
-    } catch (error) {
-      console.error('Error updating operation:', error)
-      toast.error('Failed to update operation')
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        toast.error('Failed to update operation')
+      }
     }
   }
 
@@ -110,9 +118,12 @@ const OperationContainer = () => {
       await deleteOperation({ id }).unwrap()
       toast.success(toastMessageSuccess(TOAST_COMPONENTS.OPERATION, TOAST_ACTIONS.DELETE))
       showDeletToast('Operation')
-    } catch (error) {
-      showErrorToast(error)
-      // toast.error('Failed to delete operation')
+    } catch (err) {
+      if (isRTKQueryError(err) && err.status === 403) {
+        await showUnauthorizedToast()
+      } else {
+        showErrorToast(err)
+      }
     }
   }
 
