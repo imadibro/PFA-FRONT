@@ -34,8 +34,6 @@ function storeAbsenceFIle(json: any) {
 
   const absencesWithId = json
     .map((row: any, index: number) => {
-      console.log(row)
-
       if (row['motif'] && row['Date de dÃ©but'] && row['Date de fin'] && row['username']) {
         return {
           ...row,
@@ -44,7 +42,6 @@ function storeAbsenceFIle(json: any) {
       }
     })
     ?.filter(Boolean)
-  console.log(absencesWithId)
 
   // Store the absences in IndexedDB
   addAbsencesToDB(absencesWithId).then(() => {
@@ -57,8 +54,6 @@ function storeSiteFIle(json: any) {
 
   const sitesWithId = json
     .map((row: any, index: number) => {
-      console.log(row)
-
       if (row['LibellÃ©'] && row['NumÃ©ro de site'] && row['Description'] && row["Contraintes d'accÃ¨s"]) {
         return {
           ...row,
@@ -67,7 +62,6 @@ function storeSiteFIle(json: any) {
       }
     })
     ?.filter(Boolean)
-  console.log('sitesWithId', sitesWithId)
 
   // Store the sites in IndexedDB
   addSitesToDB(sitesWithId).then(() => {

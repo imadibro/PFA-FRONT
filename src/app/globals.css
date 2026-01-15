@@ -170,8 +170,8 @@ code {
   border: 0 !important;
 }
 .fc-absence-event {
-  background-color: #1619c5 !important;
-  border: 1px solid #ef4444 !important;
+  background-color: #d12c0f !important;
+  border: 1px solid #d62424 !important;
   color: #991b1b !important;
   font-weight: 600;
 }
@@ -190,4 +190,9 @@ code {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.fc-absence-event::before,
+.fc-absence-event::after {
+  display: none !important;
 }

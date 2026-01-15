@@ -31,11 +31,11 @@ export function ExportPlanningButton({ startDate, endDate }: ExportBtnProps) {
       disabled={isFetching}
       variant='contained'
       sx={{
-        bgcolor: '#32aa68',
+        bgcolor: '#38c477',
         color: '#222',
         fontWeight: 600,
         boxShadow: 'none',
-        '&:hover': { bgcolor: '#34e78e', boxShadow: 'none' },
+        '&:hover': { bgcolor: '#26bb71', boxShadow: 'none' },
         '& i': { mr: 1 }
       }}
       title='Exporter (back)'

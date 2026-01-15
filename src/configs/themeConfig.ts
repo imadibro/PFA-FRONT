@@ -64,7 +64,7 @@ const themeConfig: Config = {
   navbar: {
     type: 'fixed', // 'fixed', 'static'
     contentWidth: 'wide', // 'compact', 'wide'
-    floating: true, //! true, false (This will not work in the Horizontal Layout)
+    floating: false, //! true, false (This will not work in the Horizontal Layout)
     detached: true, //! true, false (This will not work in the Horizontal Layout or floating navbar is enabled)
     blur: true // true, false
   },

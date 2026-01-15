@@ -219,7 +219,6 @@ function Page() {
       const endTime = p.endDate.split('T')[1]?.slice(0, 8) || '10:00:00'
       const apiColor = resolveOperationColor(p.operation)
 
-      console.log(apiColor)
       const apiClientName =
         p.clientName || p.operation?.clientName || p.operation?.project?.clientAgency?.client?.clientName || ''
 
@@ -471,7 +470,6 @@ function Page() {
       isSiteDone: event.isSiteDone || false
     }
     // setEvents(prev => prev.map(ev => (ev.id === mapped.id ? mapped : ev)))
-
     setEvents(prev =>
       prev.map(ev =>
         ev.id === event.id
@@ -502,8 +500,6 @@ function Page() {
       if (updatedEvent?.planningId) {
         const req = mapEventToPlanningRequest(updatedEvent)
         createPlanning({ plannings: [req] }).unwrap()
-      } else {
-        console.log('[planning] no planningId yet: will be saved on global save')
       }
       return next
     })
@@ -920,7 +916,6 @@ function makeCalendarEvent(params: {
 
   // Récupérer la couleur de l'opération
   const color = operation.color || operation?.project?.clientAgency?.client?.color || '#408eceff'
-  console.log('make calander color', color)
 
   return {
     id: `${operation.id}-${start.split('T')[0]}`,
@@ -1003,58 +998,3 @@ function renderTeam(arg: any) {
 }
 
 export default Page
-
-// function renderEventContentWithDrop(
-//   setEvents: any,
-//   calendarRef: React.RefObject<any>,
-//   equipes: IEquipe[] | undefined,
-//   setOperations: React.Dispatch<React.SetStateAction<IOperation[]>>,
-//   setPlacedOperationIds: React.Dispatch<React.SetStateAction<Set<string>>>,
-//   handleMembersChange: (eventId: string, newMembers: { id: string; name: string; role: string }[]) => void,
-//   planings: IPlanning[] | undefined
-// ) {
-//   return (eventInfo: { event: any }) => {
-//     const ext = eventInfo.event.extendedProps || {}
-//     const rawOperation = ext.operation
-//     const operation: IOperation | null = typeof rawOperation === 'string' ? JSON.parse(rawOperation) : rawOperation
-
-//     if (!operation) {
-//       console.warn('Operation manquante pour l’événement', eventInfo)
-//       return null
-//     }
-
-//     const resourceId: string | undefined = eventInfo.event._def.resourceIds?.[0]
-//     const equipeFromResource = resourceId ? equipes?.find(e => e.id === resourceId) : undefined
-//     const equipe = ext.equipe ?? equipeFromResource
-
-//     const operationForUI = { ...operation, eventId: eventInfo.event.id, equipe }
-
-//     const operationId = eventInfo.event.extendedProps?.operation?.id
-
-//     const planningForOperation = planings?.find(p => p.operation?.id === operationId)
-
-//     const equipeChangedAt = planningForOperation?.equipeChangedAt
-
-//     return (
-//       <CalendarCard
-//         operation={operationForUI}
-//         equipe={equipe}
-//         calendarRef={calendarRef}
-//         onEquipeDrop={(droppedEquipe: IEquipe) => {
-//           setEvents((prev: any[]) =>
-//             prev.map(ev =>
-//               ev.id === eventInfo.event.id
-//                 ? { ...ev, extendedProps: { ...ev.extendedProps, equipe: droppedEquipe } }
-//                 : ev
-//             )
-//           )
-//         }}
-//         setEvents={setEvents}
-//         setOperations={setOperations}
-//         setPlacedOperationIds={setPlacedOperationIds}
-//         handleMembersChange={handleMembersChange}
-//         equipeChangedAt={equipeChangedAt}
-//       />
-//     )
-//   }
-// }

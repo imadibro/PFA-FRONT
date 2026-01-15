@@ -1,7 +1,6 @@
 'use client'
 
 // React Imports
-import { Children, cloneElement, forwardRef, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import type {
   AnchorHTMLAttributes,
   ForwardRefRenderFunction,
@@ -10,46 +9,47 @@ import type {
   ReactElement,
   ReactNode
 } from 'react'
+import { Children, cloneElement, forwardRef, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 
 // Next Imports
 import { usePathname } from 'next/navigation'
 
 // Third-party Imports
-import classnames from 'classnames'
+import type { CSSObject } from '@emotion/styled'
 import styled from '@emotion/styled'
 import {
-  useFloating,
   autoUpdate,
-  offset,
   flip,
-  shift,
-  useHover,
-  useRole,
-  useInteractions,
-  useClick,
-  safePolygon,
-  useDismiss,
+  FloatingPortal,
   hide,
+  offset,
+  safePolygon,
+  shift,
+  useClick,
+  useDismiss,
+  useFloating,
   useFloatingTree,
-  FloatingPortal
+  useHover,
+  useInteractions,
+  useRole
 } from '@floating-ui/react'
-import type { CSSObject } from '@emotion/styled'
+import classnames from 'classnames'
 
 // Type Imports
+import type { ChildrenType, RootStylesType, SubMenuItemElement } from '../../types'
 import type { OpenSubmenu } from './Menu'
 import type { MenuItemProps } from './MenuItem'
-import type { ChildrenType, RootStylesType, SubMenuItemElement } from '../../types'
 
 // Component Imports
-import SubMenuContent from './SubMenuContent'
 import MenuButton, { menuButtonStyles } from './MenuButton'
+import SubMenuContent from './SubMenuContent'
 
 // Icon Imports
 import ChevronRight from '../../svg/ChevronRight'
 
 // Hook Imports
-import useVerticalNav from '../../hooks/useVerticalNav'
 import useVerticalMenu from '../../hooks/useVerticalMenu'
+import useVerticalNav from '../../hooks/useVerticalNav'
 
 // Util Imports
 import { menuClasses } from '../../utils/menuClasses'
@@ -313,7 +313,6 @@ const SubMenu: ForwardRefRenderFunction<HTMLLIElement, SubMenuProps> = (props, r
   }, [pathname])
 
   /* useEffect(() => {
-    console.log(openSubmenu)
   }, [openSubmenu]) */
 
   const submenuContent = (

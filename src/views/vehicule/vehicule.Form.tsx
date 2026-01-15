@@ -68,7 +68,6 @@ export default function VehiculeForm(props: Props) {
   })
 
   // const onSubmit: SubmitHandler<IVehiculeRequest> = async data => {
-  //   console.log(data)
   //   if (isEditMode && vehiculeToEdit) {
   //     await handleEdit({ ...data, id: vehiculeToEdit?.id })
   //   } else {

@@ -47,7 +47,6 @@ export default function VehiculeTypeForm(props: Props) {
       handleEdit({ ...data, id: vehiculeTypeToEdit?.id })
     } else {
       handleAdd(data)
-      console.log(data)
     }
 
     reset()
