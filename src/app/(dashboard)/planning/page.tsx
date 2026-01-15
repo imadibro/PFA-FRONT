@@ -105,6 +105,10 @@ function getAbsencesForEquipe(equipe: IEquipe, absences: any[] | undefined): Rec
   return absencesMap
 }
 
+function resolveOperationColor(operation: any): string {
+  return operation?.color || operation?.project?.clientAgency?.client?.color || '#408eceff'
+}
+
 function Page() {
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const externalEventsRef = useRef<HTMLDivElement>(null)
@@ -213,9 +217,9 @@ function Page() {
       const endISO = p.endDate
       const startTime = p.startDate.split('T')[1]?.slice(0, 8) || '09:00:00'
       const endTime = p.endDate.split('T')[1]?.slice(0, 8) || '10:00:00'
-      const apiColor =
-        p.colorCode || p.operation?.color || p.operation?.project?.clientAgency?.client?.color || '#408eceff'
+      const apiColor = resolveOperationColor(p.operation)
 
+      console.log(apiColor)
       const apiClientName =
         p.clientName || p.operation?.clientName || p.operation?.project?.clientAgency?.client?.clientName || ''
 
@@ -412,6 +416,7 @@ function Page() {
       const mappedEvents = savedPlanning.map(planning => {
         // const dateOnly = new Date(planning.startDate).toISOString().split('T')[0]
         const dateOnly = toYmdLocal(new Date(planning.startDate))
+        const color = resolveOperationColor(planning.operation)
         return {
           id: `${planning.operation.id}-${dateOnly}`,
           planningId: planning.id,
@@ -421,9 +426,11 @@ function Page() {
           resourceId: planning.equipe.id,
           date: dateOnly,
           originalId: planning.operation.id,
+          color,
           extendedProps: {
             operation: {
-              ...planning.operation
+              ...planning.operation,
+              color
             },
             equipe: planning.equipe
           }
@@ -444,6 +451,7 @@ function Page() {
     }
     const [savedPlanning] = await createPlanning({ plannings: [planningRequest] }).unwrap()
     const dateOnly = toYmdLocal(new Date(savedPlanning.startDate))
+    const color = resolveOperationColor(savedPlanning.operation)
 
     const mapped: CalendarEvent = {
       id: `${savedPlanning.operation.id}-${dateOnly}`,
@@ -454,14 +462,28 @@ function Page() {
       resourceId: savedPlanning.equipe.id,
       date: dateOnly,
       originalId: savedPlanning.operation.id,
+      color,
       extendedProps: {
-        operation: { ...savedPlanning.operation },
+        operation: { ...savedPlanning.operation, color },
         equipe: savedPlanning.equipe
       },
       siteId: event.siteId,
       isSiteDone: event.isSiteDone || false
     }
-    setEvents(prev => prev.map(ev => (ev.id === mapped.id ? mapped : ev)))
+    // setEvents(prev => prev.map(ev => (ev.id === mapped.id ? mapped : ev)))
+
+    setEvents(prev =>
+      prev.map(ev =>
+        ev.id === event.id
+          ? {
+              ...ev,
+              planningId: savedPlanning.id,
+              siteId: event.siteId,
+              isSiteDone: event.isSiteDone
+            }
+          : ev
+      )
+    )
 
     setHasUnsavedChanges(false)
 
@@ -852,6 +874,8 @@ function mapEventToPlanningRequest(event: CalendarEvent): IPlanningRequest {
     operationId: rawOp.id,
     isSiteDone: event.isSiteDone,
     siteId: event.siteId,
+    color: event.color || rawOp.color,
+    clientName: rawOp.clientName,
     equipe: {
       id: eq?.id ?? '',
       members: eq?.members.map((m: any) => ({ id: m.id, name: m.name, role: m.role })) ?? [],
@@ -894,6 +918,10 @@ function makeCalendarEvent(params: {
   const start = dateISO.includes('T') ? dateISO : `${dateISO}T${startTime}`
   const end = endISO ? (endISO.includes('T') ? endISO : `${endISO}T${endTime}`) : `${dateISO}T${endTime}`
 
+  // Récupérer la couleur de l'opération
+  const color = operation.color || operation?.project?.clientAgency?.client?.color || '#408eceff'
+  console.log('make calander color', color)
+
   return {
     id: `${operation.id}-${start.split('T')[0]}`,
     planningId,
@@ -903,6 +931,7 @@ function makeCalendarEvent(params: {
     end,
     date: start.split('T')[0],
     resourceId,
+    color,
     extendedProps: {
       operation: { ...operation },
       equipe: equipe ?? null

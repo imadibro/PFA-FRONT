@@ -99,6 +99,8 @@ export default function OperationHeader({
       event.siteId = site.id
       const savedEvent = await savePlanningAndUpdateSiteStatus(event)
       effectivePlanningId = savedEvent.planningId
+
+      event.planningId = effectivePlanningId
     } else {
       try {
         await updateSiteStatus({

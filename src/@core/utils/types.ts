@@ -331,7 +331,7 @@ export interface IPlanning extends ICommonProps {
   equipe: IEquipe
   equipeChangedAt?: Date | null
   equipeChanged?: boolean
-  colorCode?: string
+  color?: string
   clientName?: string
 }
 export interface IPlanningRequest {
@@ -342,6 +342,8 @@ export interface IPlanningRequest {
   equipe: IEquipeData
   isSiteDone?: boolean
   siteId?: string
+  color?: string
+  clientName?: string
 }
 
 export interface IEquipeData {
