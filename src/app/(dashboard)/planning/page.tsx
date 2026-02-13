@@ -149,7 +149,7 @@ function Page() {
 
       return {
         id: `absence-${abs.id}`,
-        title: `${abs.employee.firstName} ${abs.employee.lastName} – ${abs.absence !== '' ? abs.absence : abs.autre} - ${abs.notes || ''}`,
+        title: `${abs.employee.firstName} ${abs.employee.lastName} – ${abs.absence !== '' && abs.absence !== 'Autre' ? abs.absence : abs.autre} - ${abs.notes || ''}`,
         start: `${startDay}T09:00:00`,
         end: `${toYmdLocal(endPlusOne)}T10:00:00`,
         resourceId: equipe.id,
