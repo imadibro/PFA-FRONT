@@ -306,35 +306,17 @@ export default function OperationForm(props: Props) {
                     }
                     onBlur?.() // déclenche validation RHF si présent
                   }}
-                  inputProps={{ min: 1, step: 1 }}
+                  inputProps={{
+                    min: 1,
+                    step: 1,
+                    onWheel: (e: React.WheelEvent<HTMLInputElement>) => (e.target as HTMLInputElement).blur()
+                  }}
                   error={Boolean(error)}
                   helperText={error?.message || ''}
                   aria-describedby='gabarit'
                 />
               )}
             />
-            {/* <Controller
-              name='gabarit'
-              control={control}
-              render={({ field: { value, onChange } }) => (
-                <CustomTextField
-                  type='number'
-                  fullWidth
-                  label='Gabarit'
-                  id='gabarit'
-                  value={value ?? ''}
-                  onChange={e => onChange(e.target.value === '' ? null : Number(e.target.value))}
-                  error={Boolean(errors.gabarit)}
-                  aria-describedby='gabarit'
-                  helperText={errors.gabarit?.message || (value && value <= 0 ? 'Gabarit doit être positif' : '')}
-                  sx={{
-                    '& .MuiFormHelperText-root': {
-                      color: errors.gabarit ? 'error.main' : 'text.secondary'
-                    }
-                  }}
-                />
-              )}
-            /> */}
           </Grid>
 
           <Grid item xs={12} sm={12}>

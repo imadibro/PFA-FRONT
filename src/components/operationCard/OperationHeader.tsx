@@ -129,7 +129,9 @@ export default function OperationHeader({
         {/* Gauche : Projet + site */}
         <Box sx={{ minWidth: 0 }}>
           <Typography className='text-white' variant='subtitle1' fontWeight={600} noWrap>
-            {operation.clientAbri || operation?.project?.projectCode}
+            {operation.clientAbri} {operation?.project?.clientAgency?.client?.clientName}-{' '}
+            {operation?.operationTasks?.operationZone?.label}-{operation?.operationTasks?.operationTrans?.label}-{' '}
+            {operation?.operationTasks?.operationType?.label}
           </Typography>
 
           <Stack direction='column' spacing={0.5}>
