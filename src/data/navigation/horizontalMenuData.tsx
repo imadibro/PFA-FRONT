@@ -26,16 +26,6 @@ const horizontalMenuData = (): HorizontalMenuDataType[] => [
     label: 'Transport',
     href: '/transport',
     icon: 'tabler-users'
-  },
-  {
-    label: 'Vehicules',
-    href: '/vehicules',
-    icon: 'tabler-car'
-  },
-  {
-    label: 'Carte',
-    href: '/card',
-    icon: 'tabler-credit-card-filled'
   }
 ]
 
