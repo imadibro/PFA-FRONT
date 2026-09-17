@@ -3,28 +3,28 @@ import type { HorizontalMenuDataType } from '@/types/menuTypes'
 
 const horizontalMenuData = (): HorizontalMenuDataType[] => [
   {
-    label: 'Planning',
-    href: '/planning',
-    icon: 'tabler-calendar-month'
+    label: 'Hotels',
+    href: '/hotels',
+    icon: 'tabler-hotel'
   },
   {
-    label: 'Sites',
-    href: '/site',
+    label: 'Restaurants',
+    href: '/restaurants',
     icon: 'tabler-building'
   },
   {
-    label: 'Opérations',
-    href: '/operation',
+    label: 'Guides',
+    href: '/guides',
     icon: 'tabler-list-check'
   },
   {
-    label: 'Equipe',
-    href: '/equipe',
+    label: 'Agences',
+    href: '/agences',
     icon: 'tabler-users-group'
   },
   {
-    label: 'Employés',
-    href: '/employee',
+    label: 'Transport',
+    href: '/transport',
     icon: 'tabler-users'
   },
   {
