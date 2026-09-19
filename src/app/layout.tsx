@@ -13,8 +13,8 @@ import SessionsProvider from '@/providers/session-provider'
 import '@assets/iconify-icons/generated-icons.css'
 
 export const metadata = {
-  title: 'UPTEL - Planning',
-  description: 'UPTEL - Planning project.',
+  title: 'Globale Horizon',
+  description: 'Globale Horizon - Planning project.',
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',

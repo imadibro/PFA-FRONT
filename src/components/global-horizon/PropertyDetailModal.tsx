@@ -1,25 +1,25 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 
+import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Chip from '@mui/material/Chip'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
-import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
-import Avatar from '@mui/material/Avatar'
-import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
+import IconButton from '@mui/material/IconButton'
 import LinearProgress from '@mui/material/LinearProgress'
+import Paper from '@mui/material/Paper'
 import Rating from '@mui/material/Rating'
 import TextField from '@mui/material/TextField'
 import ToggleButton from '@mui/material/ToggleButton'
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
-import Paper from '@mui/material/Paper'
+import Typography from '@mui/material/Typography'
 
-import { CURRENCY_SYMBOLS } from './types'
 import { useGlobalHorizon } from './GlobalHorizonContext'
+import { CURRENCY_SYMBOLS } from './types'
 
 const PropertyDetailModal = () => {
   const {
@@ -453,7 +453,7 @@ const PropertyDetailModal = () => {
           </Paper>
 
           {/* Guest Reviews */}
-          {p.guestReviews.map(review => (
+          {(p.guestReviews ?? []).map(review => (
             <Paper key={review.id} elevation={0} sx={{ p: 2, borderRadius: 2, border: '1px solid #e0e3e6', mb: 1.5 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1 }}>
                 <Avatar src={review.authorAvatar} sx={{ width: 36, height: 36 }} />

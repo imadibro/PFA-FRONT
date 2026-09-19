@@ -65,7 +65,7 @@ const ensureValidToken = async () => {
 
   refreshPromise = (async () => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/employee/auth/refresh`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/auth/refresh`, {
         method: 'POST',
         credentials: 'include'
       })
@@ -129,7 +129,7 @@ export const baseQueryWithReauth = async (args: any, api: any, extraOptions: any
       result = await baseQuery(args, api, extraOptions)
     } else {
       // 🔁 REFRESH (browser)
-      const refreshRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/employee/auth/refresh`, {
+      const refreshRes = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/auth/refresh`, {
         method: 'POST',
         credentials: 'include'
       })
@@ -165,7 +165,7 @@ export const baseQueryWithReauth = async (args: any, api: any, extraOptions: any
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
-  tagTypes: ['Vehicule-owner', 'Vehicule-type'],
+  tagTypes: ['Client', 'Property', 'Booking', 'Message', 'User'],
   endpoints: () => ({})
 })
 

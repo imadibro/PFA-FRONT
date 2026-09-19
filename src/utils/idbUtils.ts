@@ -1,6 +1,6 @@
 import { openDB } from 'idb'
 
-const DB_NAME = 'UPTELDB'
+const DB_NAME = 'pfa'
 const ABSENCE_STORE_NAME = 'absences'
 const SITE_STORE_NAME = 'sites'
 

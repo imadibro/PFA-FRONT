@@ -1,13 +1,11 @@
 'use client'
 
-import React from 'react'
-
 import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
-import CardMedia from '@mui/material/CardMedia'
 import CardContent from '@mui/material/CardContent'
+import CardMedia from '@mui/material/CardMedia'
 import Chip from '@mui/material/Chip'
+import Typography from '@mui/material/Typography'
 
 import { useGlobalHorizon } from './GlobalHorizonContext'
 import { DESTINATIONS } from './mockData'
@@ -63,7 +61,7 @@ const TrendingDestinations = () => {
               }
             }}
           >
-            <CardMedia component='img' height={130} image={dest.image} alt={dest.name} sx={{ objectFit: 'cover' }} />
+            <CardMedia component='img' height={130} image={dest.imageUrl} alt={dest.name} sx={{ objectFit: 'cover' }} />
             <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
               <Typography variant='subtitle2' sx={{ fontWeight: 700, color: '#191c1e', lineHeight: 1.2 }}>
                 {dest.name}
@@ -80,7 +78,7 @@ const TrendingDestinations = () => {
                   mt: 0.5
                 }}
               >
-                {dest.stayCount}+ stays
+                {dest.propertiesCount}+ stays
               </Typography>
             </CardContent>
           </Card>

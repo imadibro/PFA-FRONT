@@ -51,9 +51,9 @@ export type Config = {
 }
 
 const themeConfig: Config = {
-  templateName: 'UPTEL PLANNING',
+  templateName: 'Globale Horizon',
   templateSlogan: 'Le progrès vous appartient',
-  homePageUrl: '/planning',
+  homePageUrl: '/login',
   settingsCookieName: 'vuexy-mui-next-demo-1',
   mode: 'system', // 'system', 'light', 'dark'
   skin: 'default', // 'default', 'bordered'

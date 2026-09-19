@@ -4,12 +4,12 @@ const nextConfig = {
 
   // disable strict mode to avoid issues with certain libraries
   reactStrictMode: false,
-  
+
   redirects: async () => {
     return [
       {
         source: '/',
-        destination: '/planning',
+        destination: '/login',
         permanent: true,
         locale: false
       }

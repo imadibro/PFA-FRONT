@@ -1,4 +1,13 @@
-export type PropertyType = 'HOTEL' | 'RESTAURANT' | 'GUIDE' | 'AGENCY' | 'TRANSPORT' | 'VEHICLE'
+export type PropertyType =
+  | 'HOTEL'
+  | 'AGENCY'
+  | 'RESORT'
+  | 'VILLA'
+  | 'GUIDE'
+  | 'DINING'
+  | 'RESTAURANT'
+  | 'TRANSPORT'
+  | 'VEHICLE'
 
 export type Currency = 'GBP' | 'USD' | 'EUR'
 
@@ -34,7 +43,8 @@ export interface Property {
   city: string
   country: string
   pricePerNight: number
-  originalPricePerNight: number
+  originalPricePerNight?: number
+  currency?: string
   rating: number
   ratingText: string
   reviewsCount: number
@@ -43,7 +53,21 @@ export interface Property {
   amenities: string[]
   hostName: string
   hostAvatar: string
-  guestReviews: GuestReview[]
+  badge?: string
+  featured?: boolean
+  trending?: boolean
+  coordinates?: { lat: number; lng: number }
+  guestReviews?: GuestReview[]
+}
+
+export interface Destination {
+  id: string
+  name: string
+  country: string
+  imageUrl: string
+  propertiesCount: number
+  stayCount: number
+  description: string
 }
 
 export type BookingStatus = 'CONFIRMED' | 'UPCOMING' | 'COMPLETED' | 'CANCELLED'
@@ -74,6 +98,13 @@ export interface ChatMessage {
   text: string
   timestamp: string
   isUser: boolean
+}
+
+export interface Message {
+  id: string
+  sender: 'user' | 'host'
+  text: string
+  timestamp: string
 }
 
 export interface MessageThread {

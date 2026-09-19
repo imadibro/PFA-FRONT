@@ -1,19 +1,17 @@
 'use client'
 
-import React from 'react'
-
 import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import CardMedia from '@mui/material/CardMedia'
-import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-import IconButton from '@mui/material/IconButton'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import CardMedia from '@mui/material/CardMedia'
 import Chip from '@mui/material/Chip'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
 
+import { useGlobalHorizon } from './GlobalHorizonContext'
 import type { Property } from './types'
 import { CURRENCY_SYMBOLS } from './types'
-import { useGlobalHorizon } from './GlobalHorizonContext'
 
 interface PropertyCardProps {
   property: Property
@@ -25,7 +23,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
 
   const isFavorite = wishlist.includes(property.id)
   const discountedPrice = promoActive ? Math.round(property.pricePerNight * 0.85) : property.pricePerNight
-  const showOriginal = promoActive || property.originalPricePerNight > property.pricePerNight
+  const showOriginal = promoActive || (property.originalPricePerNight ?? 0) > property.pricePerNight
   const sym = CURRENCY_SYMBOLS[currency]
 
   const handleViewDeal = () => {
@@ -146,7 +144,7 @@ const PropertyCard = ({ property }: PropertyCardProps) => {
             {showOriginal && (
               <Typography variant='caption' sx={{ textDecoration: 'line-through', color: '#747782', mr: 0.5 }}>
                 {sym}
-                {convertPrice(property.originalPricePerNight)}
+                {convertPrice(property.originalPricePerNight ?? property.pricePerNight)}
               </Typography>
             )}
             <Typography variant='h6' component='span' sx={{ fontWeight: 800, color: '#002155' }}>

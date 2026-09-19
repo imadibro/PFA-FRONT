@@ -1,8 +1,8 @@
 'use client'
 
 // React Imports
-import { useEffect, useRef } from 'react'
 import type { CSSProperties } from 'react'
+import { useEffect, useRef } from 'react'
 
 // Third-party Imports
 import styled from '@emotion/styled'
@@ -14,8 +14,8 @@ import type { VerticalNavContextProps } from '@menu/contexts/verticalNavContext'
 import themeConfig from '@configs/themeConfig'
 
 // Hook Imports
-import useVerticalNav from '@menu/hooks/useVerticalNav'
 import { useSettings } from '@core/hooks/useSettings'
+import useVerticalNav from '@menu/hooks/useVerticalNav'
 
 type LogoTextProps = {
   isHovered?: VerticalNavContextProps['isHovered']
@@ -68,7 +68,7 @@ const Logo = ({ color }: { color?: CSSProperties['color'] }) => {
 
   return (
     <div className='flex items-center'>
-      <img src='/images/logo.png' alt='uptel' className='w-12 h-12' />
+      <img src='/images/logo.png' alt='Globale Horizon' className='w-12 h-12' />
       <LogoText
         color={color}
         ref={logoTextRef}

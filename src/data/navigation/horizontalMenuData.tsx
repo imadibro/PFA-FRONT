@@ -13,6 +13,16 @@ const horizontalMenuData = (): HorizontalMenuDataType[] => [
     icon: 'tabler-building'
   },
   {
+    label: 'Carte',
+    href: '/card',
+    icon: 'tabler-credit-card-filled'
+  },
+  {
+    label: 'Global Horizon',
+    href: '/global-horizon',
+    icon: 'tabler-world'
+  },
+  {
     label: 'Guides',
     href: '/guides',
     icon: 'tabler-list-check'

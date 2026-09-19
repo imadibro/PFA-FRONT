@@ -27,12 +27,12 @@ import CustomTextField from '@core/components/mui/TextField'
 import themeConfig from '@configs/themeConfig'
 
 // Hook Imports
-import AuthIllustrationV1Wrapper from '@/@layouts/components/auth/AuthIllustrationV1Wrapper'
 import { invalidateSessionCache } from '@/store/api'
+import AuthIllustrationV1Wrapper from '@components/layout/auth/AuthIllustrationV1Wrapper'
 import { signIn } from 'next-auth/react'
 
 type FormData = {
-  username: string
+  usernameOrEmail: string
   password: string
 }
 
@@ -53,7 +53,7 @@ const LoginV2 = (/*{ mode }: { mode: SystemMode }*/) => {
   const submitForm: SubmitHandler<FormData> = async data => {
     try {
       // 1️⃣ LOGIN BACKEND (browser)
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/employee/auth/login`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACK_END_API_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -119,20 +119,20 @@ const LoginV2 = (/*{ mode }: { mode: SystemMode }*/) => {
                 }}
               >
                 <Controller
-                  name='username'
+                  name='usernameOrEmail'
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { value, onChange, onBlur } }) => (
                     <CustomTextField
                       fullWidth
                       autoFocus
-                      label="Nom d'utilisateur"
+                      label="Nom d'utilisateur ou Email"
                       value={value}
                       onBlur={onBlur}
                       onChange={onChange}
-                      placeholder="Nom d'utilisateur"
-                      error={Boolean(errors.username)}
-                      {...(errors.username && { helperText: errors.username.message })}
+                      placeholder="Nom d'utilisateur ou Email"
+                      error={Boolean(errors.usernameOrEmail)}
+                      {...(errors.usernameOrEmail && { helperText: errors.usernameOrEmail.message })}
                     />
                   )}
                 />
@@ -188,6 +188,25 @@ const LoginV2 = (/*{ mode }: { mode: SystemMode }*/) => {
               <Button fullWidth type='submit' variant='contained' sx={{ mb: 4 }} disabled={isSubmitting}>
                 {isSubmitting ? 'Se connecter ...' : 'Se connecter'}
               </Button>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <Typography variant='body2' sx={{ mr: 1 }}>
+                  Vous n&apos;avez pas de compte ?
+                </Typography>
+                <Typography
+                  component='a'
+                  href='/register'
+                  variant='body2'
+                  sx={{ color: 'primary.main', textDecoration: 'none', cursor: 'pointer' }}
+                >
+                  S&apos;inscrire
+                </Typography>
+              </Box>
             </form>
           </CardContent>
         </Card>

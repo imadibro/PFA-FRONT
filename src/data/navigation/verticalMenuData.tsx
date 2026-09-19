@@ -3,44 +3,34 @@ import type { VerticalMenuDataType } from '@/types/menuTypes'
 
 const verticalMenuData = (): VerticalMenuDataType[] => [
   {
-    label: 'Planning',
-    href: '/planning',
-    icon: 'tabler-calendar-month'
+    label: 'Hotels',
+    href: '/hotels',
+    icon: 'tabler-hotel'
   },
   {
-    label: 'Opérations',
-    href: '/operation',
-    icon: 'tabler-checklist'
-  },
-  {
-    label: 'Opération Type',
-    href: '/operationType',
-    icon: 'tabler-list-check'
-  },
-  {
-    label: 'Sites',
-    href: '/site',
+    label: 'Restaurants',
+    href: '/restaurants',
     icon: 'tabler-building'
   },
   {
-    label: 'Equipe',
-    href: '/equipe',
+    label: 'Guides',
+    href: '/guides',
+    icon: 'tabler-list-check'
+  },
+  {
+    label: 'Agences',
+    href: '/agences',
     icon: 'tabler-users-group'
   },
   {
-    label: 'Employés',
-    href: '/employee',
+    label: 'Transport',
+    href: '/transport',
     icon: 'tabler-users'
   },
   {
-    label: 'Vehicules',
-    href: '/vehicules',
-    icon: 'tabler-car'
-  },
-  {
-    label: 'Carte',
-    href: '/card',
-    icon: 'tabler-credit-card-filled'
+    label: 'Global Horizon',
+    href: '/global-horizon',
+    icon: 'tabler-world'
   }
 ]
 

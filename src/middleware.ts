@@ -13,5 +13,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/employee', '/site', '/operation', '/operationType', '/card', '/vehicules', '/planning']
+  matcher: ['/transport', '/hotel', '/booking', '/dashboard', '/profile', '/settings', '/restaurant', '/global-horizon']
 }

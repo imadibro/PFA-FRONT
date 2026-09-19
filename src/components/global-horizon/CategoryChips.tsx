@@ -1,13 +1,11 @@
 'use client'
 
-import React from 'react'
-
+import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
-import Avatar from '@mui/material/Avatar'
 
 import { useGlobalHorizon } from './GlobalHorizonContext'
-import { CATEGORIES } from './mockData'
+import { MOCK_CATEGORIES } from './mockData'
 
 const CategoryChips = () => {
   const { selectedCategory, setSelectedCategory } = useGlobalHorizon()
@@ -24,7 +22,7 @@ const CategoryChips = () => {
         '&::-webkit-scrollbar-thumb': { bgcolor: '#e0e3e6', borderRadius: 2 }
       }}
     >
-      {CATEGORIES.map(cat => {
+      {MOCK_CATEGORIES.map(cat => {
         const isActive = selectedCategory === cat.value
 
         return (

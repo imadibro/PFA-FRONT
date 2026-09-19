@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react'
 
-import { DEFAULT_USER_PROFILE, MOCK_PROPERTIES, MOCK_THREADS } from './mockData'
+import { DEFAULT_USER_PROFILE, INITIAL_MESSAGES, MOCK_PROPERTIES } from './mockData'
 import type {
   ActiveTab,
   Booking,
@@ -274,7 +274,7 @@ export const GlobalHorizonProvider = ({ children }: { children: ReactNode }) => 
   }, [])
 
   // Messages
-  const [threads, setThreads] = useState<MessageThread[]>(MOCK_THREADS)
+  const [threads, setThreads] = useState<MessageThread[]>(INITIAL_MESSAGES)
   const [activeThreadId, setActiveThreadId] = useState<string | null>(null)
 
   const totalUnread = threads.reduce((acc, t) => acc + t.unreadCount, 0)
@@ -363,7 +363,7 @@ export const GlobalHorizonProvider = ({ children }: { children: ReactNode }) => 
           helpfulCount: 0
         }
 
-        return { ...p, guestReviews: [newReview, ...p.guestReviews] }
+        return { ...p, guestReviews: [newReview, ...(p.guestReviews ?? [])] }
       })
     )
   }, [])
